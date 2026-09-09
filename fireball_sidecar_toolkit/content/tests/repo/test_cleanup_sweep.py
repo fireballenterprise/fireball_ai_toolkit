@@ -72,3 +72,57 @@ def test_sweep_removes_trash_keeps_tracked_topics_and_new_work(repo, monkeypatch
     assert not (repo / ".pytest_cache").exists()
     assert not (repo / "ai.egg-info").exists()
     assert not (repo / "modules" / "live" / "__pycache__").exists()
+
+
+@pytest.fixture
+def gitkeep_repo(repo):
+    """`repo` plus a spread of tracked .gitkeep placeholders:
+    - modules/live/.gitkeep  → dir already has mod.py                (redundant)
+    - assets/.gitkeep        → dir also has logo.svg                 (redundant)
+    - data/.gitkeep          → content lives only in data/sub/x.txt  (redundant — subdir counts)
+    - modules/hollow/.gitkeep → the only tracked file in its dir     (still needed)
+    """
+    (repo / "modules" / "live" / ".gitkeep").write_text("")
+    (repo / "assets").mkdir()
+    (repo / "assets" / ".gitkeep").write_text("")
+    (repo / "assets" / "logo.svg").write_text("<svg/>\n")
+    (repo / "data" / "sub").mkdir(parents=True)
+    (repo / "data" / ".gitkeep").write_text("")
+    (repo / "data" / "sub" / "x.txt").write_text("x\n")
+    (repo / "modules" / "hollow").mkdir()
+    (repo / "modules" / "hollow" / ".gitkeep").write_text("")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "gitkeeps")
+    return repo
+
+
+def test_find_redundant_gitkeeps_only_flags_populated_dirs(gitkeep_repo):
+    found = {p.relative_to(gitkeep_repo).as_posix() for p in cleanup._find_redundant_gitkeeps(gitkeep_repo)}
+    assert found == {"modules/live/.gitkeep", "assets/.gitkeep", "data/.gitkeep"}
+
+
+def test_untracked_gitkeep_is_ignored(gitkeep_repo):
+    (gitkeep_repo / "scratch").mkdir()
+    (gitkeep_repo / "scratch" / ".gitkeep").write_text("")  # never added
+    (gitkeep_repo / "scratch" / "note.txt").write_text("hi\n")
+    found = {p.relative_to(gitkeep_repo).as_posix() for p in cleanup._find_redundant_gitkeeps(gitkeep_repo)}
+    assert "scratch/.gitkeep" not in found
+
+
+def test_remove_redundant_gitkeeps_stages_the_deletion(gitkeep_repo, monkeypatch):
+    monkeypatch.setenv("AUTO_CONFIRM", "1")
+    cleanup._remove_redundant_gitkeeps(gitkeep_repo)
+
+    assert not (gitkeep_repo / "modules" / "live" / ".gitkeep").exists()
+    assert not (gitkeep_repo / "assets" / ".gitkeep").exists()
+    assert (gitkeep_repo / "modules" / "hollow" / ".gitkeep").exists()  # still needed
+
+    staged = subprocess.run(
+        ["git", "diff", "--cached", "--name-status"],
+        cwd=gitkeep_repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert "D\tassets/.gitkeep" in staged
+    assert "D\tmodules/live/.gitkeep" in staged

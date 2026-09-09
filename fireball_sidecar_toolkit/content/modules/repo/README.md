@@ -9,7 +9,7 @@ lives in these modules, reached via `/repo`, the dedicated aliases, or `inv repo
 | `/repo list` | `family.py` | show the `repos:` / `lineage:` family map + which clones exist locally |
 | `/repo push` (`/push`) `[all]` | `push.py` / `family.py` | pull → detect changes → commit with timestamp → push → rsync content to iCloud. `all` runs the full `/push` (fix + test + commit + push) in every family repo. |
 | `/repo pull` (`/pull`) `[all]` | `pull.py` / `family.py` | stash → `pull --rebase` → restore stash; also pulls iCloud. `all` switches each family repo to its verified default branch and `pull --ff-only`s. |
-| `/repo cleanup` (`/cleanup`) `[all]` | `cleanup.py` / `family.py` | after merge: switch to the default branch, pull, delete the merged local branch; then sweep local build/cache trash + orphaned dirs. `all` = same, per family repo. |
+| `/repo cleanup` (`/cleanup`) `[all]` | `cleanup.py` / `family.py` | after merge: switch to the default branch, pull, delete the merged local branch; sweep local build/cache trash + orphaned dirs; `git rm` redundant `.gitkeep` placeholders (staged, not committed). `all` = same, per family repo. |
 | `/repo apply <desc>` | — | agent-driven two-phase Cross-Repo Change Workflow (see `repos.md` instructions) |
 | `/rebase` | `rebase.py` | rebase the current branch onto the remote default branch (optional squash first) |
 | `/squash` | `squash.py` | anchored squash of all commits to the root commit, optional force push |

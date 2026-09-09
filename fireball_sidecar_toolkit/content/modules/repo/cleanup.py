@@ -1,19 +1,24 @@
-"""``/repo cleanup`` (`/cleanup`) — two phases, in order:
+"""``/repo cleanup`` (`/cleanup`) — three phases, in order:
 
 1. **Branch cleanup** — if the current branch has a merged GitHub PR, switch to the default
    branch, pull, delete the branch. Anything that would block that (protected branch, dirty tree,
-   no merged PR) is a warning + skip, not a hard error — phase 2 still runs.
+   no merged PR) is a warning + skip, not a hard error — later phases still run.
 2. **Trash sweep** — remove regenerable caches (``__pycache__/``, ``.pytest_cache/``, …) and
    *orphaned* directories under ``modules/`` / ``tasks/`` / ``tests/`` — dirs git tracks no file
    in, the residue a module move (``modules/x`` → ``modules/toolkit/x``) leaves behind. Content
    roots like ``topics/`` and the scratch ``tmp/`` are never touched.
+3. **Redundant ``.gitkeep``** — ``git rm`` tracked ``.gitkeep`` placeholders in directories that
+   now hold other tracked content (anywhere below them); git already materialises the directory on
+   checkout, so the placeholder is dead weight. The deletion is *staged*, not committed — cleanup
+   reports it and leaves the commit to you. Placeholders holding a genuinely-empty directory open
+   are left alone.
 
 The sweep runs *after* the branch switch + pull on purpose: that's exactly when the leftovers
 surface (a file tracked on the old branch/layout becomes untracked once the default branch is in).
 
-Set ``AUTO_CONFIRM=1`` (what ``/repo cleanup all`` does) to skip the sweep prompt. The module
-takes no CLI flags — it calls :mod:`pull`'s command entrypoint internally, which can't tolerate
-stray argv.
+Set ``AUTO_CONFIRM=1`` (what ``/repo cleanup all`` does) to skip the sweep / ``.gitkeep`` prompts.
+The module takes no CLI flags — it calls :mod:`pull`'s command entrypoint internally, which can't
+tolerate stray argv.
 """
 
 from __future__ import annotations
@@ -36,6 +41,7 @@ _CACHE_FILES = frozenset({".DS_Store", ".coverage"})
 # Never descend into these — content roots and scratch stay off-limits, and .venv/.git are huge.
 _SKIP_DIRS = frozenset({".git", ".venv", "venv", "node_modules", "topics", "tmp"})
 _ORPHAN_ROOTS = ("modules", "tasks", "tests")
+_GITKEEP = ".gitkeep"
 
 
 def _git(args: list[str], repo_path: Path) -> subprocess.CompletedProcess[str]:
@@ -202,12 +208,57 @@ def _sweep_trash(repo_path: Path) -> None:
     success(f"Removed {len(targets)} paths — reclaimed ~{_human(reclaimed)}")
 
 
+# --- phase 3: redundant .gitkeep -----------------------------------------------------------
+
+
+def _find_redundant_gitkeeps(repo_path: Path) -> list[Path]:
+    """Tracked ``.gitkeep`` files whose directory already holds *other* tracked content — anywhere
+    below it. Git only needs one tracked file under a path to recreate the directory on checkout,
+    so once real content lands the placeholder does nothing. A ``.gitkeep`` that is the only
+    tracked file in its directory is still doing its job and is left alone.
+    """
+    tracked = [line for line in _git(["ls-files", "-z"], repo_path).stdout.split("\0") if line]
+    tracked_set = set(tracked)
+    redundant: list[Path] = []
+    for path in tracked:
+        if path.rsplit("/", 1)[-1] != _GITKEEP:
+            continue
+        prefix = path[: -len(_GITKEEP)]  # "dir/sub/", or "" for a repo-root .gitkeep
+        if any(other != path and other.startswith(prefix) for other in tracked_set):
+            redundant.append(repo_path / path)
+    return redundant
+
+
+def _remove_redundant_gitkeeps(repo_path: Path) -> None:
+    keeps = _find_redundant_gitkeeps(repo_path)
+    click.echo()
+    if not keeps:
+        success("No redundant .gitkeep files")
+        return
+
+    click.echo(f"📌 Redundant .gitkeep — {len(keeps)} placeholder(s) in directories that now hold tracked content:")
+    for path in keeps:
+        click.echo(f"   {path.relative_to(repo_path).as_posix()}")
+
+    if not click.confirm("git rm these?", default=True):
+        click.echo(".gitkeep cleanup skipped.")
+        return
+
+    rels = [path.relative_to(repo_path).as_posix() for path in keeps]
+    result = _git(["rm", "--quiet", *rels], repo_path)
+    if result.returncode != 0:
+        warning(f"git rm failed — left in place: {result.stderr.strip()}")
+        return
+    success(f"Staged removal of {len(keeps)} .gitkeep file(s) — commit to finalize")
+
+
 @click.command()
 def main() -> None:
-    """Clean up a merged feature branch, then sweep local build/cache trash."""
+    """Clean up a merged feature branch, sweep local trash, drop redundant .gitkeep files."""
     repo_path = get_repo_local()
     _branch_cleanup(repo_path)
     _sweep_trash(repo_path)
+    _remove_redundant_gitkeeps(repo_path)
     click.echo()
     click.echo("🎉 Cleanup complete!")
 

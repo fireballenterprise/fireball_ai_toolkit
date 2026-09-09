@@ -26,7 +26,8 @@ matching subcommand (and take the same scope tokens).
   (`all` replaced "pull all repos"). The natural-language triggers below still fire.
 - **`/pr-cleanup`** → **`/cleanup`** (`/repo cleanup`). Same merged-branch cleanup, now followed by
   a local-trash sweep (regenerable caches + orphaned `modules/`/`tasks/`/`tests/` dirs; never
-  `topics/`, `tmp/`, or untracked new work).
+  `topics/`, `tmp/`, or untracked new work) and a `git rm` of redundant `.gitkeep` placeholders
+  (directories that now hold other tracked content; staged, not committed).
 - **`managed_repos.yml`** (fireball_orchestrator) + its **`ai_repos:`** / **`dev_prd_repos:`**
   sibling lists — retired. That per-repo metadata is now the `repos:` schema below (`ai`,
   `default_branch` ⇒ dev_prd, `status`, `purpose`, `visibility`, …).
@@ -111,9 +112,9 @@ root-to-leaf `parent` order:
   tests fail is reported failed and the run continues; **surface every failure**. Not the
   Cross-Repo Change Workflow (no branches/PRs) — for when each repo already has committed work on a
   tracked branch to push.
-- `/repo cleanup <scope>` — per repo: clean up a merged feature branch, then sweep local
-  build/cache trash + orphaned `modules/`/`tasks/`/`tests/` dirs. Never touches `topics/`, `tmp/`,
-  or untracked new work.
+- `/repo cleanup <scope>` — per repo: clean up a merged feature branch, sweep local build/cache
+  trash + orphaned `modules/`/`tasks/`/`tests/` dirs, then `git rm` redundant `.gitkeep`
+  placeholders (staged, not committed). Never touches `topics/`, `tmp/`, or untracked new work.
 - `/repo apply <description>` — the Cross-Repo Change Workflow below.
 
 ## Cross-Repo Change Workflow (`/repo apply`)
