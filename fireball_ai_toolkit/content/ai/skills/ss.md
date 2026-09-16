@@ -8,7 +8,7 @@ hints:
   - see my screenshot
   - look at the screenshot
 instructions:
-  - .ai/toolkit/instructions/screenshots.md
+  - .fireball_ai_toolkit/toolkit/instructions/screenshots.md
 commands:
-  - .ai/toolkit/commands/ss.md
+  - .fireball_ai_toolkit/toolkit/commands/ss.md
 ---

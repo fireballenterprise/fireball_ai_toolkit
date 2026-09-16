@@ -20,14 +20,14 @@ Full project plan and history: `ai_vault` repo →
 ```
 fireball_ai_toolkit/        <- THE distributable package (the only thing in the wheel)
   content/                       <- everything shipped, as package data. apply clobber-copies:
-    ai/{commands,instructions,skills}/*.md   -> .ai/toolkit/  (then rendered into every provider dir)
+    ai/{commands,instructions,skills}/*.md   -> .fireball_ai_toolkit/toolkit/  (then rendered into every provider dir)
     modules/                                 -> modules/toolkit/   (shared Python, modules.toolkit.*)
     tasks/                                   -> tasks/toolkit/
     tests/                                   -> tests/toolkit/
     scripts/{setup.sh,setup.ps1}             -> repo root
   __init__.py       exposes __version__ (from importlib.metadata)
   cli.py            `ai-toolkit` console entrypoint
-  catalog.py        parse content/ai/ (+ a repo's .ai/<repo>/) -> ContentBundle; CLOBBER_TREES/FILES map
+  catalog.py        parse content/ai/ (+ a repo's .fireball_ai_toolkit/<repo>/) -> ContentBundle; CLOBBER_TREES/FILES map
   render.py         run every renderer over the bundle
   renderers/        one per target: agents, claude, cline, copilot, prompts, sidecar
   apply.py         clobber every content/ tree into the repo, then render
@@ -108,26 +108,26 @@ no submodule. Non-Python / day-job repo:
 
 ## Consuming-repo contract
 ```
-.ai/toolkit/     clobbered copy of content/ai/ — NEVER hand-edited
+.fireball_ai_toolkit/toolkit/     clobbered copy of content/ai/ — NEVER hand-edited
 modules/toolkit/ clobbered copy of content/modules/ — shared Python, imported as modules.toolkit.*
 tasks/toolkit/   clobbered copy of content/tasks/
 tests/toolkit/   clobbered copy of content/tests/
 setup.sh setup.ps1   clobbered from content/scripts/ — repo extras go in setup.local.sh (not clobbered)
-.ai/<repo>/      this repo's own instructions/ commands/ skills/ (e.g. .ai/ai_vault/) — never synced
+.fireball_ai_toolkit/<repo>/      this repo's own instructions/ commands/ skills/ (e.g. .fireball_ai_toolkit/ai_vault/) — never synced
 modules/ tasks/ tests/ (root)   this repo's own code — never touched
 <generated> .claude/ .github/{prompts,instructions,skills,copilot-instructions.md} .clinerules/
             .sidecar/ AGENTS.md CLAUDE.md — NEVER hand-edited; each file is a pointer stub back
-            to .ai/toolkit/ or .ai/<repo>/ (provider frontmatter + one "Source of truth:" line)
+            to .fireball_ai_toolkit/toolkit/ or .fireball_ai_toolkit/<repo>/ (provider frontmatter + one "Source of truth:" line)
 ```
 - `ai_toolkit.apply` — clobber every managed path from the package, render every provider
-  stub (with `.ai/<repo>/` layered on top).
+  stub (with `.fireball_ai_toolkit/<repo>/` layered on top).
 - **Partial vendoring** — `.ai-toolkit.yml` at the repo root, `vendor: [ai, scripts]`, limits
   which shipped trees a repo takes (`ai`, `modules`, `tasks`, `tests`, `scripts`; absent file =
-  all of them). For a repo whose shared Python has diverged too far to clobber: take `.ai/` +
+  all of them). For a repo whose shared Python has diverged too far to clobber: take `.fireball_ai_toolkit/` +
   `setup.sh` now, reconcile the rest into `content/` over time, then widen the list. `apply` /
   `check` / `sync` / `contribute` all honour it; without `ai` in the list the render step is skipped.
 - `ai_toolkit.contribute` — diff every managed path vs `content/`, open a PR against this repo
-  (refuses edits outside the managed set, and `.ai/<repo>/` / generated output).
+  (refuses edits outside the managed set, and `.fireball_ai_toolkit/<repo>/` / generated output).
 - `ai_toolkit.sync` — check the managed paths for uncommitted edits -> surface them and ask
   whether to contribute first -> then apply -> render. What `/toolkit_sync` and the skill call.
 - `ai_toolkit.check` — read-only drift gate for `invoke fix` / `invoke test` and CI.
@@ -139,8 +139,8 @@ modules/ tasks/ tests/ (root)   this repo's own code — never touched
 ## Open design questions
 1. **Shared vs local content split.** The initial port copied *all* of ai_vault's
    `.github/instructions/` and `.github/prompts/`. See the plan's Shared-vs-Local table for the
-   agreed division. ai_vault-specific files move to `.ai/<repo>/` before the first real `apply`.
-2. **`.ai/<repo>/` merge semantics** — additive-only, or per-file override of an `.ai/toolkit/` file?
+   agreed division. ai_vault-specific files move to `.fireball_ai_toolkit/<repo>/` before the first real `apply`.
+2. **`.fireball_ai_toolkit/<repo>/` merge semantics** — additive-only, or per-file override of an `.fireball_ai_toolkit/toolkit/` file?
 3. **Circular dependency** — this repo is scaffolded from `template_python`; once `template_python`
    also consumes the toolkit, keep the toolkit free of its own dependency (it *is* the source) and
    render its own provider views from its own `content/`.

@@ -4,7 +4,7 @@ description: Use for initial project setup — creates the uv virtual environmen
 hints:
   - setup
 instructions:
-  - .ai/toolkit/instructions/setup.md
+  - .fireball_ai_toolkit/toolkit/instructions/setup.md
 commands:
-  - .ai/toolkit/commands/setup.md
+  - .fireball_ai_toolkit/toolkit/commands/setup.md
 ---

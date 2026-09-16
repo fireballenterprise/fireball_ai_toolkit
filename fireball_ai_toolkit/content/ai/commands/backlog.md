@@ -8,7 +8,7 @@ agent: agent
 !`uv run --no-sync python -m modules.toolkit.backlog.route "$ARGUMENTS"`
 
 The two-axis type/label model, the issue body format, and the write guardrails (secret scrubbing,
-batch confirmation, per-repo ship rules) live in `.ai/toolkit/instructions/backlog.md` — read it
+batch confirmation, per-repo ship rules) live in `.fireball_ai_toolkit/toolkit/instructions/backlog.md` — read it
 before any `add` / `comment`. `--repo` is a fuzzy token (name, unique substring, or a word from
 the repo's `purpose`); an ambiguous token makes the CLI print candidates — ask the user which,
 don't guess. `list` defaults to the current repo (or `--all` for every family repo grouped by
@@ -28,4 +28,4 @@ repo); every other verb needs `--repo`. A **bare `/backlog`** with no subcommand
 | "add a note to issue N", "comment on N" | `backlog.comment --repo <t> --number N --body "..."` |
 
 For the issue body format and the guardrails every `add` / `comment` must follow, see
-`.ai/toolkit/instructions/backlog.md`.
+`.fireball_ai_toolkit/toolkit/instructions/backlog.md`.

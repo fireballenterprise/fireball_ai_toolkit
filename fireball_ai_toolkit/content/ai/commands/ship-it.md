@@ -20,7 +20,7 @@ First check how this repo ships:
 If it fails, show the full output, explain which stage failed, and ask how to proceed — do not
 continue to the PR steps below.
 
-Then follow the full `/pr` flow (see `.ai/toolkit/commands/pr.md`): gather the branch/diff context
+Then follow the full `/pr` flow (see `.fireball_ai_toolkit/toolkit/commands/pr.md`): gather the branch/diff context
 via `uv run --no-sync python -m modules.toolkit.repo.route "pr_diff"`, write a `## Summary` and
 `## Changes` description, find-or-file the tracking issue, then create the PR with
 `uv run --no-sync python -m modules.toolkit.repo.route "pr_create --title=\"<title>\" --content=\"<notes>\" --issue=<N>"`

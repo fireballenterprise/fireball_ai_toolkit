@@ -15,10 +15,10 @@ hints:
   - push all repos
   - the repo family
 instructions:
-  - .ai/toolkit/instructions/repos.md
+  - .fireball_ai_toolkit/toolkit/instructions/repos.md
 commands:
-  - .ai/toolkit/commands/repo.md
-  - .ai/toolkit/commands/pull.md
-  - .ai/toolkit/commands/push.md
-  - .ai/toolkit/commands/cleanup.md
+  - .fireball_ai_toolkit/toolkit/commands/repo.md
+  - .fireball_ai_toolkit/toolkit/commands/pull.md
+  - .fireball_ai_toolkit/toolkit/commands/push.md
+  - .fireball_ai_toolkit/toolkit/commands/cleanup.md
 ---

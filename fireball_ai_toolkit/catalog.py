@@ -3,9 +3,9 @@
 Two content roots feed every renderer:
 
 * ``shared`` — the packaged canonical tree (``content/`` in this repo, shipped as package data;
-  mirrored into a consuming repo as ``.ai/toolkit/``)
-* ``local`` — an optional per-repo overlay in the consuming repo (``.ai/<repo>/``, e.g.
-  ``.ai/ai_vault/``)
+  mirrored into a consuming repo as ``.fireball_ai_toolkit/toolkit/``)
+* ``local`` — an optional per-repo overlay in the consuming repo (``.fireball_ai_toolkit/<repo>/``, e.g.
+  ``.fireball_ai_toolkit/ai_vault/``)
 
 ``load_bundle()`` merges them (``local`` wins on a slug collision) and returns a
 :class:`ContentBundle` the renderers consume. Nothing here writes files or knows about any
@@ -20,16 +20,21 @@ from pathlib import Path
 
 import yaml
 
+# Root dir holding the canonical content in every consuming repo. Distinctively named (not the
+# generic `.ai/`) so it can't collide with another tool's convention — matches the package/repo
+# name.
+AI_ROOT_DIRNAME = ".fireball_ai_toolkit"
+
 # Content layers, lowest-priority first. A slug defined in a later layer overrides the earlier one.
-# `shared` is the packaged canonical tree (rendered as `.ai/toolkit/`); `local` is the consuming
-# repo's `.ai/<repo>/` overlay.
+# `shared` is the packaged canonical tree (rendered as `.fireball_ai_toolkit/toolkit/`); `local` is
+# the consuming repo's `.fireball_ai_toolkit/<repo>/` overlay.
 LAYERS = ("shared", "local")
 
 # Everything the toolkit ships lives under `content/`. `apply` clobber-copies each of these into
 # the consuming repo verbatim; `check` drift-gates them; `contribute` maps repo edits back.
 #   content/<key>/  ->  <repo path>/
 CLOBBER_TREES = {
-    "ai": ".ai/toolkit",  # commands/ instructions/ skills/ — then rendered into every provider dir
+    "ai": f"{AI_ROOT_DIRNAME}/toolkit",  # commands/ instructions/ skills/ — then rendered per provider dir
     "modules": "modules/toolkit",  # shared Python — imported as modules.toolkit.*
     "tasks": "tasks/toolkit",  # shared invoke tasks
     "tests": "tests/toolkit",  # tests for the shared modules
@@ -41,9 +46,10 @@ CLOBBER_FILES = {
 }
 
 # A consuming repo may vendor only a subset of what the toolkit ships — a repo whose shared Python
-# has diverged too far to clobber can still take the `.ai/` content and `setup.sh` while it
-# reconciles. `.ai-toolkit.yml` at the repo root, `vendor: [ai, scripts]`; absent = all of it.
-#   ai      -> content/ai/      (.ai/toolkit/ + every regenerated provider file)
+# has diverged too far to clobber can still take the `.fireball_ai_toolkit/` content and
+# `setup.sh` while it reconciles. `.ai-toolkit.yml` at the repo root, `vendor: [ai, scripts]`;
+# absent = all of it.
+#   ai      -> content/ai/      (.fireball_ai_toolkit/toolkit/ + every regenerated provider file)
 #   modules -> content/modules/ (modules/toolkit/)
 #   tasks   -> content/tasks/   (tasks/toolkit/)
 #   tests   -> content/tests/   (tests/toolkit/)
@@ -182,8 +188,8 @@ class Skill:
     (Claude / Copilot require it), never the canonical source.
 
     A canonical skill file is a **header only** — no body. ``hints`` are extra trigger phrases;
-    ``instructions`` / ``commands`` are lists of repo-relative paths (``.ai/toolkit/…`` or
-    ``.ai/<repo>/…``) that the renderers expand into each provider stub's body so the agent knows
+    ``instructions`` / ``commands`` are lists of repo-relative paths (``.fireball_ai_toolkit/toolkit/…`` or
+    ``.fireball_ai_toolkit/<repo>/…``) that the renderers expand into each provider stub's body so the agent knows
     what to read and follow when the skill fires.
     """
 
@@ -211,14 +217,16 @@ TOOLKIT_DIRNAME = "toolkit"
 
 
 def local_layer_name(repo_root: Path) -> str:
-    """Name of the ``.ai/<name>/`` dir holding this repo's own (non-toolkit) content.
+    """Name of the ``.fireball_ai_toolkit/<name>/`` dir holding this repo's own (non-toolkit)
+    content.
 
-    The repo's folder name (``.ai/ai_vault/``) when that dir exists; else — if the repo was cloned
-    to a different folder name — the sole non-``toolkit`` child of ``.ai/``. Falls back to the
-    stable literal ``"local"`` when there is no local dir yet (must be deterministic: ``check``
-    renders in a temp mirror and has to match what ``apply`` wrote).
+    The repo's folder name (``.fireball_ai_toolkit/ai_vault/``) when that dir exists; else — if
+    the repo was cloned to a different folder name — the sole non-``toolkit`` child of
+    ``.fireball_ai_toolkit/``. Falls back to the stable literal ``"local"`` when there is no local
+    dir yet (must be deterministic: ``check`` renders in a temp mirror and has to match what
+    ``apply`` wrote).
     """
-    ai = repo_root / ".ai"
+    ai = repo_root / AI_ROOT_DIRNAME
     if (ai / repo_root.name).is_dir():
         return repo_root.name
     if ai.is_dir():
@@ -237,7 +245,7 @@ class ContentBundle:
     skills: list[Skill] = field(default_factory=list)
     # slug -> layer name it was resolved from ("shared" or "local")
     origin: dict[str, str] = field(default_factory=dict)
-    # the consuming repo's `.ai/<local_name>/` dir name (e.g. "ai_vault"); "local" as a bare default
+    # the consuming repo's `.fireball_ai_toolkit/<local_name>/` dir name (e.g. "ai_vault"); "local" as a bare default
     local_name: str = "local"
 
     def layer_of(self, slug: str) -> str | None:
@@ -245,7 +253,7 @@ class ContentBundle:
         return self.origin.get(slug)
 
     def is_local(self, slug: str) -> bool:
-        """True when ``slug`` was resolved from the consuming repo's ``.ai/<local_name>/`` overlay."""
+        """True when ``slug`` was resolved from the consuming repo's ``.fireball_ai_toolkit/<local_name>/`` overlay."""
         return self.origin.get(slug) == "local"
 
 
@@ -279,9 +287,9 @@ def load_bundle(
     :attr:`ContentBundle.origin` records which layer won.
 
     Args:
-        canonical_root: the ``ai/`` bundle root (``content/ai/`` packaged, ``.ai/toolkit/`` in a
+        canonical_root: the ``ai/`` bundle root (``content/ai/`` packaged, ``.fireball_ai_toolkit/toolkit/`` in a
             consuming repo). Defaults to the packaged ``content/ai/``.
-        local_root: consuming repo's ``.ai/<local_name>/`` root. Optional.
+        local_root: consuming repo's ``.fireball_ai_toolkit/<local_name>/`` root. Optional.
         local_name: the local dir's name, recorded on the bundle for the renderers' pointers.
     """
     layers: list[tuple[str, Path]] = [("shared", (canonical_root or packaged_ai_root()).resolve())]

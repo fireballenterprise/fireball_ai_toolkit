@@ -24,9 +24,9 @@ exclusive with a scope).
   tests fail, that repo is reported as failed and the run continues — surface every failure in your
   summary.
 - **`/repo apply <description>`** — the two-phase Cross-Repo Change Workflow. Read
-  `.ai/toolkit/instructions/repos.md` in full and follow it: apply the change on a feature branch
+  `.fireball_ai_toolkit/toolkit/instructions/repos.md` in full and follow it: apply the change on a feature branch
   in every family repo, stop at the checkpoint for the user, then ship one PR per repo.
 
 Recognition trigger: when the user says "related repos", "the repos", "other repos", "all the
 repos", "pull all repos", or similar about this vault's repo family — even without running
-`/repo` — read `.ai/toolkit/instructions/repos.md` and act on it.
+`/repo` — read `.fireball_ai_toolkit/toolkit/instructions/repos.md` and act on it.

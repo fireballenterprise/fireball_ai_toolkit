@@ -3,10 +3,10 @@
 
 Single source of truth for the shared AI-agent tooling. Canonical slash commands, agent
 instructions, and skills live here as tool-neutral markdown under
-`fireball_ai_toolkit/content/`; each consuming repo mirrors that into `.ai/toolkit/` (its own
-repo-specific additions live in `.ai/<repo>/`). A generator renders a pointer stub for every AI tool
+`fireball_ai_toolkit/content/`; each consuming repo mirrors that into `.fireball_ai_toolkit/toolkit/` (its own
+repo-specific additions live in `.fireball_ai_toolkit/<repo>/`). A generator renders a pointer stub for every AI tool
 (`.claude/`, `.github/prompts/`, `.github/instructions/`, `.clinerules/`, `.sidecar/`, `AGENTS.md`)
-back to the `.ai/` source.
+back to the `.fireball_ai_toolkit/` source.
 
 See [DESIGN.md](DESIGN.md) for the architecture, branch model, and open questions.
 
@@ -19,10 +19,10 @@ dev = ["fireball_ai_toolkit @ git+https://github.com/fireballenterprise/fireball
 ```
 ```sh
 uv run --no-sync invoke ai_toolkit.update      # uv lock --upgrade-package + uv sync (pull the newest release into the venv)
-uv run --no-sync invoke ai_toolkit.apply       # clobber .ai/toolkit/ etc. from the installed package, regenerate
+uv run --no-sync invoke ai_toolkit.apply       # clobber .fireball_ai_toolkit/toolkit/ etc. from the installed package, regenerate
 uv run --no-sync invoke ai_toolkit.upgrade     # update + apply — take the new toolkit in one step
-uv run --no-sync invoke ai_toolkit.sync        # apply, but stop first if .ai/toolkit/ has local hand-edits
-uv run --no-sync invoke ai_toolkit.contribute  # open a PR here with local .ai/toolkit/ changes
+uv run --no-sync invoke ai_toolkit.sync        # apply, but stop first if .fireball_ai_toolkit/toolkit/ has local hand-edits
+uv run --no-sync invoke ai_toolkit.contribute  # open a PR here with local .fireball_ai_toolkit/toolkit/ changes
 uv run --no-sync invoke ai_toolkit.check       # read-only drift gate (wire into invoke test / CI)
 uv run --no-sync invoke ai_toolkit.mdfix       # normalise *.md (no blank after header, no stray ---); --check to gate
 ```
@@ -32,14 +32,14 @@ No dependency wanted (non-Python repo): `uvx --from git+https://github.com/fireb
 ## Consuming-repo contract
 | path | rule |
 |------|------|
-| `.ai/toolkit/` | clobbered copy of the toolkit's `content/` — never hand-edit |
-| `.ai/<repo>/` | this repo's own `instructions/ commands/ skills/` — never synced |
+| `.fireball_ai_toolkit/toolkit/` | clobbered copy of the toolkit's `content/` — never hand-edit |
+| `.fireball_ai_toolkit/<repo>/` | this repo's own `instructions/ commands/ skills/` — never synced |
 | `modules/toolkit/`, `tasks/toolkit/`, `tests/toolkit/` | clobbered copies of `content/{modules,tasks,tests}/` — shared Python (`modules.toolkit.*`) |
 | `setup.sh`, `setup.ps1` | clobbered from `content/scripts/` — repo extras go in `setup.local.sh` (never clobbered) |
-| `.claude/`, `.github/{prompts,instructions,skills,copilot-instructions.md}`, `.clinerules/`, `.sidecar/`, `AGENTS.md`, `CLAUDE.md` | generated pointer stubs → `.ai/` — never hand-edit |
+| `.claude/`, `.github/{prompts,instructions,skills,copilot-instructions.md}`, `.clinerules/`, `.sidecar/`, `AGENTS.md`, `CLAUDE.md` | generated pointer stubs → `.fireball_ai_toolkit/` — never hand-edit |
 | `.ai-toolkit.yml` (optional) | `vendor: [ai, scripts]` — take only some shipped trees (`ai`, `modules`, `tasks`, `tests`, `scripts`); absent = all |
 
-Fix shared behavior by editing `content/` here, or by editing `.ai/toolkit/` in a consuming repo and
+Fix shared behavior by editing `content/` here, or by editing `.fireball_ai_toolkit/toolkit/` in a consuming repo and
 running `ai_toolkit.contribute` to open a PR.
 
 ## Branch model

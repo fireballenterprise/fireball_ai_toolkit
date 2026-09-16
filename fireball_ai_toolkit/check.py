@@ -2,9 +2,11 @@
 
 Two invariants, checked without writing anything:
 
-1. Every clobbered tree/file (``.ai/toolkit/``, ``modules/toolkit/``, ``tasks/toolkit/``,
-   ``tests/toolkit/``, ``setup.sh``, ``setup.ps1``) byte-matches the packaged ``content/``.
-2. Every generated provider file byte-matches a fresh render of ``content/ai/`` + ``.ai/<repo>/``.
+1. Every clobbered tree/file (``.fireball_ai_toolkit/toolkit/``, ``modules/toolkit/``,
+   ``tasks/toolkit/``, ``tests/toolkit/``, ``setup.sh``, ``setup.ps1``) byte-matches the packaged
+   ``content/``.
+2. Every generated provider file byte-matches a fresh render of ``content/ai/`` +
+   ``.fireball_ai_toolkit/<repo>/``.
 
 Raises :class:`DriftError` naming the stale paths and the command to fix them.
 """
@@ -16,6 +18,7 @@ import tempfile
 from pathlib import Path
 
 from .catalog import (
+    AI_ROOT_DIRNAME,
     local_layer_name,
     packaged_ai_root,
     packaged_content_root,
@@ -83,9 +86,9 @@ def check(repo_root: Path) -> None:
     local_name = local_layer_name(repo_root)
     with tempfile.TemporaryDirectory() as tmp:
         mirror = Path(tmp).resolve()
-        local = repo_root / ".ai" / local_name
+        local = repo_root / AI_ROOT_DIRNAME / local_name
         if local.is_dir():
-            shutil.copytree(local, mirror / ".ai" / local_name)
+            shutil.copytree(local, mirror / AI_ROOT_DIRNAME / local_name)
         for produced in render_repo(mirror, canonical_root=packaged_ai_root()).written:
             rel = produced.relative_to(mirror)
             on_disk = repo_root / rel

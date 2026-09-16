@@ -4,7 +4,7 @@ Nothing is downloaded here — ``uv`` already fetched the package (``ai_toolkit.
 This applies that installed version to the repo. Everything under the package's ``content/`` is
 copied verbatim into the consuming repo:
 
-* ``content/ai/``       → ``.ai/toolkit/`` (then rendered into every provider dir)
+* ``content/ai/``       → ``.fireball_ai_toolkit/toolkit/`` (then rendered into every provider dir)
 * ``content/modules/``  → ``modules/toolkit/``  (shared Python, imported as ``modules.toolkit.*``)
 * ``content/tasks/``    → ``tasks/toolkit/``
 * ``content/tests/``    → ``tests/toolkit/``
@@ -25,7 +25,7 @@ from ._git import dirty_tracked
 from .catalog import CLOBBER_TREES, packaged_content_root, read_vendor, vendored_files, vendored_trees
 from .render import RenderResult, render_repo
 
-TOOLKIT_SUBPATH = CLOBBER_TREES["ai"]  # ".ai/toolkit" — kept as a name for back-compat imports
+TOOLKIT_SUBPATH = CLOBBER_TREES["ai"]  # ".fireball_ai_toolkit/toolkit" — kept as a name for back-compat imports
 
 
 class DirtySharedError(RuntimeError):

@@ -53,7 +53,7 @@ Aliases: /pull, /push, /cleanup — each also takes a scope. Retired repos are a
 
 _APPLY_POINTER = """\
 Cross-repo apply is agent-driven. Follow the Cross-Repo Change Workflow in
-.ai/toolkit/instructions/repos.md: apply the change on a feature branch in every family repo
+.fireball_ai_toolkit/toolkit/instructions/repos.md: apply the change on a feature branch in every family repo
 (root-to-leaf parent order), stop at the checkpoint, then ship each per its pull_request flag
 (a PR for pull_request:true, a direct push to the default branch for pull_request:false).
 """

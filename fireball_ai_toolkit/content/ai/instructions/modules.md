@@ -4,8 +4,8 @@ applyTo: "modules/**"
 ---
 # Python Modules Instructions
 All business logic lives here — slash commands and invoke tasks are thin CLI wrappers around it
-(see `.ai/toolkit/instructions/logic.md`). Python style, ordering, and comment rules are in
-`.ai/toolkit/instructions/python.md`; the 10/10 test gate is in `.ai/toolkit/instructions/tests.md`.
+(see `.fireball_ai_toolkit/toolkit/instructions/logic.md`). Python style, ordering, and comment rules are in
+`.fireball_ai_toolkit/toolkit/instructions/python.md`; the 10/10 test gate is in `.fireball_ai_toolkit/toolkit/instructions/tests.md`.
 
 ## Module Layout Consistency
 Every folder under `modules/` follows the same shape so any module is navigable without reading
@@ -52,7 +52,7 @@ repo_root = get_repo_local()
 ## templates.py Change Rule
 `modules/toolkit/topic/templates.py` is the single source of truth for each topic's generated `AGENTS.md`
 / `CLAUDE.md`. When you modify it, follow the **templates.py Change Rule** in
-`.ai/toolkit/instructions/topics.md` (fix + test, ask about `/topic update`).
+`.fireball_ai_toolkit/toolkit/instructions/topics.md` (fix + test, ask about `/topic update`).
 
 ## Common CLI Option Patterns
 ```python
@@ -111,11 +111,11 @@ absent). Never switch repos in-process: `setup.properties` caches the repo root 
 the process, so `delegate` always spawns a fresh subprocess (`cwd` + `$SIDECAR_REPO_ROOT`).
 
 ## AI Provider Files
-Commands, instructions, and skills are authored in `.ai/toolkit/` (via `fireball_ai_toolkit`'s
-`content/`) or this repo's `.ai/<repo>/`, and rendered as pointer stubs into every provider dir by
+Commands, instructions, and skills are authored in `.fireball_ai_toolkit/toolkit/` (via `fireball_ai_toolkit`'s
+`content/`) or this repo's `.fireball_ai_toolkit/<repo>/`, and rendered as pointer stubs into every provider dir by
 `invoke ai_toolkit.apply`. There are no per-repo sync modules —
 `invoke ai_toolkit.check` (inside `invoke test`) is the drift gate. See
-`.ai/toolkit/instructions/ai_commands.md`.
+`.fireball_ai_toolkit/toolkit/instructions/ai_commands.md`.
 
 ## Module Template
 ```python

@@ -28,7 +28,7 @@ Before creating the PR, look for the issue this work closes:
      no need to ask.
    - **Several plausible matches, or none** — show the candidates as `#N — title` and ask the
      user which this PR tracks. Offer: pick one, file a new issue now for tracking (ask type +
-     confirm title/body per `.ai/toolkit/instructions/backlog.md`, then
+     confirm title/body per `.fireball_ai_toolkit/toolkit/instructions/backlog.md`, then
      `uv run --no-sync python -m modules.toolkit.backlog.route "add <bug|feature|task> --title \"...\" --body \"...\" --label \"In Progress\""`
      — label it `In Progress` right away since a PR is being opened for it in this same breath,
      unlike a normal backlog filing — and note the returned issue number), or skip linking.

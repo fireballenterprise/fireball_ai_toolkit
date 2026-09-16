@@ -1,8 +1,8 @@
 """``ai-toolkit contribute`` — promote local edits to a toolkit-managed path back as a PR.
 
-1. Diff every clobbered tree/file (``.ai/toolkit/``, ``modules/toolkit/``, ``tasks/toolkit/``,
+1. Diff every clobbered tree/file (``.fireball_ai_toolkit/toolkit/``, ``modules/toolkit/``, ``tasks/toolkit/``,
    ``tests/toolkit/``, ``setup.sh``, ``setup.ps1``) against the packaged ``content/``.
-2. Refuse if anything *outside* those paths differs (never carries ``.ai/<repo>/`` or generated
+2. Refuse if anything *outside* those paths differs (never carries ``.fireball_ai_toolkit/<repo>/`` or generated
    provider files).
 3. In a local ``fireball_ai_toolkit`` checkout: branch off ``development``, apply the changed
    files into ``content/``, commit, push, open a PR with ``gh``. Never a direct push to ``main``.

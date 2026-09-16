@@ -4,7 +4,7 @@ description: Use for auto-fix requests — every applicable autofixer (ruff --fi
 hints:
   - fix
 instructions:
-  - .ai/toolkit/instructions/python.md
+  - .fireball_ai_toolkit/toolkit/instructions/python.md
 commands:
-  - .ai/toolkit/commands/fix.md
+  - .fireball_ai_toolkit/toolkit/commands/fix.md
 ---

@@ -6,9 +6,9 @@ hints:
   - push all repos
   - push the repos
 instructions:
-  - .ai/toolkit/instructions/repos.md
-  - .ai/toolkit/instructions/git.md
-  - .ai/toolkit/instructions/tests.md
+  - .fireball_ai_toolkit/toolkit/instructions/repos.md
+  - .fireball_ai_toolkit/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/toolkit/instructions/tests.md
 commands:
-  - .ai/toolkit/commands/push.md
+  - .fireball_ai_toolkit/toolkit/commands/push.md
 ---

@@ -1,7 +1,7 @@
 # Chat Module
 Dated planning-chat logging behind the `chat.*` invoke tasks and the `/chat` slash command. Every
 file exposes a `main()` entry point, runnable standalone via `python -m modules.toolkit.chat.<name>`. See
-`.ai/toolkit/instructions/topics.md` for the design this module implements.
+`.fireball_ai_toolkit/toolkit/instructions/topics.md` for the design this module implements.
 
 ## Files
 - `active.py` — get/set/clear the active chat tracker (`active.yml`) inside a given topic

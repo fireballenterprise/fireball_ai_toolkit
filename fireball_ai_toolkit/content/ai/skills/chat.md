@@ -4,7 +4,7 @@ description: Use for starting, ending, listing, or resuming a dated planning cha
 hints:
   - chat
 instructions:
-  - .ai/toolkit/instructions/topics.md
+  - .fireball_ai_toolkit/toolkit/instructions/topics.md
 commands:
-  - .ai/toolkit/commands/chat.md
+  - .fireball_ai_toolkit/toolkit/commands/chat.md
 ---

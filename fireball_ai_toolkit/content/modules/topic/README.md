@@ -1,7 +1,7 @@
 # Topic Module
 Topic workspace management behind the `topic.*` invoke tasks and the `/topic` slash command.
 Every file exposes a `main()` entry point, runnable standalone via `python -m modules.toolkit.topic.<name>`.
-See `.ai/toolkit/instructions/topics.md` for the design this module implements.
+See `.fireball_ai_toolkit/toolkit/instructions/topics.md` for the design this module implements.
 
 ## Files
 - `active.py` — get/set/clear the currently active topic, tracked in `active_topic.yml` at the

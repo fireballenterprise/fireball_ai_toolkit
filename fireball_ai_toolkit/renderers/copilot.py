@@ -1,12 +1,12 @@
 """Render GitHub Copilot / VS Code files — all pointer stubs.
 
 * ``.github/instructions/<slug>.instructions.md`` — ``description`` + ``applyTo`` frontmatter and a
-  one-line pointer at the canonical ``.ai/toolkit|local/instructions/<slug>.md``. Copilot's
+  one-line pointer at the canonical ``.fireball_ai_toolkit/toolkit|local/instructions/<slug>.md``. Copilot's
   ``applyTo`` auto-injection then delivers the pointer; whether Copilot follows it to the real
   rules is a known tradeoff of the pointer-only model.
 * ``.github/copilot-instructions.md`` — the always-on index.
 * ``.github/skills/<name>/SKILL.md`` — ``name``/``description`` frontmatter only in the
-  ``<name>/SKILL.md`` shape Copilot requires, body the pointer at ``.ai/toolkit|local/skills/<name>.md``
+  ``<name>/SKILL.md`` shape Copilot requires, body the pointer at ``.fireball_ai_toolkit/toolkit|local/skills/<name>.md``
   plus the skill's trigger phrases and its ``instructions`` / ``commands`` path lists expanded into
   a "read and follow" block.
 """
@@ -21,8 +21,8 @@ from ._common import canonical_pointer, clean_dir, clean_subdirs, skill_stub_bod
 _INDEX = """# Copilot Instructions
 
 See `AGENTS.md` at the repo root for the project overview and the instruction-file map. The
-canonical rules, commands, and skills live under `.ai/toolkit/` (from `fireball_ai_toolkit`)
-and `.ai/{local}/` (this repo's own). Everything under `.github/instructions/*.instructions.md`
+canonical rules, commands, and skills live under `.fireball_ai_toolkit/toolkit/` (from `fireball_ai_toolkit`)
+and `.fireball_ai_toolkit/{local}/` (this repo's own). Everything under `.github/instructions/*.instructions.md`
 auto-applies by its `applyTo` glob and points back there. Never hand-edit a generated file.
 """
 

@@ -9,7 +9,7 @@ hints:
   - remove orphaned dirs
   - remove redundant .gitkeep files
 instructions:
-  - .ai/toolkit/instructions/repos.md
+  - .fireball_ai_toolkit/toolkit/instructions/repos.md
 commands:
-  - .ai/toolkit/commands/cleanup.md
+  - .fireball_ai_toolkit/toolkit/commands/cleanup.md
 ---
