@@ -19,7 +19,7 @@ from ..setup.properties import FamilyRepo, find_current_repo, get_family_repos, 
 
 _SINGLETON_NOTE = (
     "ℹ  family run requested, but properties.yml has no repos: family map (or none are cloned) —\n"
-    "   running just this repo. See .ai/toolkit/instructions/repos.md to set up a repos: map."
+    "   running just this repo. See .fireball_ai_toolkit/toolkit/instructions/repos.md to set up a repos: map."
 )
 
 

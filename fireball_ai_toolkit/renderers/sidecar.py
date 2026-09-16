@@ -1,10 +1,10 @@
 """Render ``.sidecar/`` for Fireball Sidecar — pointer stubs.
 
 ``commands/``, ``instructions/``, ``skills/`` each carry the provider frontmatter Sidecar needs
-and a pointer at the canonical ``.ai/toolkit/`` or ``.ai/<repo>/`` file. Skill stubs keep the
+and a pointer at the canonical ``.fireball_ai_toolkit/toolkit/`` or ``.fireball_ai_toolkit/<repo>/`` file. Skill stubs keep the
 canonical header verbatim — ``hints`` / ``instructions`` / ``commands`` all stay as frontmatter
 keys (Sidecar reads them directly), so the body is only the pointer. Sidecar is Levon's own tool
-and is being taught to read the canonical ``.ai/`` tree directly; the target end state is a no-op
+and is being taught to read the canonical ``.fireball_ai_toolkit/`` tree directly; the target end state is a no-op
 renderer.
 """
 

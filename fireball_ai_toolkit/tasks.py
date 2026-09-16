@@ -8,10 +8,10 @@ modules; these wrappers stay thin.
 
 Verbs (apt-style):
   update      pull the newest toolkit release into the venv (uv lock --upgrade + uv sync)
-  apply       clobber .ai/toolkit/ + modules/toolkit/ + … from the installed package, then render
+  apply       clobber .fireball_ai_toolkit/toolkit/ + modules/toolkit/ + … from the installed package, then render
   upgrade     update, then apply — the whole "take the new toolkit" in one
-  sync        apply, but stop first if .ai/toolkit/ has local hand-edits
-  contribute  open a PR to the toolkit with this repo's .ai/toolkit/ edits
+  sync        apply, but stop first if .fireball_ai_toolkit/toolkit/ has local hand-edits
+  contribute  open a PR to the toolkit with this repo's .fireball_ai_toolkit/toolkit/ edits
   check       read-only drift gate (wired into `invoke test`)
   release     dispatch the toolkit's own development -> main release
   mdfix       normalise markdown house style
@@ -46,7 +46,7 @@ def update(context):
 
 @task
 def apply(context):  # noqa: ARG001
-    """Clobber .ai/toolkit/ + modules/toolkit/ + … from the installed package, then render."""
+    """Clobber .fireball_ai_toolkit/toolkit/ + modules/toolkit/ + … from the installed package, then render."""
     result = _apply(Path.cwd())
     print(f"Rendered {result.by_count} files.")
 
@@ -55,14 +55,14 @@ def apply(context):  # noqa: ARG001
 def upgrade(context, force=False):
     """update, then apply — pull the newest toolkit and take it into this repo.
 
-    Stops if .ai/toolkit/ has local hand-edits (pass --force to clobber them).
+    Stops if .fireball_ai_toolkit/toolkit/ has local hand-edits (pass --force to clobber them).
     """
     update(context)
     # The render MUST run in a fresh interpreter. `update` just swapped the package on disk, but
     # this process imported `_sync` (and its renderers/catalog) at startup and Python caches
     # imports — calling `_sync.run()` here would re-render with the *old* code (live bug: a
     # multi-version jump rendered stale `.sidecar/skills/*.md` stubs). Shelling out to the console
-    # script picks up the just-installed version. Same `sync` semantics: stop on local .ai/toolkit/
+    # script picks up the just-installed version. Same `sync` semantics: stop on local .fireball_ai_toolkit/toolkit/
     # edits unless --force.
     result = context.run(
         f"uv run --no-sync ai-toolkit sync{' --yes' if force else ''}",
@@ -70,14 +70,14 @@ def upgrade(context, force=False):
         pty=False,
     )
     if result.exited == 2:
-        raise SystemExit(2)  # .ai/toolkit/ has local edits — re-run with --force to clobber them
+        raise SystemExit(2)  # .fireball_ai_toolkit/toolkit/ has local edits — re-run with --force to clobber them
     if result.exited != 0:
         raise SystemExit(result.exited)
 
 
 @task
 def sync(context, force=False):  # noqa: ARG001
-    """Inspect .ai/toolkit/ for local edits; if clean (or --force), apply (clobber + render)."""
+    """Inspect .fireball_ai_toolkit/toolkit/ for local edits; if clean (or --force), apply (clobber + render)."""
     plan = _sync.inspect(Path.cwd())
     print(plan.message)
     if plan.dirty and not force:
@@ -88,7 +88,7 @@ def sync(context, force=False):  # noqa: ARG001
 
 @task
 def contribute(context, branch=None, toolkit_repo=None):  # noqa: ARG001
-    """Open a PR against fireball_ai_toolkit with this repo's .ai/toolkit/ edits.
+    """Open a PR against fireball_ai_toolkit with this repo's .fireball_ai_toolkit/toolkit/ edits.
 
     The toolkit checkout is found via --toolkit-repo, then $FIREBALL_AI_TOOLKIT_REPO,
     then a sibling ../fireball_ai_toolkit dir.
@@ -101,7 +101,7 @@ def contribute(context, branch=None, toolkit_repo=None):  # noqa: ARG001
 
 @task
 def check(context):  # noqa: ARG001
-    """Read-only drift gate — fail if any generated provider file (or .ai/toolkit/) is stale."""
+    """Read-only drift gate — fail if any generated provider file (or .fireball_ai_toolkit/toolkit/) is stale."""
     _check(Path.cwd())
     print("No drift.")
 

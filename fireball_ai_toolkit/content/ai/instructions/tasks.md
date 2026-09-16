@@ -42,16 +42,16 @@ by the package and mounted under `ai_toolkit.*`:
 | Task | Description |
 |---|---|
 | `update` | pull the newest toolkit release into the venv (`uv lock --upgrade-package` + `uv sync`) — nothing in the repo tree changes yet |
-| `apply` | clobber `.ai/toolkit/` + `modules/toolkit/` + … from the **installed** package, regenerate every provider stub |
+| `apply` | clobber `.fireball_ai_toolkit/toolkit/` + `modules/toolkit/` + … from the **installed** package, regenerate every provider stub |
 | `upgrade` | `update` then `apply` — take the new toolkit into this repo in one step |
-| `sync` | `apply`, but stop first if `.ai/toolkit/` has local hand-edits (offer to `contribute` them) |
-| `contribute` | open a PR against the toolkit with local `.ai/toolkit/` edits |
+| `sync` | `apply`, but stop first if `.fireball_ai_toolkit/toolkit/` has local hand-edits (offer to `contribute` them) |
+| `contribute` | open a PR against the toolkit with local `.fireball_ai_toolkit/toolkit/` edits |
 | `check` | read-only drift gate (runs inside `invoke test`) |
 | `mdfix` | normalise every `*.md` (no blank after a header; no stray `---` in instruction bodies). `invoke fix` writes it, `invoke test` runs `mdfix --check` |
 
 `download` / `upload` are kept as deprecated aliases for `apply` / `contribute`.
 
-Never hand-edit a generated provider file. See `.ai/toolkit/instructions/ai_commands.md`.
+Never hand-edit a generated provider file. See `.fireball_ai_toolkit/toolkit/instructions/ai_commands.md`.
 
 ## Conventions
 - Tasks within a file are ordered **alphabetically by function name** — not by date or grouping

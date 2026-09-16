@@ -32,8 +32,8 @@ def repo(tmp_path: Path) -> Path:
 def test_apply_clobbers_shared_and_renders(repo: Path):
     result = apply(repo)
     assert result.by_count > 20
-    assert (repo / ".ai" / "toolkit" / "commands").is_dir()
-    assert (repo / ".ai" / "toolkit" / "instructions").is_dir()
+    assert (repo / ".fireball_ai_toolkit" / "toolkit" / "commands").is_dir()
+    assert (repo / ".fireball_ai_toolkit" / "toolkit" / "instructions").is_dir()
     assert (repo / "AGENTS.md").exists()
     assert (repo / ".claude" / "commands").is_dir()
 
@@ -58,7 +58,7 @@ def test_cli_sync_stops_on_dirty_shared_without_yes(repo: Path):
     main(["--repo", str(repo), "apply"])
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "generated")
-    (repo / ".ai" / "toolkit" / "commands" / "fix.md").write_text("hand edit\n")
+    (repo / ".fireball_ai_toolkit" / "toolkit" / "commands" / "fix.md").write_text("hand edit\n")
     assert main(["--repo", str(repo), "sync"]) == 2  # refuses to clobber a local edit
     assert main(["--repo", str(repo), "sync", "--yes"]) == 0  # --yes discards it
 
@@ -100,7 +100,7 @@ def test_check_raises_when_a_generated_file_is_edited(repo: Path):
 
 
 def test_check_raises_when_shared_is_missing(repo: Path):
-    with pytest.raises(DriftError, match=".ai/toolkit"):
+    with pytest.raises(DriftError, match=".fireball_ai_toolkit/toolkit"):
         check(repo)
 
 
@@ -113,7 +113,7 @@ def test_apply_refuses_dirty_shared(repo: Path):
     apply(repo)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "generated")
-    (repo / ".ai" / "toolkit" / "commands" / "fix.md").write_text("tampered\n")
+    (repo / ".fireball_ai_toolkit" / "toolkit" / "commands" / "fix.md").write_text("tampered\n")
     with pytest.raises(DirtySharedError):
         apply(repo)
     apply(repo, force=True)  # force overrides
@@ -125,7 +125,7 @@ def test_sync_inspect_reports_clean_then_dirty(repo: Path):
     _git(repo, "commit", "-qm", "generated")
     assert sync.inspect(repo).dirty is False
 
-    (repo / ".ai" / "toolkit" / "commands" / "fix.md").write_text("tampered\n")
+    (repo / ".fireball_ai_toolkit" / "toolkit" / "commands" / "fix.md").write_text("tampered\n")
     plan = sync.inspect(repo)
     assert plan.dirty is True
     assert "fix.md" in plan.shared_diff
@@ -134,7 +134,7 @@ def test_sync_inspect_reports_clean_then_dirty(repo: Path):
 def test_vendor_subset_skips_python_trees(repo: Path):
     (repo / ".ai-toolkit.yml").write_text("vendor:\n  - ai\n  - scripts\n")
     apply(repo)
-    assert (repo / ".ai" / "toolkit" / "commands").is_dir()  # ai vendored
+    assert (repo / ".fireball_ai_toolkit" / "toolkit" / "commands").is_dir()  # ai vendored
     assert (repo / "setup.sh").is_file()  # scripts vendored
     assert not (repo / "modules" / "toolkit").exists()  # modules NOT vendored
     assert not (repo / "tasks" / "toolkit").exists()
@@ -155,7 +155,7 @@ def test_vendor_subset_without_ai_skips_render(repo: Path):
     result = apply(repo)
     assert result.by_count == 0
     assert (repo / "setup.sh").is_file()
-    assert not (repo / ".ai" / "toolkit").exists()
+    assert not (repo / ".fireball_ai_toolkit" / "toolkit").exists()
     assert not (repo / "AGENTS.md").exists()
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "generated")

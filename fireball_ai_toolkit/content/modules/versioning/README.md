@@ -32,7 +32,7 @@ uv run --no-sync invoke versioning.bump build            # feature-branch build 
 ```
 
 `/update` and `/upgrade` are the slash commands; both accept a leading `[<repo>]` or
-`--repo <name|path>` (see `.ai/toolkit/instructions/versioning.md`).
+`--repo <name|path>` (see `.fireball_ai_toolkit/toolkit/instructions/versioning.md`).
 
 ## Files
 - `check.py` — the orchestrator behind `/update` / `versioning.check`: picks the applicable

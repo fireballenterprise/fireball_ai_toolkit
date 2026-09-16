@@ -4,7 +4,7 @@ description: Use for rebasing the current branch onto the remote default branch,
 hints:
   - rebase
 instructions:
-  - .ai/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/toolkit/instructions/git.md
 commands:
-  - .ai/toolkit/commands/rebase.md
+  - .fireball_ai_toolkit/toolkit/commands/rebase.md
 ---

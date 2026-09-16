@@ -51,6 +51,6 @@ without scrolling.
   `# region` / `# endregion`, so this is the navigation index.
 - **Comments are one line + a pointer, not an essay.** A section gets at most a single `#` line
   saying what it is and where the full explanation lives —
-  `# Default AWS_PROFILE for aws/cdk shell-outs — see .ai/<repo>/instructions/aws.md`. Rationale,
+  `# Default AWS_PROFILE for aws/cdk shell-outs — see .fireball_ai_toolkit/<repo>/instructions/aws.md`. Rationale,
   mechanism, and edge cases belong in that instruction doc, not woven into `properties.yml`.
 - Per-key comments only for a genuinely non-obvious value; still one line.

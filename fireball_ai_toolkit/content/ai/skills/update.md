@@ -5,7 +5,7 @@ hints:
   - update
   - update <repo>
 instructions:
-  - .ai/toolkit/instructions/versioning.md
+  - .fireball_ai_toolkit/toolkit/instructions/versioning.md
 commands:
-  - .ai/toolkit/commands/update.md
+  - .fireball_ai_toolkit/toolkit/commands/update.md
 ---

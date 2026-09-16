@@ -5,7 +5,7 @@ hints:
   - upgrade
   - upgrade <repo>
 instructions:
-  - .ai/toolkit/instructions/versioning.md
+  - .fireball_ai_toolkit/toolkit/instructions/versioning.md
 commands:
-  - .ai/toolkit/commands/upgrade.md
+  - .fireball_ai_toolkit/toolkit/commands/upgrade.md
 ---

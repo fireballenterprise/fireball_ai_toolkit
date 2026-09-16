@@ -1,11 +1,11 @@
 ---
-description: "Use when creating or editing a canonical skill file — .ai/toolkit/ + .ai/<repo>/skills/<name>.md and the SKILL.md stubs the generator renders from it."
-applyTo: ".ai/*/skills/**,.claude/skills/**,.github/skills/**,.sidecar/skills/**"
+description: "Use when creating or editing a canonical skill file — .fireball_ai_toolkit/toolkit/ + .fireball_ai_toolkit/<repo>/skills/<name>.md and the SKILL.md stubs the generator renders from it."
+applyTo: ".fireball_ai_toolkit/*/skills/**,.claude/skills/**,.github/skills/**,.sidecar/skills/**"
 ---
 # AI Skills Instructions
-## Canonical skill file (`.ai/toolkit/skills/<name>.md`)
+## Canonical skill file (`.fireball_ai_toolkit/toolkit/skills/<name>.md`)
 A canonical skill is a **header only — no body**. Flat, one file per skill (repo-specific ones in
-`.ai/<repo>/skills/<name>.md`):
+`.fireball_ai_toolkit/<repo>/skills/<name>.md`):
 
 ```yaml
 ---
@@ -14,9 +14,9 @@ description: Use for ... . Equivalent to /command_name.
 hints:                 # optional — extra natural-language trigger phrases
   - punch it
 instructions:          # repo-relative paths to the rule files this skill pulls in
-  - .ai/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/toolkit/instructions/git.md
 commands:              # repo-relative paths to the command files this skill drives
-  - .ai/toolkit/commands/command_name.md
+  - .fireball_ai_toolkit/toolkit/commands/command_name.md
 ---
 ```
 
@@ -26,8 +26,8 @@ frontmatter — if a skill needs to explain something, that belongs in one of it
 files.
 
 - `instructions:` / `commands:` are lists of **repo-relative paths**, written verbatim
-  (`.ai/toolkit/…` for toolkit content, `.ai/<repo>/…` for a repo's own).
-- Every canonical command (`.ai/toolkit/commands/<slug>.md`) is wired to at least one skill —
+  (`.fireball_ai_toolkit/toolkit/…` for toolkit content, `.fireball_ai_toolkit/<repo>/…` for a repo's own).
+- Every canonical command (`.fireball_ai_toolkit/toolkit/commands/<slug>.md`) is wired to at least one skill —
   it appears in some skill's `commands:` list. Most commands have a same-named skill that lists
   itself; **alias / sub-verb commands ride on a parent skill instead** and get no skill of their
   own (`add_bug` / `add_feature` / `add_task` → `backlog`; `pr-notes` → `pr`). Bundle a command
@@ -47,7 +47,7 @@ Claude Code and Copilot reject unknown frontmatter keys, so their stubs carry on
 near-verbatim copy of the canonical header (Sidecar reads those keys straight off the
 frontmatter). No canonical body text is inlined anywhere — there is none. The `<name>/SKILL.md`
 directory shape is a rendered artifact Claude Code / Copilot require; the canonical source is
-always the flat `.ai/…/skills/<name>.md`.
+always the flat `.fireball_ai_toolkit/…/skills/<name>.md`.
 
 ## Trigger phrases
 Add a `hints:` entry (or spell the phrase out in `description`) for any trigger beyond the slash
@@ -59,5 +59,5 @@ Uses the Agent Skills open spec, but treat it as Claude Code-specific until othe
 adopt it — hence `.claude/` rather than a vendor-neutral `.agents/`.
 
 ## Related
-- `.ai/toolkit/instructions/ai_commands.md` — canonical command / instruction authoring
-- `.ai/toolkit/instructions/logic.md` — overall AI/logic architecture
+- `.fireball_ai_toolkit/toolkit/instructions/ai_commands.md` — canonical command / instruction authoring
+- `.fireball_ai_toolkit/toolkit/instructions/logic.md` — overall AI/logic architecture

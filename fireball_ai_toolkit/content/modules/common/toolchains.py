@@ -75,7 +75,7 @@ def _has_yaml(root: Path) -> bool:
     for pattern in ("*.yml", "*.yaml"):
         if any(root.glob(pattern)):
             return True
-        for sub in (".github", ".sidecar", "config", ".ai"):
+        for sub in (".github", ".sidecar", "config", ".fireball_ai_toolkit"):
             if any((root / sub).rglob(pattern)):
                 return True
     return False

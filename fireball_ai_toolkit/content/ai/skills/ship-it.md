@@ -8,11 +8,11 @@ hints:
   - punch it chewy
   - ship it
 instructions:
-  - .ai/toolkit/instructions/git.md
-  - .ai/toolkit/instructions/repos.md
+  - .fireball_ai_toolkit/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/toolkit/instructions/repos.md
 commands:
-  - .ai/toolkit/commands/ship-it.md
-  - .ai/toolkit/commands/push.md
-  - .ai/toolkit/commands/pr.md
-  - .ai/toolkit/commands/pr-notes.md
+  - .fireball_ai_toolkit/toolkit/commands/ship-it.md
+  - .fireball_ai_toolkit/toolkit/commands/push.md
+  - .fireball_ai_toolkit/toolkit/commands/pr.md
+  - .fireball_ai_toolkit/toolkit/commands/pr-notes.md
 ---

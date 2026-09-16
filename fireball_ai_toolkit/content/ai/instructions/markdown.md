@@ -30,7 +30,7 @@ Blank lines **before** a header (to separate sections) are fine and expected.
 
 ## Horizontal Rules
 **Never use a standalone `---` line as a section divider in an instruction-file body**
-(`.ai/toolkit/instructions/*.md`, `.ai/<repo>/instructions/*.md`). The only `---` allowed there is
+(`.fireball_ai_toolkit/toolkit/instructions/*.md`, `.fireball_ai_toolkit/<repo>/instructions/*.md`). The only `---` allowed there is
 the YAML frontmatter fence (the opening and closing pair around `applyTo`). Headers and blank
 lines are enough separation. `ai_toolkit.mdfix` removes stray dividers from instruction
 files automatically.
@@ -48,4 +48,4 @@ structure, context, or commentary only when the user asks for it or the file's p
 
 ## Alphabetical Ordering
 For code ordering rules (functions, invoke tasks, constants, dict/YAML keys), see
-`.ai/toolkit/instructions/python.md`.
+`.fireball_ai_toolkit/toolkit/instructions/python.md`.

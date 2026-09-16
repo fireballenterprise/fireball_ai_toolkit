@@ -4,7 +4,7 @@ description: Use for switching the active planning-topic workspace, or listing/c
 hints:
   - topic
 instructions:
-  - .ai/toolkit/instructions/topics.md
+  - .fireball_ai_toolkit/toolkit/instructions/topics.md
 commands:
-  - .ai/toolkit/commands/topic.md
+  - .fireball_ai_toolkit/toolkit/commands/topic.md
 ---

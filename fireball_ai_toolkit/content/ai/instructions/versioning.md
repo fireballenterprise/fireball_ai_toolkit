@@ -82,5 +82,5 @@ that checkout (`modules/toolkit/common/target_repo.py`). A check that's meaningl
 bump is repo-local by definition) and is never given `--repo` in CI.
 
 ## Module Conventions
-Same as `.ai/toolkit/instructions/modules.md` / `python.md`. See
+Same as `.fireball_ai_toolkit/toolkit/instructions/modules.md` / `python.md`. See
 `modules/toolkit/versioning/README.md` for per-file data-flow.

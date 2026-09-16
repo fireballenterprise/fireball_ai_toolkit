@@ -38,7 +38,7 @@ omitting — a missing key must never be what a condition trips on):
 
 | key | values | meaning |
 |---|---|---|
-| `ai` | `true` \| `false` | shares the AI-agent tooling layout (`.ai/` + generated provider dirs). Scope for propagating agent skills/instructions, not product code. |
+| `ai` | `true` \| `false` | shares the AI-agent tooling layout (`.fireball_ai_toolkit/` + generated provider dirs). Scope for propagating agent skills/instructions, not product code. |
 | `default_branch` | `main` \| `development` | `development` ⇒ **two-branch dev→prd promotion** (feature work lands on `development`, `development`→`main` cuts a release). `main` ⇒ single-branch. |
 | `parent` | a bare repo name in this map, or `none` | the repo this one was template-stamped from. `none` = a root. Resolves across orgs. |
 | `pull_request` | `true` \| `false` | **how to ship a change.** `true` → feature branch + PR (assigned to the user), let CI run. `false` → commit straight to the default branch (or fast-forward the feature branch onto it) and push — **do not open a PR**. |
@@ -145,7 +145,7 @@ or more to add first?" Don't proceed until they confirm.
 For each repo (same order), ship per its `repos:` flags:
 
 - **`pull_request: true`** — `/ship-it`: fix, test, push the feature branch, open the PR (assigned
-  to the user per `.ai/toolkit/instructions/git.md`). Report the PR URL. Never merge it yourself.
+  to the user per `.fireball_ai_toolkit/toolkit/instructions/git.md`). Report the PR URL. Never merge it yourself.
 - **`pull_request: false`** — no PR. `invoke fix` + `invoke test` locally (must pass), then
   fast-forward the default branch to your work and `git push origin <default>`. Report the pushed
   commit. Delete the feature branch.
