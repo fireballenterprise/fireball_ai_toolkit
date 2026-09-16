@@ -8,7 +8,7 @@ run-name: "Release (${{ inputs.bump }})"
 # NOT here — a release just promotes + tags whatever development is at. The `bump` input forces a
 # minor/major milestone on development first (default: none; `major` = the official 1.0.0 launch).
 # Consumers pin `@1` (floating major on main; `@0` during pre-1.0) or `@development` (dev channel).
-# `invoke sidecar.toolkit.release` = `gh workflow run release.yml`.
+# `invoke ai_toolkit.release` = `gh workflow run release.yml`.
 #
 # Auth: main + development are PR-required branches (public repo). The org-wide
 # fireball-actions-bot App (vars.BOT_APP_ID + secrets.BOT_PRIVATE_KEY) is the bypass actor.
