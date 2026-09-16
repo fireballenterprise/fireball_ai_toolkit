@@ -1,5 +1,5 @@
 [project]
-name = "fireball_sidecar_toolkit"
+name = "fireball_ai_toolkit"
 dynamic = ["version"]  # read from the VERSION file (see [tool.setuptools.dynamic])
 description = "Single source of truth for Fireball's shared AI-agent tooling: canonical slash commands, agent instructions, and skills, plus the generator that renders them into every AI tool's native format."
 readme = "README.md"
@@ -33,7 +33,7 @@ dev = [
 ]
 
 [project.scripts]
-sidecar-toolkit = "fireball_sidecar_toolkit.cli:main"
+ai-toolkit = "fireball_ai_toolkit.cli:main"
 
 [build-system]
 requires = ["setuptools>=77"]
@@ -45,16 +45,16 @@ version = { file = "VERSION" }
 [tool.setuptools.packages.find]
 # Only the distributable package ships. `modules/` (common/setup/versioning) and `tasks/` are
 # repo-local dev tooling and are deliberately excluded from the wheel + sdist.
-include = ["fireball_sidecar_toolkit*"]
+include = ["fireball_ai_toolkit*"]
 
 [tool.setuptools.package-data]
 # The canonical content trees live inside the package so they ship in the wheel and
-# `sidecar-toolkit download` can clobber a consuming repo's _shared/ straight from the install.
-fireball_sidecar_toolkit = ["content/**/*", "py.typed"]
+# `ai-toolkit download` can clobber a consuming repo's _shared/ straight from the install.
+fireball_ai_toolkit = ["content/**/*", "py.typed"]
 
 [project.urls]
-homepage = "https://github.com/fireballenterprise/fireball_sidecar_toolkit"
-repository = "https://github.com/fireballenterprise/fireball_sidecar_toolkit"
+homepage = "https://github.com/fireballenterprise/fireball_ai_toolkit"
+repository = "https://github.com/fireballenterprise/fireball_ai_toolkit"
 
 [tool.ruff]
 line-length = 120
@@ -93,7 +93,7 @@ norecursedirs = ["tmp", ".venv", ".ruff_cache", "__pycache__"]
 markers = [
     "setup: modules/setup/ (properties.yml bootstrap) — tests/setup/",
     "style: Markdown/doc style checks — tests/style/",
-    "sidecar_toolkit: fireball_sidecar_toolkit/ (catalog parse + render) — tests/sidecar_toolkit/",
+    "ai_toolkit: fireball_ai_toolkit/ (catalog parse + render) — tests/ai_toolkit/",
 ]
 
 [tool.pylint.main]

@@ -1,6 +1,6 @@
 """The packaged canonical content tree is normalised to the house Markdown style.
 
-`fireball_sidecar_toolkit.mdfix` (blank-line-after-header, stray `---` divider in instruction
+`fireball_ai_toolkit.mdfix` (blank-line-after-header, stray `---` divider in instruction
 bodies) is the enforcement; this test keeps `content/` itself clean so an `apply` never
 introduces drift. See `content/instructions/markdown.md`.
 """
@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from fireball_sidecar_toolkit.catalog import packaged_content_root
-from fireball_sidecar_toolkit.mdfix import fix_tree, normalize
+from fireball_ai_toolkit.catalog import packaged_content_root
+from fireball_ai_toolkit.mdfix import fix_tree, normalize
 
 pytestmark = pytest.mark.style
 
