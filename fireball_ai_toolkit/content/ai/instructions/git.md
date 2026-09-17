@@ -4,8 +4,8 @@ description: "Use when creating a git branch or drafting a Pull Request for this
 # Git & PR Instructions
 ## PR or direct push?
 Check the repo's `pull_request` flag in `properties.yml`'s `repos:` map (`/repo self`). `false` →
-this repo ships by committing straight to the default branch, **no PR** — run `invoke fix` +
-`invoke test`, fast-forward the default branch to your work, push. `true` → the feature-branch + PR
+this repo ships by committing straight to the default branch, **no PR** — run `uv run --no-sync invoke fix` +
+`uv run --no-sync invoke test`, fast-forward the default branch to your work, push. `true` → the feature-branch + PR
 flow below. `pr_create.py` refuses on a `pull_request: false` repo.
 
 ## Branch Naming

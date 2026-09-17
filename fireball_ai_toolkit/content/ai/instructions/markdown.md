@@ -6,7 +6,7 @@ applyTo: "**/*.md"
 ## Headers — NO blank line after a header
 **MUST: never put a blank line after any header (`#`, `##`, `###`, …). The first line of content
 comes immediately on the next line.** This is the opposite of the common default — do not follow
-the habit. `invoke fix` (via `ai_toolkit.mdfix`) strips these automatically and `invoke test`
+the habit. `uv run --no-sync invoke fix` (via `ai_toolkit.mdfix`) strips these automatically and `uv run --no-sync invoke test`
 fails on them, but write them right the first time.
 
 ```markdown

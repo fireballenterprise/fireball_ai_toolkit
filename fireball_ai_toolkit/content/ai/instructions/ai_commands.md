@@ -54,7 +54,7 @@ Every generated file is a **pointer stub**: provider frontmatter + one line
    (argument dispatch only). See `.fireball_ai_toolkit/toolkit/instructions/modules.md` for the router template.
 2. `.fireball_ai_toolkit/toolkit/commands/<slug>.md` — the thin wrapper above.
 3. `.fireball_ai_toolkit/toolkit/skills/<slug>.md` — the matching skill (see `.fireball_ai_toolkit/toolkit/instructions/ai_skills.md`).
-4. `uv run --no-sync invoke ai_toolkit.apply` to regenerate, then `invoke fix && invoke
+4. `uv run --no-sync invoke ai_toolkit.apply` to regenerate, then `uv run --no-sync invoke fix` && `uv run --no-sync invoke
    test` (must be 10/10 for `.py` changes).
 
 ## Authoring instruction files (`.fireball_ai_toolkit/toolkit/instructions/<slug>.md`)
