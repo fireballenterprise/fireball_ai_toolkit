@@ -6,6 +6,23 @@ applyTo: "properties.yml,modules/setup/**,modules/toolkit/repo/**"
 Everything about `/repo` — its subcommands, the `properties.yml` `repos:` registry it reads, the
 family fan-out, and the cross-repo change workflow.
 
+## Running commands
+All `invoke` commands in this repo must be run via `uv run --no-sync` to ensure the correct
+virtual environment is used. The `--no-sync` flag skips dependency syncing (fast) while still
+loading the venv.
+
+**Correct:** `uv run --no-sync invoke repo.pull all`
+**Incorrect:** `invoke repo.pull all` (fails if venv not activated)
+
+## DO NOT TOUCH `.fireball_ai_toolkit/` files
+The `.fireball_ai_toolkit/` directory contains **generated files** from the `fireball_ai_toolkit`
+package. **Never hand-edit these files** — they will be overwritten on the next `apply`/`sync`.
+
+To modify toolkit behavior:
+1. Edit the source in `fireball_ai_toolkit/content/ai/instructions/` (this repo)
+2. Run `uv run --no-sync invoke ai_toolkit.apply` to regenerate
+3. Run `uv run --no-sync invoke fix && uv run --no-sync invoke test`
+
 ## Command surface
 `/repo` is the single entrypoint. `/pull`, `/push`, `/cleanup` are top-level aliases for the
 matching subcommand (and take the same scope tokens).
@@ -73,7 +90,7 @@ When creating a new family repo (or first time touching an existing one's GitHub
   (check with `gh api repos/<org>/<repo> --jq .delete_branch_on_merge`). Every family repo should
   have this `true`.
 - If `ai: true` — add `fireball_ai_toolkit` to `pyproject.toml` and run
-  `invoke ai_toolkit.apply`.
+  `uv run --no-sync invoke ai_toolkit.apply`.
 
 ## "Related Repos" Trigger
 When the user says **"related repos"**, **"the repos"**, **"other repos"**, **"all of the repos"**,

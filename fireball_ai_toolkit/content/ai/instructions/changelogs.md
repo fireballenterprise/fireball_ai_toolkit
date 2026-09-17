@@ -40,7 +40,7 @@ heading.
 ## Sync Mechanism
 `modules/toolkit/docs/lib/change_logs.py`:
 - `check_each_log(update=True)` — prepends any missing entry (idempotent; a current entry is a
-  no-op). Backs `invoke docs.update-changelogs`, which also runs as part of `invoke fix`
+  no-op). Backs `uv run --no-sync invoke docs.update-changelogs`, which also runs as part of `uv run --no-sync invoke fix`
 - `check_each_log(update=False)` — read-only; raises `ValueError` on the first stale entry instead
   of writing. Backs the drift gate `tests/drift/docs/test_changelogs_current.py`. A no-op while
   `CHANGELOG_CATEGORIES` is empty.
