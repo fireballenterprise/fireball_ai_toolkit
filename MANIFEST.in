@@ -1,7 +1,7 @@
 # sdist contents. The wheel is driven by [tool.setuptools.packages.find] + package-data;
 # this makes the source distribution match (data files + project docs, minus dev-only trees).
-graft fireball_sidecar_toolkit/content
-include fireball_sidecar_toolkit/py.typed
+graft fireball_ai_toolkit/content
+include fireball_ai_toolkit/py.typed
 include VERSION LICENSE README.md DESIGN.md
 prune modules
 prune tasks

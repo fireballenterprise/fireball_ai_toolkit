@@ -286,7 +286,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fireball-sidecar-toolkit"
+name = "fireball-ai-toolkit"
 source = { editable = "." }
 dependencies = [
     { name = "invoke" },
