@@ -47,6 +47,7 @@ _AREA_OVERRIDES = {
     "3d_shopify": "3D Shopify",
     "ai_python": "AI Python",
     "ai_vault": "AI Vault",
+    "designer_llm": "Designer LLM",
     "enterprise_landing": "Enterprise Landing",
     "orchestrator": "Orchestrator",
     "sidecar_chat": "Sidecar Chat",

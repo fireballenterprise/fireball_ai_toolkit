@@ -67,6 +67,17 @@ Feature / task variant: `**Summary:**` then `## Request` then `## Why / details`
 If an image was pasted, **read it and transcribe the relevant content into the body** — error
 text as fenced quotes, UI state as prose; note it came from a screenshot.
 
+## Epics
+A multi-phase initiative gets a GitHub Project (`gh project create --owner <org> --title "<Name> -
+<Phase> - <Milestone>"`, e.g. `Designer LLM - P0 - Release 0.1.0`) plus one root issue per phase —
+called an **Epic**. An Epic is `--type task`, titled `EPIC: <Phase> - <Short Name>` (e.g. `EPIC: P0
+- Setup Infra`), body is a short scope statement (what the phase covers, why it's split out). File
+fewer than 10 child issues under each Epic via `gh issue create --parent <epic-number>` (`backlog.add`
+has no `--parent` flag yet — use `gh issue create` directly for Epic/child creation, matching the
+issue-body format and label conventions above). Add the Epic and every child issue to the Project
+(`gh project item-add <number> --owner <org> --url <issue-url>`). Keep child counts low per Epic —
+split into another phase/Epic rather than letting one balloon past ~10.
+
 ## Guardrails
 - **Scrub secrets / PII before every `add` and `comment`** — API keys, tokens, passwords, `.env`
   values, AWS account IDs + ARNs, Cognito IDs, connection strings, creds-in-URLs, customer

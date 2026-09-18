@@ -35,9 +35,7 @@ class DriftError(RuntimeError):
     """A generated or clobbered file is stale relative to the packaged ``content/``."""
 
 
-_DRIFT_MSG = (
-    "Toolkit-managed files are stale:\n  - {items}\nRun `invoke ai_toolkit.sync` (or `apply`) to regenerate."
-)
+_DRIFT_MSG = "Toolkit-managed files are stale:\n  - {items}\nRun `invoke ai_toolkit.sync` (or `apply`) to regenerate."
 
 
 def _files(root: Path) -> set[Path]:
