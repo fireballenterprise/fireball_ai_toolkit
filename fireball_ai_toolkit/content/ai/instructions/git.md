@@ -22,11 +22,11 @@ flow below. `pr_create.py` refuses on a `pull_request: false` repo.
   - `## Changes` — a bulleted list of the key changes (one bullet per logical change, not per file)
 
 This is the canonical PR format for this repo — the `pr` / `pr-notes` commands implement it. Those
-commands (and every other) are authored once in `.fireball_ai_toolkit/toolkit/commands/` (via
+commands (and every other) are authored once in `.fireball_ai_toolkit/commands/` (via
 `fireball_ai_toolkit`'s `content/commands/`) and rendered per tool; see
-`.fireball_ai_toolkit/toolkit/instructions/ai_commands.md`.
+`.fireball_ai_toolkit/instructions/ai_commands.md`.
 
 ## Pull Request Assignee
 Always assign the PR to the user who asked for it — `gh pr create --assignee @me` (the currently
-authenticated `gh` user). `modules/toolkit/repo/pr_create.py` does this automatically; if you ever create a
+authenticated `gh` user). `modules/fireball_ai_toolkit/repo/pr_create.py` does this automatically; if you ever create a
 PR by hand (not through that module), pass `--assignee @me` yourself.

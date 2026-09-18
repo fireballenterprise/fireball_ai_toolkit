@@ -4,7 +4,7 @@
 ``/repo apply`` points at the agent-driven Cross-Repo Change Workflow. ``pull`` / ``push`` /
 ``cleanup`` act on the current repo, or on the family when a scope token follows — ``all`` (whole
 family), ``ai`` (``ai: true``), or ``dev_prd`` (``default_branch: development``); handled by
-:mod:`modules.toolkit.repo.family`. Everything else dispatches straight to its module.
+:mod:`modules.fireball_ai_toolkit.repo.family`. Everything else dispatches straight to its module.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from ..common.target_repo import delegate, resolve_target_repo
 from ..setup.properties import FAMILY_SCOPES
 from . import family
 
-_PREFIX = "modules.toolkit.repo"
+_PREFIX = "modules.fireball_ai_toolkit.repo"
 
 _SUBCOMMAND_MODULES = {
     "push": f"{_PREFIX}.push",
@@ -53,7 +53,7 @@ Aliases: /pull, /push, /cleanup — each also takes a scope. Retired repos are a
 
 _APPLY_POINTER = """\
 Cross-repo apply is agent-driven. Follow the Cross-Repo Change Workflow in
-.fireball_ai_toolkit/toolkit/instructions/repos.md: apply the change on a feature branch in every family repo
+.fireball_ai_toolkit/instructions/repos.md: apply the change on a feature branch in every family repo
 (root-to-leaf parent order), stop at the checkpoint, then ship each per its pull_request flag
 (a PR for pull_request:true, a direct push to the default branch for pull_request:false).
 """

@@ -6,7 +6,7 @@ hints:
   - pull the latest
   - pull all repos
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/repos.md
+  - .fireball_ai_toolkit/instructions/repos.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/pull.md
+  - .fireball_ai_toolkit/commands/pull.md
 ---

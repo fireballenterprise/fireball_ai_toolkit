@@ -10,7 +10,7 @@ uv run --no-sync invoke docs.update-changelogs
 Each root `properties.yml` key listed in `lib/change_logs.py`'s `CHANGELOG_CATEGORIES` tuple owns
 a change log per entry under `docs/change_logs/<category>/<name>.md`. `CHANGELOG_CATEGORIES` is
 empty for now — nothing here is version-tracked in that shape yet, so both the sync task and its
-drift-test counterpart (`tests/toolkit/drift/docs/test_changelogs_current.py`) are no-ops until a category
+drift-test counterpart (`tests/fireball_ai_toolkit/drift/docs/test_changelogs_current.py`) are no-ops until a category
 is added. See `.github/instructions/changelogs.instructions.md` for the full `properties.yml` entry
 shape and rendered markdown format.
 

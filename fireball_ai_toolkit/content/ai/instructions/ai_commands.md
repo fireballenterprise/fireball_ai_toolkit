@@ -1,21 +1,21 @@
 ---
-description: "Use when authoring a canonical slash command or instruction file (.fireball_ai_toolkit/toolkit/ via the toolkit, or a repo's .fireball_ai_toolkit/<repo>/) — the generator model, required frontmatter, and the thin-wrapper body."
-applyTo: ".fireball_ai_toolkit/*/commands/**,.fireball_ai_toolkit/*/instructions/**,.claude/commands/**,.clinerules/workflows/**,.github/prompts/**,.sidecar/commands/**"
+description: "Use when authoring a canonical slash command or instruction file (.fireball_ai_toolkit/ via the toolkit, or a repo's .<repo>/) — the generator model, required frontmatter, and the thin-wrapper body."
+applyTo: ".*/commands/**,.*/instructions/**,.claude/commands/**,.clinerules/workflows/**,.github/prompts/**,.sidecar/commands/**"
 ---
 # AI Commands Instructions
 Standards for the slash commands / custom prompts. **Commands are authored once** in
 `fireball_ai_toolkit`'s `content/commands/*.md` (mirrored into each consuming repo as
-`.fireball_ai_toolkit/toolkit/commands/`; repo-specific ones in `.fireball_ai_toolkit/<repo>/commands/`) and a generator renders one
+`.fireball_ai_toolkit/commands/`; repo-specific ones in `.<repo>/commands/`) and a generator renders one
 pointer stub per tool. **Never hand-edit a generated provider file** — edit the `.fireball_ai_toolkit/` source and
 re-run `invoke ai_toolkit.apply`.
 
 ## Architecture
-Commands are the AI-facing entrypoint layer described in `.fireball_ai_toolkit/toolkit/instructions/logic.md` (Core Principle +
+Commands are the AI-facing entrypoint layer described in `.fireball_ai_toolkit/instructions/logic.md` (Core Principle +
 The Stack) — thin wrappers only, no business logic. See that file for why command bodies are the
-AI's decision-capture layer, and how this differs from `.fireball_ai_toolkit/toolkit/instructions/tasks.md`'s plain CLI
+AI's decision-capture layer, and how this differs from `.fireball_ai_toolkit/instructions/tasks.md`'s plain CLI
 automation.
 
-## Canonical command file (`.fireball_ai_toolkit/toolkit/commands/<slug>.md`)
+## Canonical command file (`.fireball_ai_toolkit/commands/<slug>.md`)
 ```yaml
 ---
 name: <slug>
@@ -26,7 +26,7 @@ allowed-tools:                             # optional — only when the derived 
   - Bash(gh pr create *)
 ---
 
-!`uv run --no-sync python -m modules.toolkit.<module>.route "$ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.<module>.route "$ARGUMENTS"`
 
 <optional extra guidance for the agent — kept verbatim in every rendered view>
 ```
@@ -36,7 +36,7 @@ no `!` line is prose-only (the agent just follows the body).
 
 ## What the generator emits per tool
 Every generated file is a **pointer stub**: provider frontmatter + one line
-`Source of truth: .fireball_ai_toolkit/toolkit/commands/<slug>.md` (or `.fireball_ai_toolkit/<repo>/…`). No body is inlined.
+`Source of truth: .fireball_ai_toolkit/commands/<slug>.md` (or `.<repo>/…`). No body is inlined.
 
 | Tool | File | Frontmatter it still carries |
 |------|------|------|
@@ -51,19 +51,19 @@ Every generated file is a **pointer stub**: provider frontmatter + one line
 
 ## Creating a new command
 1. Python module — `modules/<module>/<verb>.py` (ALL logic here) + `modules/<module>/route.py`
-   (argument dispatch only). See `.fireball_ai_toolkit/toolkit/instructions/modules.md` for the router template.
-2. `.fireball_ai_toolkit/toolkit/commands/<slug>.md` — the thin wrapper above.
-3. `.fireball_ai_toolkit/toolkit/skills/<slug>.md` — the matching skill (see `.fireball_ai_toolkit/toolkit/instructions/ai_skills.md`).
+   (argument dispatch only). See `.fireball_ai_toolkit/instructions/modules.md` for the router template.
+2. `.fireball_ai_toolkit/commands/<slug>.md` — the thin wrapper above.
+3. `.fireball_ai_toolkit/skills/<slug>.md` — the matching skill (see `.fireball_ai_toolkit/instructions/ai_skills.md`).
 4. `uv run --no-sync invoke ai_toolkit.apply` to regenerate, then `uv run --no-sync invoke fix` && `uv run --no-sync invoke
    test` (must be 10/10 for `.py` changes).
 
-## Authoring instruction files (`.fireball_ai_toolkit/toolkit/instructions/<slug>.md`)
+## Authoring instruction files (`.fireball_ai_toolkit/instructions/<slug>.md`)
 - One file per concern — the generated `AGENTS.md` index lists them all, derived from the bundle
 - Always include a `description` in YAML frontmatter using the "Use when..." pattern
 - Use an `applyTo` glob only when the instruction is relevant to a specific file type or directory
   (`**/*.py`, `**/*.csv`, `.github/workflows/**`); omit it (or `**`) for repo-wide rules
 - Keep instructions actionable and example-driven — prefer short code blocks over prose
-- No standalone `---` dividers in the body — see `.fireball_ai_toolkit/toolkit/instructions/markdown.md`
+- No standalone `---` dividers in the body — see `.fireball_ai_toolkit/instructions/markdown.md`
 
 ## Verbatim output blocks
 A command whose job is to *show the user* an already-formatted answer (a Markdown table, a report)
@@ -100,16 +100,16 @@ orchestrator); a **path** works anywhere; neither touches `properties.yml` in CI
 exec line and runs it in the open workspace, so the exec line stays `… route.py "$ARGUMENTS"` /
 `invoke <task> $ARGUMENTS` and the router / task peels the selector. The work then runs as a
 **fresh subprocess** in the target checkout (`cwd` + `$SIDECAR_REPO_ROOT`) —
-`modules/toolkit/common/target_repo.py` — never in-process (the properties cache pins one process
+`modules/fireball_ai_toolkit/common/target_repo.py` — never in-process (the properties cache pins one process
 to one repo). A check that's meaningless for the target (e.g. a Python-version check on a Kotlin
-app) self-skips with a note (`modules/toolkit/common/toolchains.py`).
+app) self-skips with a note (`modules/fireball_ai_toolkit/common/toolchains.py`).
 
 ## uv --no-sync flag
 Every `uv run` call in a command MUST use `--no-sync`:
 
 ```
-✅ uv run --no-sync python -m modules.toolkit.chat.route "$ARGUMENTS"
-❌ uv run python -m modules.toolkit.chat.route "$ARGUMENTS"
+✅ uv run --no-sync python -m modules.fireball_ai_toolkit.chat.route "$ARGUMENTS"
+❌ uv run python -m modules.fireball_ai_toolkit.chat.route "$ARGUMENTS"
 ```
 
 ## Cache restart requirement
@@ -120,7 +120,7 @@ before testing.
 ```
 User: /chat resume wire_tunnels
   ↓  AI tool reads the rendered command file for its own format
-  ↓  body executes: uv run --no-sync python -m modules.toolkit.chat.route "resume wire_tunnels"
-  ↓  modules/toolkit/chat/route.py dispatches → modules.toolkit.chat.resume --pattern="wire_tunnels"
+  ↓  body executes: uv run --no-sync python -m modules.fireball_ai_toolkit.chat.route "resume wire_tunnels"
+  ↓  modules/fireball_ai_toolkit/chat/route.py dispatches → modules.fireball_ai_toolkit.chat.resume --pattern="wire_tunnels"
   ↓  the Python function receives pattern="wire_tunnels"
 ```

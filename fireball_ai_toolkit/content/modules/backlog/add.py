@@ -1,6 +1,6 @@
 """`backlog.add` — open a GitHub Issue on a family repo.
 
-uv run --no-sync python -m modules.toolkit.backlog.add --repo vscode --type bug --title "..."
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.add --repo vscode --type bug --title "..."
 """
 
 from __future__ import annotations

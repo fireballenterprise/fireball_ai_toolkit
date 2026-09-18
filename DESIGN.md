@@ -20,14 +20,14 @@ Full project plan and history: `ai_vault` repo →
 ```
 fireball_ai_toolkit/        <- THE distributable package (the only thing in the wheel)
   content/                       <- everything shipped, as package data. apply clobber-copies:
-    ai/{commands,instructions,skills}/*.md   -> .fireball_ai_toolkit/toolkit/  (then rendered into every provider dir)
-    modules/                                 -> modules/toolkit/   (shared Python, modules.toolkit.*)
-    tasks/                                   -> tasks/toolkit/
-    tests/                                   -> tests/toolkit/
+    ai/{commands,instructions,skills}/*.md   -> .fireball_ai_toolkit/  (then rendered into every provider dir)
+    modules/                                 -> modules/fireball_ai_toolkit/   (shared Python, modules.fireball_ai_toolkit.*)
+    tasks/                                   -> tasks/fireball_ai_toolkit/
+    tests/                                   -> tests/fireball_ai_toolkit/
     scripts/{setup.sh,setup.ps1}             -> repo root
   __init__.py       exposes __version__ (from importlib.metadata)
   cli.py            `ai-toolkit` console entrypoint
-  catalog.py        parse content/ai/ (+ a repo's .fireball_ai_toolkit/<repo>/) -> ContentBundle; CLOBBER_TREES/FILES map
+  catalog.py        parse content/ai/ (+ a repo's .<repo>/) -> ContentBundle; CLOBBER_TREES/FILES map
   render.py         run every renderer over the bundle
   renderers/        one per target: agents, claude, cline, copilot, prompts, sidecar
   apply.py         clobber every content/ tree into the repo, then render
@@ -37,7 +37,7 @@ fireball_ai_toolkit/        <- THE distributable package (the only thing in the 
   mdfix.py          normalise *.md house style (no blank after header; no stray --- in instructions)
   release.py        `gh workflow run release.yml`
 modules/            <- the TOOLKIT's own dev tooling (NOT packaged): common/, setup/, versioning/.
-                       A minimal subset — content/modules/toolkit/ is the fuller consumer copy.
+                       A minimal subset — content/modules/fireball_ai_toolkit/ is the fuller consumer copy.
 tasks/              <- toolkit's own invoke tasks (NOT packaged): ai_toolkit/, common/, tests/
 VERSION             <- PEP 440 X.Y.Z; pyproject reads it via [tool.setuptools.dynamic]
 MANIFEST.in         <- keeps the sdist in sync with the wheel
@@ -108,26 +108,26 @@ no submodule. Non-Python / day-job repo:
 
 ## Consuming-repo contract
 ```
-.fireball_ai_toolkit/toolkit/     clobbered copy of content/ai/ — NEVER hand-edited
-modules/toolkit/ clobbered copy of content/modules/ — shared Python, imported as modules.toolkit.*
-tasks/toolkit/   clobbered copy of content/tasks/
-tests/toolkit/   clobbered copy of content/tests/
+.fireball_ai_toolkit/     clobbered copy of content/ai/ — NEVER hand-edited
+modules/fireball_ai_toolkit/ clobbered copy of content/modules/ — shared Python, imported as modules.fireball_ai_toolkit.*
+tasks/fireball_ai_toolkit/   clobbered copy of content/tasks/
+tests/fireball_ai_toolkit/   clobbered copy of content/tests/
 setup.sh setup.ps1   clobbered from content/scripts/ — repo extras go in setup.local.sh (not clobbered)
-.fireball_ai_toolkit/<repo>/      this repo's own instructions/ commands/ skills/ (e.g. .fireball_ai_toolkit/ai_vault/) — never synced
+.<repo>/      this repo's own instructions/ commands/ skills/ (e.g. .fireball_ai_vault/) — never synced
 modules/ tasks/ tests/ (root)   this repo's own code — never touched
 <generated> .claude/ .github/{prompts,instructions,skills,copilot-instructions.md} .clinerules/
             .sidecar/ AGENTS.md CLAUDE.md — NEVER hand-edited; each file is a pointer stub back
-            to .fireball_ai_toolkit/toolkit/ or .fireball_ai_toolkit/<repo>/ (provider frontmatter + one "Source of truth:" line)
+            to .fireball_ai_toolkit/ or .<repo>/ (provider frontmatter + one "Source of truth:" line)
 ```
 - `ai_toolkit.apply` — clobber every managed path from the package, render every provider
-  stub (with `.fireball_ai_toolkit/<repo>/` layered on top).
+  stub (with `.<repo>/` layered on top).
 - **Partial vendoring** — `.ai-toolkit.yml` at the repo root, `vendor: [ai, scripts]`, limits
   which shipped trees a repo takes (`ai`, `modules`, `tasks`, `tests`, `scripts`; absent file =
   all of them). For a repo whose shared Python has diverged too far to clobber: take `.fireball_ai_toolkit/` +
   `setup.sh` now, reconcile the rest into `content/` over time, then widen the list. `apply` /
   `check` / `sync` / `contribute` all honour it; without `ai` in the list the render step is skipped.
 - `ai_toolkit.contribute` — diff every managed path vs `content/`, open a PR against this repo
-  (refuses edits outside the managed set, and `.fireball_ai_toolkit/<repo>/` / generated output).
+  (refuses edits outside the managed set, and `.<repo>/` / generated output).
 - `ai_toolkit.sync` — check the managed paths for uncommitted edits -> surface them and ask
   whether to contribute first -> then apply -> render. What `/toolkit_sync` and the skill call.
 - `ai_toolkit.check` — read-only drift gate for `invoke fix` / `invoke test` and CI.
@@ -139,8 +139,8 @@ modules/ tasks/ tests/ (root)   this repo's own code — never touched
 ## Open design questions
 1. **Shared vs local content split.** The initial port copied *all* of ai_vault's
    `.github/instructions/` and `.github/prompts/`. See the plan's Shared-vs-Local table for the
-   agreed division. ai_vault-specific files move to `.fireball_ai_toolkit/<repo>/` before the first real `apply`.
-2. **`.fireball_ai_toolkit/<repo>/` merge semantics** — additive-only, or per-file override of an `.fireball_ai_toolkit/toolkit/` file?
+   agreed division. ai_vault-specific files move to `.<repo>/` before the first real `apply`.
+2. **`.<repo>/` merge semantics** — additive-only, or per-file override of an `.fireball_ai_toolkit/` file?
 3. **Circular dependency** — this repo is scaffolded from `template_python`; once `template_python`
    also consumes the toolkit, keep the toolkit free of its own dependency (it *is* the source) and
    render its own provider views from its own `content/`.

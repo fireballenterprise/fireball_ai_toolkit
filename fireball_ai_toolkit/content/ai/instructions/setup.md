@@ -1,6 +1,6 @@
 ---
-description: "Use when setting up a repo for the first time, editing setup.sh / setup.local.sh, editing properties.yml, or working on the properties.yml bootstrap (modules/toolkit/setup/ + modules/setup/templates/)."
-applyTo: "setup.sh,setup.ps1,setup.local.sh,setup.local.ps1,properties.yml,modules/setup/**,modules/toolkit/setup/**"
+description: "Use when setting up a repo for the first time, editing setup.sh / setup.local.sh, editing properties.yml, or working on the properties.yml bootstrap (modules/fireball_ai_toolkit/setup/ + modules/setup/templates/)."
+applyTo: "setup.sh,setup.ps1,setup.local.sh,setup.local.ps1,properties.yml,modules/setup/**,modules/fireball_ai_toolkit/setup/**"
 ---
 # Setup
 ## First-time setup
@@ -29,8 +29,8 @@ setup_local_post()  { uv run --no-sync invoke aws.cdk.ensure; }
 ```
 PowerShell: `Setup-Local-Tools` / `Setup-Local-Post` in `setup.local.ps1`.
 
-## `properties.yml` bootstrap (`modules/toolkit/setup/properties.py`)
-- The `setup` module code is **shared** — clobbered into `modules/toolkit/setup/`. The tier YAML
+## `properties.yml` bootstrap (`modules/fireball_ai_toolkit/setup/properties.py`)
+- The `setup` module code is **shared** — clobbered into `modules/fireball_ai_toolkit/setup/`. The tier YAML
   fragments are **repo-local** — kept in `modules/setup/templates/properties/*.yml` (never
   clobbered); `properties.py` reads them from there.
 - Assembled once, on first run: one fragment per repo in the lineage
@@ -51,6 +51,6 @@ without scrolling.
   `# region` / `# endregion`, so this is the navigation index.
 - **Comments are one line + a pointer, not an essay.** A section gets at most a single `#` line
   saying what it is and where the full explanation lives —
-  `# Default AWS_PROFILE for aws/cdk shell-outs — see .fireball_ai_toolkit/<repo>/instructions/aws.md`. Rationale,
+  `# Default AWS_PROFILE for aws/cdk shell-outs — see .<repo>/instructions/aws.md`. Rationale,
   mechanism, and edge cases belong in that instruction doc, not woven into `properties.yml`.
 - Per-key comments only for a genuinely non-obvious value; still one line.

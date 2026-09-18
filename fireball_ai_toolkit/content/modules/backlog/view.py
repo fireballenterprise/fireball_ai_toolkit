@@ -1,6 +1,6 @@
 """`backlog.view` — show one issue (gh passthrough).
 
-uv run --no-sync python -m modules.toolkit.backlog.view --repo vscode --number 12 [--json]
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.view --repo vscode --number 12 [--json]
 """
 
 from __future__ import annotations

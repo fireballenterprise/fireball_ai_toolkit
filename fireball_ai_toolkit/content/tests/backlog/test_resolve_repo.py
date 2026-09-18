@@ -1,10 +1,10 @@
-"""modules.toolkit.backlog.common.resolve_repo — the fuzzy `--repo` matcher."""
+"""modules.fireball_ai_toolkit.backlog.common.resolve_repo — the fuzzy `--repo` matcher."""
 
 from pathlib import Path
 
 import pytest
-from modules.toolkit.backlog import common
-from modules.toolkit.setup.properties import FamilyRepo
+from modules.fireball_ai_toolkit.backlog import common
+from modules.fireball_ai_toolkit.setup.properties import FamilyRepo
 
 pytestmark = pytest.mark.backlog
 

@@ -19,13 +19,13 @@ from ..setup.properties import FamilyRepo, find_current_repo, get_family_repos, 
 
 _SINGLETON_NOTE = (
     "ℹ  family run requested, but properties.yml has no repos: family map (or none are cloned) —\n"
-    "   running just this repo. See .fireball_ai_toolkit/toolkit/instructions/repos.md to set up a repos: map."
+    "   running just this repo. See .fireball_ai_toolkit/instructions/repos.md to set up a repos: map."
 )
 
 
 def _pkg_root(path: Path) -> str:
     """Importable prefix for a repo's vendored toolkit modules (consumer vs. template layout)."""
-    return "modules.toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
+    return "modules.fireball_ai_toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
 
 
 def _repo_module(path: Path, verb: str) -> str:

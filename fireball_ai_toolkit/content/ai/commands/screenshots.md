@@ -5,7 +5,7 @@ argument-hint: configure | view | clean
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.screenshots.route "$ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.screenshots.route "$ARGUMENTS"`
 
 - `configure` — point macOS screenshot capture at the repo's `screenshots/` folder
 - `view` — copy the latest screenshot to `screenshots/latest.png` (also `/ss`), then view it

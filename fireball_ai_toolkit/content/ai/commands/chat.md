@@ -5,7 +5,7 @@ argument-hint: start [title] | end | list | resume [pattern]
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.chat.route "$ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.chat.route "$ARGUMENTS"`
 
 If $ARGUMENTS starts with "list", render the command output as a markdown table with columns: # | Date | Title. Place the active chat (marked ⭐ active) as the last row, separated by a divider. Do not add extra commentary — just the table followed by a one-line summary (e.g. "24 chats — active: **a body on curve**").
 

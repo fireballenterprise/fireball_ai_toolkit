@@ -27,7 +27,7 @@ def test_every_command_is_wired_to_a_skill():
     skills = {s.name: s for s in bundle.skills}
     wired = {path for skill in bundle.skills for path in skill.commands}
     for command in bundle.commands:
-        ref = f".fireball_ai_toolkit/toolkit/commands/{command.slug}.md"
+        ref = f".fireball_ai_toolkit/commands/{command.slug}.md"
         assert ref in wired, f"command {command.slug!r} is in no skill's commands: list"
         if command.slug in skills:
             assert ref in skills[command.slug].commands
@@ -40,7 +40,7 @@ def test_skill_instruction_and_command_paths_resolve():
     missing = []
     for skill in bundle.skills:
         for path in (*skill.instructions, *skill.commands):
-            rel = path.removeprefix(".fireball_ai_toolkit/toolkit/")
+            rel = path.removeprefix(".fireball_ai_toolkit/")
             if not (ai_root / rel).is_file():
                 missing.append(f"{skill.name}: {path}")
     assert not missing, "skill paths that do not resolve:\n" + "\n".join(missing)
@@ -82,7 +82,7 @@ def test_local_overlay_wins_and_is_flagged(tmp_path):
     (canonical / "instructions").mkdir(parents=True)
     (canonical / "commands" / "push.md").write_text("---\ndescription: canonical\n---\nbody\n")
 
-    local = tmp_path / ".fireball_ai_toolkit" / "local"
+    local = tmp_path / ".local"
     (local / "commands").mkdir(parents=True)
     (local / "commands" / "push.md").write_text("---\ndescription: local override\n---\nlocal body\n")
     (local / "commands" / "mine.md").write_text("---\ndescription: repo-only\n---\nx\n")

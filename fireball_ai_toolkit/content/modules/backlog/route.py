@@ -8,7 +8,7 @@ import sys
 
 from ..common.route_utils import build_env, find_repo_root
 
-_PREFIX = "modules.toolkit.backlog"
+_PREFIX = "modules.fireball_ai_toolkit.backlog"
 _SUBCOMMANDS = ("add", "close", "comment", "list", "start", "view")
 
 

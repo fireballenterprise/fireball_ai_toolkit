@@ -11,7 +11,7 @@ instead.
 
 Gather the branch and diff context:
 
-!`uv run --no-sync python -m modules.toolkit.repo.route "pr_diff"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.repo.route "pr_diff"`
 
 If that fails, show the full output to the user and ask how they'd like to proceed.
 
@@ -22,14 +22,14 @@ but do NOT save it to a file this time — just hold it in context):
 
 ## Find or file a tracking issue
 Before creating the PR, look for the issue this work closes:
-1. List this repo's open issues: `uv run --no-sync python -m modules.toolkit.backlog.route "list --state open --json"`
+1. List this repo's open issues: `uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "list --state open --json"`
 2. Compare each issue's title against the branch name, commit log, and diff above.
    - **One clear match** (branch name / commits / diff obviously point at that issue) — use it,
      no need to ask.
    - **Several plausible matches, or none** — show the candidates as `#N — title` and ask the
      user which this PR tracks. Offer: pick one, file a new issue now for tracking (ask type +
-     confirm title/body per `.fireball_ai_toolkit/toolkit/instructions/backlog.md`, then
-     `uv run --no-sync python -m modules.toolkit.backlog.route "add <bug|feature|task> --title \"...\" --body \"...\" --label \"In Progress\""`
+     confirm title/body per `.fireball_ai_toolkit/instructions/backlog.md`, then
+     `uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "add <bug|feature|task> --title \"...\" --body \"...\" --label \"In Progress\""`
      — label it `In Progress` right away since a PR is being opened for it in this same breath,
      unlike a normal backlog filing — and note the returned issue number), or skip linking.
 3. Carry the resolved issue number (if any) into the PR create step below as `--issue <N>`.
@@ -38,7 +38,7 @@ Before creating the PR, look for the issue this work closes:
 1. Note the `Base branch:` value printed above.
 2. Draft a concise PR title (under 70 characters) summarizing the change.
 3. Run (add `--issue=<N>` only if a tracking issue was resolved above):
-   `uv run --no-sync python -m modules.toolkit.repo.route "pr_create --title=\"<title>\" --content=\"<notes>\" --issue=<N>"`
+   `uv run --no-sync python -m modules.fireball_ai_toolkit.repo.route "pr_create --title=\"<title>\" --content=\"<notes>\" --issue=<N>"`
 4. Report the PR URL to the user, and which issue it's tracking (if any).
 
 `pr_create` appends a `Tracks #<N>` line to the PR body (GitHub cross-references it on the issue

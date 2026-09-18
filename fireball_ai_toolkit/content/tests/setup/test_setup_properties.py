@@ -1,7 +1,7 @@
-"""Tests for modules.toolkit.setup.properties — scalar stamping, template-repo detection, .gitignore sync."""
+"""Tests for modules.fireball_ai_toolkit.setup.properties — scalar stamping, template-repo detection, .gitignore sync."""
 
 import pytest
-from modules.toolkit.setup import properties as setup_props
+from modules.fireball_ai_toolkit.setup import properties as setup_props
 
 pytestmark = pytest.mark.setup
 

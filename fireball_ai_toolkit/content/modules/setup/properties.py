@@ -353,9 +353,9 @@ def get_screenshots_cleanup_patterns() -> list[str]:
 
 
 # --- properties.yml bootstrap (first-run writer) -------------------------------------------
-# This module is clobbered to modules/toolkit/setup/ ; the tier fragments are repo-local.
+# This module is clobbered to modules/fireball_ai_toolkit/setup/ ; the tier fragments are repo-local.
 # get_repo_root() can't be used here — it searches for properties.yml, which doesn't exist yet.
-# This module is clobbered to modules/toolkit/setup/ ; the tier fragments stay repo-local (they
+# This module is clobbered to modules/fireball_ai_toolkit/setup/ ; the tier fragments stay repo-local (they
 # come from the parent repos in the lineage — template_python, template_ai_vault, …).
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _PROPERTIES_FILE = _REPO_ROOT / "properties.yml"

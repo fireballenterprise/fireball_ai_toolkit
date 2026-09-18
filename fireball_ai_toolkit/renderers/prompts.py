@@ -1,7 +1,7 @@
 """Render ``.github/prompts/*.prompt.md`` — the GitHub.com prompt-file picker view.
 
 A pointer stub: full frontmatter (``name``/``description``/``argument-hint``/``agent``) + a
-one-line pointer at the canonical ``.fireball_ai_toolkit/toolkit|local/commands/<slug>.md``.
+one-line pointer at the canonical ``.fireball_ai_toolkit|local/commands/<slug>.md``.
 """
 
 from __future__ import annotations

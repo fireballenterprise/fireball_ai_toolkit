@@ -1,7 +1,7 @@
-"""modules.toolkit.backlog.common.scrub — the secret redactor every issue write passes through."""
+"""modules.fireball_ai_toolkit.backlog.common.scrub — the secret redactor every issue write passes through."""
 
 import pytest
-from modules.toolkit.backlog.common import scrub
+from modules.fireball_ai_toolkit.backlog.common import scrub
 
 pytestmark = pytest.mark.backlog
 

@@ -1,6 +1,6 @@
 """`backlog.close` — close an issue, optionally noting what fixed it first.
 
-uv run --no-sync python -m modules.toolkit.backlog.close --repo vscode --number 12 --pr 45
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.close --repo vscode --number 12 --pr 45
 """
 
 from __future__ import annotations

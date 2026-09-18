@@ -1,6 +1,6 @@
 ---
-description: "Use when working with the modules/toolkit/versioning/ package — bumping the repo's VERSION file for releases, or checking/updating dependency version locks, GitHub Actions action-ref pins, and .sdkmanrc toolchain pins."
-applyTo: "modules/toolkit/versioning/**"
+description: "Use when working with the modules/fireball_ai_toolkit/versioning/ package — bumping the repo's VERSION file for releases, or checking/updating dependency version locks, GitHub Actions action-ref pins, and .sdkmanrc toolchain pins."
+applyTo: "modules/fireball_ai_toolkit/versioning/**"
 ---
 # Versioning Instructions
 Everything lives under one namespace: **`versioning.*`** (short alias **`ver.*`** — `ver.check`
@@ -35,7 +35,7 @@ honours `$SIDECAR_REPO_ROOT`; `project.py`'s does not, deliberately.
 
 ## Version Checks (`check.py` → `libs.py`, `python.py`, `workflows.py`, `sdkman.py`)
 `versioning.check` is **toolchain-aware**: with no sub-arg it runs only the checks the repo's
-toolchains enable (via `modules/toolkit/common/toolchains.py`) — a Python library gets `libs` +
+toolchains enable (via `modules/fireball_ai_toolkit/common/toolchains.py`) — a Python library gets `libs` +
 `python`, a repo with `.github/workflows/` gets `workflows`, a repo with a `.sdkmanrc` gets
 `sdkman`. Name one to force just it. Each sub-check runs as its own subprocess; one exiting `3`
 ("nothing to do", including "no pyproject.toml") never stops the others.
@@ -77,10 +77,10 @@ runs the installs. Both take a leading `[<repo>]` or `--repo <name|path>`.
 ## `--repo` targeting
 `versioning.check` / `.upgrade` take `--repo <name|path>` — a `properties.yml` family-repo name
 (fireball_orchestrator only) or a path to any git checkout. The work runs as a fresh subprocess in
-that checkout (`modules/toolkit/common/target_repo.py`). A check that's meaningless for the target
+that checkout (`modules/fireball_ai_toolkit/common/target_repo.py`). A check that's meaningless for the target
 (e.g. `python` for a Kotlin app) self-skips with a note. `versioning.bump` takes only a path (a
 bump is repo-local by definition) and is never given `--repo` in CI.
 
 ## Module Conventions
-Same as `.fireball_ai_toolkit/toolkit/instructions/modules.md` / `python.md`. See
-`modules/toolkit/versioning/README.md` for per-file data-flow.
+Same as `.fireball_ai_toolkit/instructions/modules.md` / `python.md`. See
+`modules/fireball_ai_toolkit/versioning/README.md` for per-file data-flow.

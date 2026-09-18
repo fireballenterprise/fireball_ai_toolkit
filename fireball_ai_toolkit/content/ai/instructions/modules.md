@@ -4,8 +4,8 @@ applyTo: "modules/**"
 ---
 # Python Modules Instructions
 All business logic lives here — slash commands and invoke tasks are thin CLI wrappers around it
-(see `.fireball_ai_toolkit/toolkit/instructions/logic.md`). Python style, ordering, and comment rules are in
-`.fireball_ai_toolkit/toolkit/instructions/python.md`; the 10/10 test gate is in `.fireball_ai_toolkit/toolkit/instructions/tests.md`.
+(see `.fireball_ai_toolkit/instructions/logic.md`). Python style, ordering, and comment rules are in
+`.fireball_ai_toolkit/instructions/python.md`; the 10/10 test gate is in `.fireball_ai_toolkit/instructions/tests.md`.
 
 ## Module Layout Consistency
 Every folder under `modules/` follows the same shape so any module is navigable without reading
@@ -38,7 +38,7 @@ def main(title):
 ```
 
 ### Path resolution
-Always use `modules/toolkit/setup/properties.py` — never hardcode paths:
+Always use `modules/fireball_ai_toolkit/setup/properties.py` — never hardcode paths:
 ```python
 from ..setup.properties import get_repo_local, get_screenshots_location
 
@@ -50,9 +50,9 @@ repo_root = get_repo_local()
 - No cross-imports between domain modules (`chat/`, `topic/`, `repo/`, …) — if truly shared, move it to `common/`
 
 ## templates.py Change Rule
-`modules/toolkit/topic/templates.py` is the single source of truth for each topic's generated `AGENTS.md`
+`modules/fireball_ai_toolkit/topic/templates.py` is the single source of truth for each topic's generated `AGENTS.md`
 / `CLAUDE.md`. When you modify it, follow the **templates.py Change Rule** in
-`.fireball_ai_toolkit/toolkit/instructions/topics.md` (fix + test, ask about `/topic update`).
+`.fireball_ai_toolkit/instructions/topics.md` (fix + test, ask about `/topic update`).
 
 ## Common CLI Option Patterns
 ```python
@@ -63,16 +63,19 @@ repo_root = get_repo_local()
 @cli.option("--sort", type=cli.Choice(["newest", "oldest"]), default="newest")
 @cli.option("--file", type=cli.Path(exists=True), help="...")
 ```
-`modules.toolkit.common.cli` handles parsing, `--help` generation, type validation, defaults, and
+`modules.fireball_ai_toolkit.common.cli` handles parsing, `--help` generation, type validation, defaults, and
 user-friendly errors.
 
 ## Router Template
 ```python
 # modules/<module>/route.py — argument dispatch only
 import shlex, subprocess, sys
-from modules.toolkit.common.route_utils import build_env, find_repo_root
+from modules.fireball_ai_toolkit.common.route_utils import build_env, find_repo_root
 
-_SUBCOMMAND_MODULES = {"start": "modules.toolkit.<module>.start", "end": "modules.toolkit.<module>.end"}
+_SUBCOMMAND_MODULES = {
+    "start": "modules.fireball_ai_toolkit.<module>.start",
+    "end": "modules.fireball_ai_toolkit.<module>.end",
+}
 
 
 def main() -> int:
@@ -96,8 +99,8 @@ A router for a verb that can act on *another* managed checkout (see `repo/route.
 `versioning/route.py`) adds a preamble right after `args = …`:
 
 ```python
-from modules.toolkit.common.route_utils import peel_repo
-from modules.toolkit.common.target_repo import delegate, resolve_target_repo
+from modules.fireball_ai_toolkit.common.route_utils import peel_repo
+from modules.fireball_ai_toolkit.common.target_repo import delegate, resolve_target_repo
 
 args, repo_token = peel_repo(args)
 target = resolve_target_repo(repo_token)  # None / path / fuzzy family name
@@ -105,17 +108,17 @@ if target is not None:
     return delegate(target, f"<module>.{verb}", rest, caller_root=Path.cwd())
 ```
 
-`resolve_target_repo` / `delegate` / `toolchains` are all in `modules/toolkit/common/` and stay
+`resolve_target_repo` / `delegate` / `toolchains` are all in `modules/fireball_ai_toolkit/common/` and stay
 **stdlib-only at import** (CI-safe — `versioning.bump` runs in CI where `properties.yml` is
 absent). Never switch repos in-process: `setup.properties` caches the repo root for the life of
 the process, so `delegate` always spawns a fresh subprocess (`cwd` + `$SIDECAR_REPO_ROOT`).
 
 ## AI Provider Files
-Commands, instructions, and skills are authored in `.fireball_ai_toolkit/toolkit/` (via `fireball_ai_toolkit`'s
-`content/`) or this repo's `.fireball_ai_toolkit/<repo>/`, and rendered as pointer stubs into every provider dir by
+Commands, instructions, and skills are authored in `.fireball_ai_toolkit/` (via `fireball_ai_toolkit`'s
+`content/`) or this repo's `.<repo>/`, and rendered as pointer stubs into every provider dir by
 `invoke ai_toolkit.apply`. There are no per-repo sync modules —
 `invoke ai_toolkit.check` (inside `invoke test`) is the drift gate. See
-`.fireball_ai_toolkit/toolkit/instructions/ai_commands.md`.
+`.fireball_ai_toolkit/instructions/ai_commands.md`.
 
 ## Module Template
 ```python
@@ -123,11 +126,11 @@ Commands, instructions, and skills are authored in `.fireball_ai_toolkit/toolkit
 Module description.
 
 Usage:
-    uv run --no-sync python -m modules.toolkit.<group>.<name> [--option value]
+    uv run --no-sync python -m modules.fireball_ai_toolkit.<group>.<name> [--option value]
 """
 
-from modules.toolkit.common import cli
-from modules.toolkit.setup.properties import get_repo_local
+from modules.fireball_ai_toolkit.common import cli
+from modules.fireball_ai_toolkit.setup.properties import get_repo_local
 
 
 @cli.command()

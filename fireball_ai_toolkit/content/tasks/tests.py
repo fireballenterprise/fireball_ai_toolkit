@@ -1,4 +1,4 @@
-"""Thin wrappers over ``modules.toolkit.tests`` — ``style`` (lint + format) and ``unit``.
+"""Thin wrappers over ``modules.fireball_ai_toolkit.tests`` — ``style`` (lint + format) and ``unit``.
 
 All discovery / per-tool logic is in the module. ``fix`` / ``test`` in ``main.py`` call these.
 """
@@ -27,7 +27,7 @@ def style(context, only=None, fix=False, repo=None):
         args.append("--fix")
     if with_target(repo, _STYLE, args):
         return
-    context.run(f"python -m modules.toolkit.{_STYLE} {' '.join(args)}".rstrip())
+    context.run(f"python -m modules.fireball_ai_toolkit.{_STYLE} {' '.join(args)}".rstrip())
 
 
 @task(
@@ -46,7 +46,7 @@ def unit(context, only=None, scope=None, repo=None):
         args += ["--scope", scope]
     if with_target(repo, _UNIT, args):
         return
-    context.run(f"python -m modules.toolkit.{_UNIT} {' '.join(args)}".rstrip())
+    context.run(f"python -m modules.fireball_ai_toolkit.{_UNIT} {' '.join(args)}".rstrip())
 
 
 namespace = Collection("tests")

@@ -1,15 +1,15 @@
 """GitHub-Issues backlog tasks — track bugs / features / tasks per family repo (see
-`modules/toolkit/backlog/`). `context.run("python -m ...")`, matching every other task here."""
+`modules/fireball_ai_toolkit/backlog/`). `context.run("python -m ...")`, matching every other task here."""
 
 import shlex
 
 from invoke import task
 
-_MODULE = "modules.toolkit.backlog"
+_MODULE = "modules.fireball_ai_toolkit.backlog"
 
 
 def _run(context, verb, *pairs, flags=()):
-    """`python -m modules.toolkit.backlog.<verb>` with `--key value` pairs (skipping empty
+    """`python -m modules.fireball_ai_toolkit.backlog.<verb>` with `--key value` pairs (skipping empty
     values) and bare `--flag`s. Every value is `shlex.quote`d — issue titles / bodies / comments
     routinely contain quotes, parens, backticks, and `$`."""
     parts = [f"python -m {_MODULE}.{verb}"]

@@ -1,11 +1,11 @@
-"""modules.toolkit.backlog.common — area / colour label helpers."""
+"""modules.fireball_ai_toolkit.backlog.common — area / colour label helpers."""
 
 from pathlib import Path
 
 import pytest
-from modules.toolkit.backlog import common
-from modules.toolkit.backlog.common import area_for_repo, label_color
-from modules.toolkit.setup.properties import FamilyRepo
+from modules.fireball_ai_toolkit.backlog import common
+from modules.fireball_ai_toolkit.backlog.common import area_for_repo, label_color
+from modules.fireball_ai_toolkit.setup.properties import FamilyRepo
 
 pytestmark = pytest.mark.backlog
 

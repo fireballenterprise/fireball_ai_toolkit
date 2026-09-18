@@ -6,7 +6,7 @@ the checks that apply: a Python library gets ``libs`` + ``python``, a repo with 
 ``workflows``, a repo with a ``.sdkmanrc`` gets ``sdkman``. Name one (``libs`` / ``python`` /
 ``workflows`` / ``sdkman``) to force just that one even if its toolchain isn't detected.
 
-Each sub-check runs as its own ``python -m modules.toolkit.versioning.<name>`` subprocess so one
+Each sub-check runs as its own ``python -m modules.fireball_ai_toolkit.versioning.<name>`` subprocess so one
 exiting early (exit 3 = "nothing to do") never stops the others. Overall exit is non-zero only
 when a sub-check genuinely failed.
 """

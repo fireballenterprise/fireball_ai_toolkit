@@ -1,7 +1,7 @@
-"""modules.toolkit.versioning.sdkman — .sdkmanrc parsing, `sdk list` latest-pick, the skip-list."""
+"""modules.fireball_ai_toolkit.versioning.sdkman — .sdkmanrc parsing, `sdk list` latest-pick, the skip-list."""
 
 import pytest
-from modules.toolkit.versioning import sdkman
+from modules.fireball_ai_toolkit.versioning import sdkman
 
 pytestmark = pytest.mark.versioning
 

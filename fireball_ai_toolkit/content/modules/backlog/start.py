@@ -1,7 +1,7 @@
 """`backlog.start` — begin working an issue: show it, assign it to you, and print the target
 repo's ship rules + local clone path. Does not touch git — the agent drives the change.
 
-    uv run --no-sync python -m modules.toolkit.backlog.start --repo vscode --number 12
+    uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.start --repo vscode --number 12
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@
 import builtins
 
 import pytest
-from modules.toolkit.common import cli
+from modules.fireball_ai_toolkit.common import cli
 
 pytestmark = pytest.mark.common
 
