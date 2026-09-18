@@ -11,24 +11,24 @@ from invoke import task
 @task
 def end(context):
     """Validate the active chat has real content, then clear its active-chat tracker"""
-    context.run("python -m modules.toolkit.chat.end")
+    context.run("python -m modules.fireball_ai_toolkit.chat.end")
 
 
 @task(name="list")
 def list_chats(context):
     """Show every chat file in the active topic, starring the active one"""
-    context.run("python -m modules.toolkit.chat.list")
+    context.run("python -m modules.fireball_ai_toolkit.chat.list")
 
 
 @task
 def resume(context, pattern=None):
     """Reopen the chat matching pattern (filename/title substring) in the active topic"""
     flag = f' --pattern="{pattern}"' if pattern else ""
-    context.run(f"python -m modules.toolkit.chat.resume{flag}")
+    context.run(f"python -m modules.fireball_ai_toolkit.chat.resume{flag}")
 
 
 @task
 def start(context, title=None):
     """Start a new dated planning chat in the active topic"""
     flag = f' --title="{title}"' if title else ""
-    context.run(f"python -m modules.toolkit.chat.start{flag}")
+    context.run(f"python -m modules.fireball_ai_toolkit.chat.start{flag}")

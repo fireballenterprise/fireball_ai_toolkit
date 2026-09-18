@@ -1,12 +1,12 @@
 """`backlog.list` — list issues for one repo (default: the current repo) or the whole family.
 
-uv run --no-sync python -m modules.toolkit.backlog.list [--repo vscode] [--type bug] [--label backlog]
-uv run --no-sync python -m modules.toolkit.backlog.list --all [--scope ai|dev_prd]
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.list [--repo vscode] [--type bug] [--label backlog]
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.list --all [--scope ai|dev_prd]
 
 The human output is Markdown: a `### <repo> · <count>` heading per repo followed by a
 `# / Title / Labels` table (issue numbers linked, titles truncated), fenced in
 `<!--sidecar:verbatim-->` markers so the Sidecar chat client renders it as-is (see
-`common.utils.verbatim` and the `commentary: skip` note in `.fireball_ai_toolkit/toolkit/commands/backlog.md`).
+`common.utils.verbatim` and the `commentary: skip` note in `.fireball_ai_toolkit/commands/backlog.md`).
 `--json` is unchanged — never fenced.
 """
 

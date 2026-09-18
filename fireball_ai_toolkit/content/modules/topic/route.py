@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 _SUBCOMMANDS = {"init", "list", "new", "reindex", "switch", "update"}
 
-# `modules.toolkit.topic` when vendored, `modules.topic` flat — resolve against our own package so
+# `modules.fireball_ai_toolkit.topic` when vendored, `modules.topic` flat — resolve against our own package so
 # the file is identical either way.
 _PKG = __package__ or "modules.topic"
 _SUBCOMMAND_MODULES = {name: f"{_PKG}.{name}" for name in _SUBCOMMANDS}

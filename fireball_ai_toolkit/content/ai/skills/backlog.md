@@ -24,10 +24,10 @@ hints:
   - close issue
   - mark it shipped
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/backlog.md
+  - .fireball_ai_toolkit/instructions/backlog.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/backlog.md
-  - .fireball_ai_toolkit/toolkit/commands/add_bug.md
-  - .fireball_ai_toolkit/toolkit/commands/add_feature.md
-  - .fireball_ai_toolkit/toolkit/commands/add_task.md
+  - .fireball_ai_toolkit/commands/backlog.md
+  - .fireball_ai_toolkit/commands/add_bug.md
+  - .fireball_ai_toolkit/commands/add_feature.md
+  - .fireball_ai_toolkit/commands/add_task.md
 ---

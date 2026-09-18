@@ -4,7 +4,7 @@ description: Use for an anchored squash of all commits to the root commit, with 
 hints:
   - squash
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/instructions/git.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/squash.md
+  - .fireball_ai_toolkit/commands/squash.md
 ---

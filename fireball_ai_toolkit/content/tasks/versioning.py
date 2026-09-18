@@ -1,4 +1,4 @@
-"""Thin wrappers over ``modules.toolkit.versioning`` — ``check`` / ``upgrade`` / ``bump``.
+"""Thin wrappers over ``modules.fireball_ai_toolkit.versioning`` — ``check`` / ``upgrade`` / ``bump``.
 
 All logic is in the module; these only translate invoke kwargs to CLI flags and route ``--repo``
 to another checkout. Registered by consumers as both ``versioning.*`` and the short alias
@@ -39,8 +39,8 @@ def check(context, only=None, repo=None, dry_run=False, yes=False):
     args = (["--only", only] if only else []) + _flags(dry_run, yes)
     if with_target(repo, _CHECK, args):
         return
-    context.run("python -m modules.toolkit.setup.properties")
-    result = context.run(f"python -m modules.toolkit.{_CHECK} {' '.join(args)}".rstrip(), warn=True)
+    context.run("python -m modules.fireball_ai_toolkit.setup.properties")
+    result = context.run(f"python -m modules.fireball_ai_toolkit.{_CHECK} {' '.join(args)}".rstrip(), warn=True)
     if result.exited != 0:
         raise SystemExit(result.exited)
 
@@ -64,7 +64,7 @@ def upgrade(context, only=None, sync=False, repo=None, yes=False):
         args.append("--yes")
     if with_target(repo, _UPGRADE, args):
         return
-    context.run(f"python -m modules.toolkit.{_UPGRADE} {' '.join(args)}".rstrip())
+    context.run(f"python -m modules.fireball_ai_toolkit.{_UPGRADE} {' '.join(args)}".rstrip())
 
 
 @task(help={"part": "patch | minor | major | build", "repo": "Run against another checkout (path only)"})
@@ -72,7 +72,7 @@ def bump(context, part, repo=None):
     """Bump the root VERSION file. Was ``ver.project_bump_patch`` etc."""
     if with_target(repo, _BUMP, [part]):
         return
-    context.run(f"python -m modules.toolkit.{_BUMP} {part}")
+    context.run(f"python -m modules.fireball_ai_toolkit.{_BUMP} {part}")
 
 
 namespace = Collection("versioning")

@@ -5,7 +5,7 @@ argument-hint: "[all|ai|dev_prd] [--repo <name|path>]"
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.repo.route "push $ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.repo.route "push $ARGUMENTS"`
 
 Bare `/push` pushes the current repo. `/push all` (or `ai` / `dev_prd`) runs the real `/push`
 (invoke fix + invoke test + commit + push) in each repo of that scope — same as

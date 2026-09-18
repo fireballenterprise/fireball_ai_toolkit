@@ -6,7 +6,7 @@ This module provides common functionality that is used by other modules througho
 
 ## Modules
 ### Screenshot utilities (moved out)
-The screenshot workflow lives in `modules/toolkit/screenshots/` (`configure.py`, `view.py`, `clean.py`).
+The screenshot workflow lives in `modules/fireball_ai_toolkit/screenshots/` (`configure.py`, `view.py`, `clean.py`).
 
 ### `target_repo.py` — the `--repo` target selector (CI-safe)
 `resolve_target_repo(token)` maps a `--repo` / first-positional selector to a checkout path:
@@ -36,7 +36,7 @@ Common utility functions for console output, error handling, and shared operatio
 This module depends on:
 - `setup.properties` - For reading configuration from `properties.yml`
 - Standard library: `pathlib`, `shutil`
-- Internal CLI helper: `modules/toolkit/common/cli.py` (TUI-safe prompt/confirm/option handling)
+- Internal CLI helper: `modules/fireball_ai_toolkit/common/cli.py` (TUI-safe prompt/confirm/option handling)
 
 ## Configuration
 Uses `properties.yml` at repository root:
@@ -66,7 +66,7 @@ Every other module imports from `common/`:
 
 ```python
 from modules.common import cli
-from modules.toolkit.setup.properties import get_repo_local, get_screenshots_location
-from modules.toolkit.common.utils import success, error, warning, info
-from modules.toolkit.common.route_utils import build_env, find_repo_root
+from modules.fireball_ai_toolkit.setup.properties import get_repo_local, get_screenshots_location
+from modules.fireball_ai_toolkit.common.utils import success, error, warning, info
+from modules.fireball_ai_toolkit.common.route_utils import build_env, find_repo_root
 ```

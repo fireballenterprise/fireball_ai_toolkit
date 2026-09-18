@@ -7,8 +7,8 @@ hints:
   - draft pr notes
   - pull request notes
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/git.md
+  - .fireball_ai_toolkit/instructions/git.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/pr.md
-  - .fireball_ai_toolkit/toolkit/commands/pr-notes.md
+  - .fireball_ai_toolkit/commands/pr.md
+  - .fireball_ai_toolkit/commands/pr-notes.md
 ---

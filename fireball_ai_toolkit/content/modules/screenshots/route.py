@@ -9,9 +9,9 @@ import sys
 from ..common.route_utils import build_env, find_repo_root
 
 _SUBCOMMAND_MODULES = {
-    "configure": "modules.toolkit.screenshots.configure",
-    "view": "modules.toolkit.screenshots.view",
-    "clean": "modules.toolkit.screenshots.clean",
+    "configure": "modules.fireball_ai_toolkit.screenshots.configure",
+    "view": "modules.fireball_ai_toolkit.screenshots.view",
+    "clean": "modules.fireball_ai_toolkit.screenshots.clean",
 }
 
 

@@ -5,7 +5,7 @@ argument-hint: [optional context or question]
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.screenshots.route "view"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.screenshots.route "view"`
 
 Then use the `view_image` tool on `screenshots/latest.png` (relative to the repository root) to view the screenshot.
 

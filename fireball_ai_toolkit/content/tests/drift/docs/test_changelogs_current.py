@@ -7,7 +7,7 @@ just calls it and lets that propagate as the failure. A no-op when properties.ym
 """
 
 import pytest
-from modules.toolkit.docs.lib.change_logs import check_each_log
+from modules.fireball_ai_toolkit.docs.lib.change_logs import check_each_log
 
 pytestmark = pytest.mark.drift
 

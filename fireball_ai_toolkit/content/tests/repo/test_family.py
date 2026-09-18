@@ -1,8 +1,8 @@
-"""modules.toolkit.repo.family + get_family_repos — nested + legacy schema, scope, retired."""
+"""modules.fireball_ai_toolkit.repo.family + get_family_repos — nested + legacy schema, scope, retired."""
 
 import pytest
-from modules.toolkit.repo import family
-from modules.toolkit.setup import properties
+from modules.fireball_ai_toolkit.repo import family
+from modules.fireball_ai_toolkit.setup import properties
 
 pytestmark = pytest.mark.repo
 

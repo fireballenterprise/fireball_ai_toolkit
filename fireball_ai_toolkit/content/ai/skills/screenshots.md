@@ -4,8 +4,8 @@ description: Use for the screenshot workflow — configure the macOS capture loc
 hints:
   - screenshots
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/screenshots.md
+  - .fireball_ai_toolkit/instructions/screenshots.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/screenshots.md
-  - .fireball_ai_toolkit/toolkit/commands/ss.md
+  - .fireball_ai_toolkit/commands/screenshots.md
+  - .fireball_ai_toolkit/commands/ss.md
 ---

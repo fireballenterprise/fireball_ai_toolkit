@@ -4,8 +4,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from modules.toolkit.repo import pr_create
-from modules.toolkit.setup.properties import FamilyRepo
+from modules.fireball_ai_toolkit.repo import pr_create
+from modules.fireball_ai_toolkit.setup.properties import FamilyRepo
 
 pytestmark = pytest.mark.repo
 

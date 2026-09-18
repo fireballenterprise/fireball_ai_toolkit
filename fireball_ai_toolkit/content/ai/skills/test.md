@@ -4,8 +4,8 @@ description: Use for running every lint + unit check the repo's toolchains enabl
 hints:
   - test
 instructions:
-  - .fireball_ai_toolkit/toolkit/instructions/tests.md
-  - .fireball_ai_toolkit/toolkit/instructions/python.md
+  - .fireball_ai_toolkit/instructions/tests.md
+  - .fireball_ai_toolkit/instructions/python.md
 commands:
-  - .fireball_ai_toolkit/toolkit/commands/test.md
+  - .fireball_ai_toolkit/commands/test.md
 ---

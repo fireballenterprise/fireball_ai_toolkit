@@ -21,7 +21,7 @@ def run_from_root(ctx, command: str, **kwargs):
         **kwargs: Additional arguments passed to ctx.run()
 
     Example:
-        >>> run_from_root(ctx, 'uv run python -m modules.toolkit.topic.init')
+        >>> run_from_root(ctx, 'uv run python -m modules.fireball_ai_toolkit.topic.init')
     """
     # Record original working directory
     original_cwd = Path.cwd()

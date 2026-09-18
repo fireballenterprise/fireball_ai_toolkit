@@ -40,8 +40,8 @@ def _mini_content(root: Path) -> Path:
     )
     (content / "skills" / "repos.md").write_text(
         "---\nname: repos\ndescription: Repo map skill\nhints:\n  - the repos\n"
-        "instructions:\n  - .fireball_ai_toolkit/toolkit/instructions/git.md\n"
-        "commands:\n  - .fireball_ai_toolkit/toolkit/commands/repos.md\n---\n"
+        "instructions:\n  - .fireball_ai_toolkit/instructions/git.md\n"
+        "commands:\n  - .fireball_ai_toolkit/commands/repos.md\n---\n"
     )
     return content
 
@@ -78,31 +78,31 @@ def test_cline_is_a_pointer_stub(tmp_path):
     fix = (tmp_path / ".clinerules" / "workflows" / "fix.md").read_text()
     assert "!`" not in fix
     assert "Run this terminal command:" not in fix
-    assert "Source of truth: `.fireball_ai_toolkit/toolkit/commands/fix.md`" in fix
+    assert "Source of truth: `.fireball_ai_toolkit/commands/fix.md`" in fix
 
 
 def test_agents_index_lists_every_instruction(tmp_path):
     render_repo(tmp_path, canonical_root=_mini_content(tmp_path))
     agents = (tmp_path / "AGENTS.md").read_text()
-    assert "`.fireball_ai_toolkit/toolkit/instructions/git.md`" in agents
-    assert "`.fireball_ai_toolkit/toolkit/instructions/python.md`" in agents
+    assert "`.fireball_ai_toolkit/instructions/git.md`" in agents
+    assert "`.fireball_ai_toolkit/instructions/python.md`" in agents
     assert "**Git & PR**" in agents  # label derived from the H1
 
 
 def test_sidecar_files_point_at_canonical_ai_paths(tmp_path):
     render_repo(tmp_path, canonical_root=_mini_content(tmp_path))
     cmd = (tmp_path / ".sidecar" / "commands" / "fix.md").read_text()
-    assert "Source of truth: `.fireball_ai_toolkit/toolkit/commands/fix.md`" in cmd
+    assert "Source of truth: `.fireball_ai_toolkit/commands/fix.md`" in cmd
     inst = (tmp_path / ".sidecar" / "instructions" / "python.md").read_text()
     assert 'applyTo: "**/*.py"' in inst
-    assert "Source of truth: `.fireball_ai_toolkit/toolkit/instructions/python.md`" in inst
+    assert "Source of truth: `.fireball_ai_toolkit/instructions/python.md`" in inst
 
 
 def test_skill_stubs_written_for_claude_and_github(tmp_path):
     render_repo(tmp_path, canonical_root=_mini_content(tmp_path))
     for dest in (".claude/skills/repos/SKILL.md", ".github/skills/repos/SKILL.md"):
         text = (tmp_path / dest).read_text()
-        assert "Source of truth: `.fireball_ai_toolkit/toolkit/skills/repos.md`" in text
+        assert "Source of truth: `.fireball_ai_toolkit/skills/repos.md`" in text
         assert GENERATED_HEADER in text
         fm, body = text.split("---")[1], text.split("---", 2)[2]
         # Claude / Copilot reject unknown keys: name + description only
@@ -115,9 +115,9 @@ def test_skill_stubs_written_for_claude_and_github(tmp_path):
         assert "**Trigger phrases**" in body
         assert "- the repos" in body
         assert "**Instructions**" in body
-        assert "- `.fireball_ai_toolkit/toolkit/instructions/git.md`" in body
+        assert "- `.fireball_ai_toolkit/instructions/git.md`" in body
         assert "**Commands**" in body
-        assert "- `.fireball_ai_toolkit/toolkit/commands/repos.md`" in body
+        assert "- `.fireball_ai_toolkit/commands/repos.md`" in body
 
 
 def test_sidecar_skill_stub_mirrors_the_canonical_header(tmp_path):
@@ -125,9 +125,9 @@ def test_sidecar_skill_stub_mirrors_the_canonical_header(tmp_path):
     text = (tmp_path / ".sidecar" / "skills" / "repos.md").read_text()
     fm = text.split("---")[1]
     assert "hints:\n  - the repos" in fm
-    assert "instructions:\n  - .fireball_ai_toolkit/toolkit/instructions/git.md" in fm
-    assert "commands:\n  - .fireball_ai_toolkit/toolkit/commands/repos.md" in fm
-    assert "Source of truth: `.fireball_ai_toolkit/toolkit/skills/repos.md`" in text
+    assert "instructions:\n  - .fireball_ai_toolkit/instructions/git.md" in fm
+    assert "commands:\n  - .fireball_ai_toolkit/commands/repos.md" in fm
+    assert "Source of truth: `.fireball_ai_toolkit/skills/repos.md`" in text
     assert "**Trigger phrases**" not in text
     assert "**Instructions**" not in text
 
@@ -139,13 +139,13 @@ def test_no_canonical_body_is_inlined(tmp_path):
         if path.suffix == ".md":
             assert "Type hints everywhere." not in path.read_text(encoding="utf-8"), path
     inst = (tmp_path / ".github" / "instructions" / "python.instructions.md").read_text()
-    assert "Source of truth: `.fireball_ai_toolkit/toolkit/instructions/python.md`" in inst
+    assert "Source of truth: `.fireball_ai_toolkit/instructions/python.md`" in inst
     assert 'applyTo: "**/*.py"' in inst
 
 
 def test_local_overlay_overrides_and_adds(tmp_path):
     canonical = _mini_content(tmp_path)
-    local = tmp_path / ".fireball_ai_toolkit" / tmp_path.name  # the local layer dir is named after the repo folder
+    local = tmp_path / f".{tmp_path.name}"  # the local layer dir is named after the repo folder
     (local / "commands").mkdir(parents=True)
     (local / "commands" / "fix.md").write_text(
         "---\nname: fix\ndescription: LOCAL fix\nargument-hint: none\nagent: agent\n---\n\n!`./setup.sh`\n"
@@ -157,7 +157,7 @@ def test_local_overlay_overrides_and_adds(tmp_path):
 
     fix = (tmp_path / ".claude" / "commands" / "fix.md").read_text()
     assert "description: LOCAL fix" in fix  # provider frontmatter still reflects the overlay
-    assert f"Source of truth: `.fireball_ai_toolkit/{tmp_path.name}/commands/fix.md`" in fix  # pointer → the local layer
+    assert f"Source of truth: `.{tmp_path.name}/commands/fix.md`" in fix  # pointer → the local layer
     assert "allowed-tools: Bash(./setup.sh)" in fix
     assert (tmp_path / ".claude" / "commands" / "deploy.md").exists()
     assert (tmp_path / ".github" / "prompts" / "deploy.prompt.md").exists()

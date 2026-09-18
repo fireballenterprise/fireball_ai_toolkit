@@ -1,7 +1,7 @@
-"""modules.toolkit.versioning.check — toolchain-aware sub-check selection + route parsing."""
+"""modules.fireball_ai_toolkit.versioning.check — toolchain-aware sub-check selection + route parsing."""
 
 import pytest
-from modules.toolkit.versioning import check, route
+from modules.fireball_ai_toolkit.versioning import check, route
 
 pytestmark = pytest.mark.versioning
 

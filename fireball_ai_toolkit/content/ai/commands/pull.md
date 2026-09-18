@@ -5,7 +5,7 @@ argument-hint: "[all|ai|dev_prd] [--repo <name|path>]"
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.repo.route "pull $ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.repo.route "pull $ARGUMENTS"`
 
 Bare `/pull` rebases the current branch. `/pull all` (or `ai` / `dev_prd`) switches each repo in
 that scope of `properties.yml`'s `repos:` family to its verified default branch and

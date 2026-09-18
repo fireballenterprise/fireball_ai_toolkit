@@ -5,7 +5,7 @@ argument-hint: "[all|ai|dev_prd] [--repo <name|path>]"
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.repo.route "cleanup $ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.repo.route "cleanup $ARGUMENTS"`
 
 Three phases, in order:
 

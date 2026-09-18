@@ -1,7 +1,7 @@
-"""modules.toolkit.common.toolchains — marker-file → toolchain / capability detection."""
+"""modules.fireball_ai_toolkit.common.toolchains — marker-file → toolchain / capability detection."""
 
 import pytest
-from modules.toolkit.common import toolchains
+from modules.fireball_ai_toolkit.common import toolchains
 
 pytestmark = pytest.mark.common
 

@@ -75,16 +75,16 @@ def resolve_target_repo(token: str | None) -> Path | None:
 
 
 def pkg_root(path: Path) -> str:
-    """Importable prefix for a repo's vendored toolkit modules — ``modules.toolkit`` in a consumer
+    """Importable prefix for a repo's vendored toolkit modules — ``modules.fireball_ai_toolkit`` in a consumer
     that vendors the toolkit, plain ``modules`` in the template layout."""
-    return "modules.toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
+    return "modules.fireball_ai_toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
 
 
 def delegate(target: Path, module_suffix: str, args: list[str], *, caller_root: Path) -> int:
     """Re-exec ``python -m <pkg>.<module_suffix> <args>`` against ``target`` as a fresh subprocess.
 
     When ``target`` vendors the toolkit the module runs in the target's own checkout + venv
-    (``cwd=target``). When it doesn't (no ``modules/toolkit/`` — e.g. a Kotlin app or a Shopify
+    (``cwd=target``). When it doesn't (no ``modules/fireball_ai_toolkit/`` — e.g. a Kotlin app or a Shopify
     store) the **caller's** vendored module runs with ``cwd`` at the caller and
     ``$SIDECAR_REPO_ROOT`` pointed at the target so file-scanning checks still hit the right tree.
     """

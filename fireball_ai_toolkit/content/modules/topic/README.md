@@ -1,7 +1,7 @@
 # Topic Module
 Topic workspace management behind the `topic.*` invoke tasks and the `/topic` slash command.
-Every file exposes a `main()` entry point, runnable standalone via `python -m modules.toolkit.topic.<name>`.
-See `.fireball_ai_toolkit/toolkit/instructions/topics.md` for the design this module implements.
+Every file exposes a `main()` entry point, runnable standalone via `python -m modules.fireball_ai_toolkit.topic.<name>`.
+See `.fireball_ai_toolkit/instructions/topics.md` for the design this module implements.
 
 ## Files
 - `active.py` — get/set/clear the currently active topic, tracked in `active_topic.yml` at the
@@ -37,7 +37,7 @@ See `.fireball_ai_toolkit/toolkit/instructions/topics.md` for the design this mo
 - `README.md` — this file
 
 ## Conventions
-- Resolve the repo root via `modules.toolkit.setup.properties.get_repo_root()`
+- Resolve the repo root via `modules.fireball_ai_toolkit.setup.properties.get_repo_root()`
 - Report outcomes via `modules.common.utils` (`success`/`error`/`info`)
 - Topic paths are `/`-joined and nest to **any depth** (`workshop/welding/tig`). The index
   (`topics_list.yml` `topics:`) stores the flat path list; `templates.py`, `list.py`'s tree

@@ -1,7 +1,7 @@
-"""modules.toolkit.repo.route — usage, family-token routing, list/apply, module dispatch."""
+"""modules.fireball_ai_toolkit.repo.route — usage, family-token routing, list/apply, module dispatch."""
 
 import pytest
-from modules.toolkit.repo import route
+from modules.fireball_ai_toolkit.repo import route
 
 pytestmark = pytest.mark.repo
 
@@ -94,20 +94,20 @@ def test_separate_argv_plain_verb_still_dispatches_to_module(monkeypatch):
     seen = {}
     monkeypatch.setattr(route, "_run", lambda module, args: seen.update(module=module, args=args) or 0)
     assert _main_argv(monkeypatch, "pull") == 0
-    assert seen == {"module": "modules.toolkit.repo.pull", "args": []}
+    assert seen == {"module": "modules.fireball_ai_toolkit.repo.pull", "args": []}
 
 
 def test_plain_verb_dispatches_to_module(monkeypatch):
     seen = {}
     monkeypatch.setattr(route, "_run", lambda module, args: seen.update(module=module, args=args) or 0)
     assert _main(monkeypatch, "pull") == 0
-    assert seen == {"module": "modules.toolkit.repo.pull", "args": []}
+    assert seen == {"module": "modules.fireball_ai_toolkit.repo.pull", "args": []}
 
 
 def test_cleanup_and_alias_map_to_cleanup_module(monkeypatch):
     seen = {}
     monkeypatch.setattr(route, "_run", lambda module, args: seen.update(module=module) or 0)
     _main(monkeypatch, "cleanup")
-    assert seen["module"] == "modules.toolkit.repo.cleanup"
+    assert seen["module"] == "modules.fireball_ai_toolkit.repo.cleanup"
     _main(monkeypatch, "pr_cleanup")
-    assert seen["module"] == "modules.toolkit.repo.cleanup"
+    assert seen["module"] == "modules.fireball_ai_toolkit.repo.cleanup"

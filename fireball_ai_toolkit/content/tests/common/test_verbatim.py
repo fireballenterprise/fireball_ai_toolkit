@@ -1,7 +1,7 @@
 """Tests for the shared `verbatim()` output-fencing helper."""
 
 import pytest
-from modules.toolkit.common.utils import verbatim
+from modules.fireball_ai_toolkit.common.utils import verbatim
 
 pytestmark = pytest.mark.common
 

@@ -1,6 +1,6 @@
 """`backlog.comment` — add a comment to an issue (progress notes, findings, "blocked on ...").
 
-uv run --no-sync python -m modules.toolkit.backlog.comment --repo vscode --number 12 --body "..."
+uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.comment --repo vscode --number 12 --body "..."
 """
 
 from __future__ import annotations

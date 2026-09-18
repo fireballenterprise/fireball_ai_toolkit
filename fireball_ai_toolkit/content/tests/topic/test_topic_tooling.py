@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 import yaml
-from modules.toolkit.topic import init, reindex, switch, templates, update, update_list
-from modules.toolkit.topic import list as topic_list
+from modules.fireball_ai_toolkit.topic import init, reindex, switch, templates, update, update_list
+from modules.fireball_ai_toolkit.topic import list as topic_list
 
 pytestmark = pytest.mark.topic
 

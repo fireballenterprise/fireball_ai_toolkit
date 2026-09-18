@@ -4,7 +4,7 @@ description: "Use when filing, triaging, working, or closing a backlog item (bug
 # Backlog Instructions
 The backlog is GitHub Issues — there is no local bug/backlog markdown. `/backlog` (and the
 `/add_bug`, `/add_feature`, `/add_task` aliases) file and drive them; `invoke backlog.*` is the
-CRUD layer. This file is the tool-neutral "how" — see `.fireball_ai_toolkit/toolkit/commands/backlog.md` for the
+CRUD layer. This file is the tool-neutral "how" — see `.fireball_ai_toolkit/commands/backlog.md` for the
 verb-to-CLI mapping.
 
 ## Type vs. labels — two axes, never conflate
@@ -83,7 +83,7 @@ text as fenced quotes, UI state as prose; note it came from a screenshot.
 
 ## Linking a PR to its issue
 `/pr` and `/ship-it` look for the issue a PR is fixing/implementing before creating it (see
-`.fireball_ai_toolkit/toolkit/commands/pr.md`) — matching against the branch/commits/diff, asking the user when it's
+`.fireball_ai_toolkit/commands/pr.md`) — matching against the branch/commits/diff, asking the user when it's
 unclear, and offering to file a new issue on the spot for tracking. `pr_create --issue <N>` then
 soft-links the two: a `Tracks #<N>` line in the PR body plus a `PR: <url>` comment on the issue,
 both directions, no auto-close. That's separate from `backlog.close --pr <N>`, which is the actual

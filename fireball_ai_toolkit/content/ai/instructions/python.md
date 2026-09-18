@@ -58,7 +58,7 @@ def clean(...): ...
 
 ## Module & File Conventions
 - Use module-level functions (`def foo():`), not classes, unless state genuinely requires it
-- Files under `modules/toolkit/common/` provide shared helpers (`cli`, `properties`, `utils`, `route_utils`)
+- Files under `modules/fireball_ai_toolkit/common/` provide shared helpers (`cli`, `properties`, `utils`, `route_utils`)
 - Every module reachable from a slash command exposes a `main()` entry point
 - Use type hints on function signatures (`def foo(x: int) -> str:`)
 - Prefer `pathlib.Path` over string paths
@@ -69,7 +69,7 @@ def clean(...): ...
 - Use `# noqa: RULE` or `# pylint: disable=rule-name` with an explanation comment on the same or preceding line
 
 ## Logging & Output
-- Use `modules.toolkit.common.utils` helpers for all console output — `success()`, `error()`, `warning()`, `info()`
+- Use `modules.fireball_ai_toolkit.common.utils` helpers for all console output — `success()`, `error()`, `warning()`, `info()`
 - Do not use `print()` directly in `modules/` code (tasks in `tasks/*.py` may `print()` for section headers)
 - `error()` prints to stderr and exits the process — use for unrecoverable failures
 

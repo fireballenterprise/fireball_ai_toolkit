@@ -40,7 +40,7 @@ Do not run `uv run invoke ...` without `--no-sync`.
 `tests.style` / `tests.unit` are **toolchain-aware** — they run only the tools the repo's
 toolchains enable (Python repo → ruff/pylint/yamllint/actionlint/pytest; Kotlin/Gradle repo →
 ktlint/detekt/android-lint/gradle-unit). A tool that isn't installed is reported **skipped**, not
-failed. All logic is in `modules/toolkit/tests/`; the tasks are thin wrappers.
+failed. All logic is in `modules/fireball_ai_toolkit/tests/`; the tasks are thin wrappers.
 
 ## When to Run Tests
 Run tests if you modified:
