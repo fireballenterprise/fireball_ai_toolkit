@@ -39,6 +39,13 @@ def push(context, no_confirm=False, family=False, repo=None):
 
 
 @task
+def sync(context, no_confirm=False, no_tests=False):
+    """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; this repo only"""
+    flags = (" --no-confirm" if no_confirm else "") + (" --no-tests" if no_tests else "")
+    context.run(f"python -m modules.fireball_ai_toolkit.repo.sync{flags}")
+
+
+@task
 def cleanup(context, family=False, repo=None):
     """Clean up a merged feature branch, then sweep local build/cache trash; --family / --repo"""
     if family:

@@ -24,6 +24,7 @@ _PREFIX = "modules.fireball_ai_toolkit.repo"
 _SUBCOMMAND_MODULES = {
     "push": f"{_PREFIX}.push",
     "pull": f"{_PREFIX}.pull",
+    "sync": f"{_PREFIX}.sync",
     "cleanup": f"{_PREFIX}.cleanup",
     "pr_cleanup": f"{_PREFIX}.cleanup",  # back-compat alias for the old name
     "pr_diff": f"{_PREFIX}.pr_diff",
@@ -44,11 +45,13 @@ _USAGE = """\
   /repo self                    this repo's repos: attributes (ship flags, default branch, …)
   /repo pull [all|ai|dev_prd]    git pull (this repo | family scope)
   /repo push [all|ai|dev_prd]    fix + test + commit + push (this repo | family scope)
+  /repo sync                    pull (auto-resolving lock/binary conflicts) then push, this repo
   /repo cleanup [all|ai|dev_prd] post-merge branch cleanup + local-trash sweep
   /repo apply <description>      port a change across the family (two-phase, agent-driven)
 
 Scopes: all = whole family · ai = ai:true repos · dev_prd = default_branch development.
-Aliases: /pull, /push, /cleanup — each also takes a scope. Retired repos are always skipped.
+Aliases: /pull, /push, /cleanup — each also takes a scope. /sync is this repo only.
+Retired repos are always skipped.
 """
 
 _APPLY_POINTER = """\
