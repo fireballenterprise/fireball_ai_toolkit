@@ -1,7 +1,7 @@
 ---
 name: sync
-description: Sync this repo — pull (auto-resolving lock-file and binary conflicts), then invoke fix, invoke test, commit and push. This repo only; no family scope.
-argument-hint: "[--no-tests]"
+description: Sync — pull (auto-resolving lock-file and binary conflicts), then invoke fix, invoke test, commit and push. A scope (all|ai|dev_prd) syncs that slice of the family.
+argument-hint: "[all|ai|dev_prd] [--no-tests]"
 agent: agent
 ---
 
@@ -19,4 +19,10 @@ Anything else stops the sync, aborts the rebase and restores the stash, so nothi
 Then it runs `invoke fix` and `invoke test` and commits and pushes, exactly as `/push` does. It
 refuses to push unless the tests pass; `--no-tests` exists but should not be the habit.
 
-It acts on the current repo only. For the whole family, run `/pull all` then `/push all`.
+`/sync all` (or `ai` / `dev_prd`) runs the same sync in every repo in that scope of
+`properties.yml`'s `repos:` family — each in its own checkout and venv, one confirmation up front,
+a summary at the end — same as `/repo sync <scope>`.
+
+For a natural-language request ("sync all repos", "pull and push everything", "sync it up"), run
+`uv run --no-sync invoke repo.sync all` for the family or `uv run --no-sync invoke repo.sync` for
+this repo. Do not hand-roll git loops.

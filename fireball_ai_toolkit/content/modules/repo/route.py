@@ -2,7 +2,7 @@
 
 ``/repo`` with no args prints usage. ``/repo list`` shows the ``repos:`` family map;
 ``/repo apply`` points at the agent-driven Cross-Repo Change Workflow. ``pull`` / ``push`` /
-``cleanup`` act on the current repo, or on the family when a scope token follows — ``all`` (whole
+``cleanup`` / ``sync`` act on the current repo, or on the family when a scope token follows — ``all`` (whole
 family), ``ai`` (``ai: true``), or ``dev_prd`` (``default_branch: development``); handled by
 :mod:`modules.fireball_ai_toolkit.repo.family`. Everything else dispatches straight to its module.
 """
@@ -35,7 +35,7 @@ _SUBCOMMAND_MODULES = {
     "squash": f"{_PREFIX}.squash",
 }
 
-_FAMILY_VERBS = ("pull", "push", "cleanup")
+_FAMILY_VERBS = ("pull", "push", "cleanup", "sync")
 _SCOPE_TOKENS = ("all", *FAMILY_SCOPES)
 
 _USAGE = """\
@@ -45,12 +45,12 @@ _USAGE = """\
   /repo self                    this repo's repos: attributes (ship flags, default branch, …)
   /repo pull [all|ai|dev_prd]    git pull (this repo | family scope)
   /repo push [all|ai|dev_prd]    fix + test + commit + push (this repo | family scope)
-  /repo sync                    pull (auto-resolving lock/binary conflicts) then push, this repo
+  /repo sync [all|ai|dev_prd]    pull (auto-resolving lock/binary conflicts) then push (this repo | family scope)
   /repo cleanup [all|ai|dev_prd] post-merge branch cleanup + local-trash sweep
   /repo apply <description>      port a change across the family (two-phase, agent-driven)
 
 Scopes: all = whole family · ai = ai:true repos · dev_prd = default_branch development.
-Aliases: /pull, /push, /cleanup — each also takes a scope. /sync is this repo only.
+Aliases: /pull, /push, /sync, /cleanup — each also takes a scope.
 Retired repos are always skipped.
 """
 
