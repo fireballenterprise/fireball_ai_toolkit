@@ -4,7 +4,8 @@ never adds the repo root to `sys.path`, so a direct `from modules.repo import ..
 fail; subprocess-invoking the module lets Python's own `-m` resolve it against the CWD instead.
 
 `--repo <name|path>` on `pull` / `push` / `cleanup` / `rebase` / `squash` runs the verb against
-another managed checkout (mutually exclusive with `--family`); everything else is current-repo only.
+another managed checkout (mutually exclusive with `--family`). `pull` / `push` / `sync` / `cleanup`
+take `--family` (or a positional `all`) for the whole family; everything else is current-repo only.
 """
 
 from invoke import task
@@ -39,8 +40,11 @@ def push(context, no_confirm=False, family=False, repo=None):
 
 
 @task
-def sync(context, no_confirm=False, no_tests=False):
-    """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; this repo only"""
+def sync(context, family=False, no_confirm=False, no_tests=False):
+    """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; --family for the whole family"""
+    if family:
+        context.run('python -m modules.fireball_ai_toolkit.repo.route "sync all"')
+        return
     flags = (" --no-confirm" if no_confirm else "") + (" --no-tests" if no_tests else "")
     context.run(f"python -m modules.fireball_ai_toolkit.repo.sync{flags}")
 

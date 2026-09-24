@@ -49,7 +49,7 @@ def test_self_delegates_to_family(monkeypatch):
 
 @pytest.mark.parametrize(
     ("arg", "verb", "scope"),
-    [("pull all", "pull", None), ("push ai", "push", "ai"), ("cleanup dev_prd", "cleanup", "dev_prd")],
+    [("pull all", "pull", None), ("push ai", "push", "ai"), ("cleanup dev_prd", "cleanup", "dev_prd"), ("sync all", "sync", None)],
 )
 def test_scope_token_routes_to_family(monkeypatch, arg, verb, scope):
     seen = {}
@@ -75,6 +75,7 @@ def test_all_with_yes_flag(monkeypatch):
         (("pull", "all"), "pull", None),
         (("push", "ai"), "push", "ai"),
         (("cleanup", "dev_prd"), "cleanup", "dev_prd"),
+        (("sync", "ai"), "sync", "ai"),
     ],
 )
 def test_separate_argv_entries_route_to_family(monkeypatch, argv, verb, scope):

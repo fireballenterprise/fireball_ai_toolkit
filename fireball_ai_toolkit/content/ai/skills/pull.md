@@ -5,6 +5,9 @@ hints:
   - pull
   - pull the latest
   - pull all repos
+  - pull everything
+  - pull the latest everywhere
+  - update all repos
 instructions:
   - .fireball_ai_toolkit/instructions/repos.md
 commands:
