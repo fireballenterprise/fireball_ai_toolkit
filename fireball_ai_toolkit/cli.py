@@ -24,11 +24,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo", type=Path, default=Path.cwd(), help="Consuming repo root (default: cwd)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_sync = sub.add_parser("sync", help="check .fireball_ai_toolkit/toolkit/ -> stop on local edits -> apply")
-    p_sync.add_argument("--yes", action="store_true", help="non-interactive: discard .fireball_ai_toolkit/toolkit/ edits")
+    p_sync = sub.add_parser("sync", help="check .fireball_ai_toolkit/ -> stop on local edits -> apply")
+    p_sync.add_argument("--yes", action="store_true", help="non-interactive: discard .fireball_ai_toolkit/ edits")
 
-    sub.add_parser("apply", help="clobber .fireball_ai_toolkit/toolkit/ etc. from the installed package, then render")
-    sub.add_parser("contribute", help="open a PR against fireball_ai_toolkit with local .fireball_ai_toolkit/toolkit/ changes")
+    sub.add_parser("apply", help="clobber .fireball_ai_toolkit/ etc. from the installed package, then render")
+    sub.add_parser("contribute", help="open a PR against fireball_ai_toolkit with local .fireball_ai_toolkit/ changes")
     sub.add_parser("check", help="read-only drift gate")
     sub.add_parser("download", help="deprecated alias for `apply`")
     sub.add_parser("upload", help="deprecated alias for `contribute`")

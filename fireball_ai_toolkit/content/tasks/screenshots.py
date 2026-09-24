@@ -9,16 +9,16 @@ from invoke import task
 def clean(context, confirm=True):
     """Delete screenshot images from the screenshots/ folder (--confirm/--no-confirm, default: confirm)"""
     flag = "--confirm" if confirm else "--no-confirm"
-    context.run(f"python -m modules.toolkit.screenshots.clean {flag}")
+    context.run(f"python -m modules.fireball_ai_toolkit.screenshots.clean {flag}")
 
 
 @task
 def configure(context):
     """Configure macOS to save screenshots into the repo's screenshots/ folder"""
-    context.run("python -m modules.toolkit.screenshots.configure")
+    context.run("python -m modules.fireball_ai_toolkit.screenshots.configure")
 
 
 @task
 def view(context):
     """Copy the latest screenshot to screenshots/latest.png for AI viewing"""
-    context.run("python -m modules.toolkit.screenshots.view")
+    context.run("python -m modules.fireball_ai_toolkit.screenshots.view")

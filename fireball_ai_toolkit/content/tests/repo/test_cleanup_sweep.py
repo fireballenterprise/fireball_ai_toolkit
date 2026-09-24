@@ -1,9 +1,9 @@
-"""modules.toolkit.repo.cleanup — the phase-2 local-trash sweep."""
+"""modules.fireball_ai_toolkit.repo.cleanup — the phase-2 local-trash sweep."""
 
 import subprocess
 
 import pytest
-from modules.toolkit.repo import cleanup
+from modules.fireball_ai_toolkit.repo import cleanup
 
 pytestmark = pytest.mark.repo
 

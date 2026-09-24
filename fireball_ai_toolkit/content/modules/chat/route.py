@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 _SUBCOMMANDS = {"end", "list", "resume", "start"}
 
-# `modules.toolkit.chat` when vendored, `modules.chat` flat — resolve against our own package so
+# `modules.fireball_ai_toolkit.chat` when vendored, `modules.chat` flat — resolve against our own package so
 # the file is identical either way.
 _PKG = __package__ or "modules.chat"
 _SUBCOMMAND_MODULES = {name: f"{_PKG}.{name}" for name in _SUBCOMMANDS}

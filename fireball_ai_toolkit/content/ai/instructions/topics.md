@@ -66,10 +66,10 @@ Topic-specific guidance should live in `AGENTS.md`.
 - If topic guidance changes, update `AGENTS.md` as the content source of truth and keep `CLAUDE.md` as a pointer
 
 ## templates.py Change Rule — CRITICAL
-`modules/toolkit/topic/templates.py` is the single source of truth for each topic's generated
+`modules/fireball_ai_toolkit/topic/templates.py` is the single source of truth for each topic's generated
 `AGENTS.md`/`CLAUDE.md`. It drives what `/topic init` and `/topic update` produce.
 
-**When you modify anything in `modules/toolkit/topic/` that affects topic instruction content:**
+**When you modify anything in `modules/fireball_ai_toolkit/topic/` that affects topic instruction content:**
 1. Run fix + test (10/10 required)
 2. **Ask the user**: "Should I run `/topic update` to regenerate all topic AGENTS.md files with the new template?"
 3. **Check root `AGENTS.md`** — it is hand-maintained and may need manual sync if the change reflects a new policy

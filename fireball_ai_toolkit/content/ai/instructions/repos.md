@@ -1,6 +1,6 @@
 ---
 description: "Use for /repo (and its /pull /push /cleanup aliases), the properties.yml repos: registry, and the 'related repos' / 'pull all repos' / 'apply this across the repos' trigger phrases."
-applyTo: "properties.yml,modules/setup/**,modules/toolkit/repo/**"
+applyTo: "properties.yml,modules/setup/**,modules/fireball_ai_toolkit/repo/**"
 ---
 # Repo & Repo-Family Instructions
 Everything about `/repo` — its subcommands, the `properties.yml` `repos:` registry it reads, the
@@ -162,7 +162,7 @@ or more to add first?" Don't proceed until they confirm.
 For each repo (same order), ship per its `repos:` flags:
 
 - **`pull_request: true`** — `/ship-it`: fix, test, push the feature branch, open the PR (assigned
-  to the user per `.fireball_ai_toolkit/toolkit/instructions/git.md`). Report the PR URL. Never merge it yourself.
+  to the user per `.fireball_ai_toolkit/instructions/git.md`). Report the PR URL. Never merge it yourself.
 - **`pull_request: false`** — no PR. `invoke fix` + `invoke test` locally (must pass), then
   fast-forward the default branch to your work and `git push origin <default>`. Report the pushed
   commit. Delete the feature branch.
@@ -180,6 +180,6 @@ The `pull` / `push` / `cleanup` fan-outs are automated (`family.py`); the Cross-
 Workflow is not — each step is done directly.
 
 ## Module Implementation
-Family resolution + fan-out: `modules/toolkit/repo/family.py` + `get_family_repos()` in
-`modules/toolkit/setup/properties.py`. Legacy tier-fragment build: `modules/setup/README.md` and
+Family resolution + fan-out: `modules/fireball_ai_toolkit/repo/family.py` + `get_family_repos()` in
+`modules/fireball_ai_toolkit/setup/properties.py`. Legacy tier-fragment build: `modules/setup/README.md` and
 `modules/setup/properties.py`.

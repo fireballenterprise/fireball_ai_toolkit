@@ -1,7 +1,7 @@
 # Chat Module
 Dated planning-chat logging behind the `chat.*` invoke tasks and the `/chat` slash command. Every
-file exposes a `main()` entry point, runnable standalone via `python -m modules.toolkit.chat.<name>`. See
-`.fireball_ai_toolkit/toolkit/instructions/topics.md` for the design this module implements.
+file exposes a `main()` entry point, runnable standalone via `python -m modules.fireball_ai_toolkit.chat.<name>`. See
+`.fireball_ai_toolkit/instructions/topics.md` for the design this module implements.
 
 ## Files
 - `active.py` — get/set/clear the active chat tracker (`active.yml`) inside a given topic
@@ -24,7 +24,7 @@ file exposes a `main()` entry point, runnable standalone via `python -m modules.
 - `README.md` — this file
 
 ## Conventions
-- Resolve the repo root via `modules.toolkit.setup.properties.get_repo_root()`
+- Resolve the repo root via `modules.fireball_ai_toolkit.setup.properties.get_repo_root()`
 - Report outcomes via `modules.common.utils` (`success`/`error`)
 - The chat file's actual content — the real `## Overview` summary and `## Chat Log` entries — is
   written by the calling agent via its own Edit tool before running `/chat end`, not by this

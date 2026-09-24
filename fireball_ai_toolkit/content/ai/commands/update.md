@@ -7,7 +7,7 @@ agent: agent
 
 Check for available version updates (read-only, makes no changes):
 
-!`uv run --no-sync python -m modules.toolkit.versioning.route "check $ARGUMENTS --dry-run"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "check $ARGUMENTS --dry-run"`
 
 The check is **toolchain-aware** — it runs only the sub-checks the repo actually has: a Python
 library gets the `pyproject.toml` dependency table and the Python-version table; a repo with
@@ -27,7 +27,7 @@ check runs against that checkout instead of the current one. No selector → the
 Show the user the relevant table exactly as printed, then ask whether to apply it. On yes, re-run
 the same command **without `--dry-run` and with `--yes`**, scoped to that section — e.g.
 
-!`uv run --no-sync python -m modules.toolkit.versioning.route "check libs --yes"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "check libs --yes"`
 
 then tell them what was rewritten:
 - `libs` — only version constraints in `pyproject.toml`; `/upgrade libs` installs them.

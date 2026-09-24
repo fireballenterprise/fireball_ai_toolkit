@@ -31,12 +31,12 @@ steps:
       invoke tests.<check>
 ```
 The actual check logic lives in `tasks/tests/*.py`, never inline in the workflow — same
-thin-wrapper rule as everywhere else (`.fireball_ai_toolkit/toolkit/instructions/logic.md`).
+thin-wrapper rule as everywhere else (`.fireball_ai_toolkit/instructions/logic.md`).
 
 ## Action-Ref Pinning
 `uses: owner/repo@vN` refs are pinned to a **major** tag (`actions/checkout@v7`). `invoke
 ver.workflows` compares each ref against the latest major tag on GitHub and rewrites the pin; run
-`invoke tests.actionlint` afterward. See `.fireball_ai_toolkit/toolkit/instructions/versioning.md`.
+`invoke tests.actionlint` afterward. See `.fireball_ai_toolkit/instructions/versioning.md`.
 
 ## Reusable Workflow Repos
 The family's shared CI lives in three **public** repos, each `main`-only with `v`-prefix dual
@@ -67,4 +67,4 @@ change bumps the major and every caller re-points `@vN`.
 
 ## Before Committing
 `.yml` changes require `uv run --no-sync invoke fix` + `test` at 10/10 — `test` runs both
-`actionlint` and `yamllint` (`.fireball_ai_toolkit/toolkit/instructions/tests.md`).
+`actionlint` and `yamllint` (`.fireball_ai_toolkit/instructions/tests.md`).

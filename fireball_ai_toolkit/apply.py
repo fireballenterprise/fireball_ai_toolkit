@@ -4,10 +4,10 @@ Nothing is downloaded here — ``uv`` already fetched the package (``ai_toolkit.
 This applies that installed version to the repo. Everything under the package's ``content/`` is
 copied verbatim into the consuming repo:
 
-* ``content/ai/``       → ``.fireball_ai_toolkit/toolkit/`` (then rendered into every provider dir)
-* ``content/modules/``  → ``modules/toolkit/``  (shared Python, imported as ``modules.toolkit.*``)
-* ``content/tasks/``    → ``tasks/toolkit/``
-* ``content/tests/``    → ``tests/toolkit/``
+* ``content/ai/``       → ``.fireball_ai_toolkit/`` (then rendered into every provider dir)
+* ``content/modules/``  → ``modules/fireball_ai_toolkit/``  (shared Python, imported as ``modules.fireball_ai_toolkit.*``)
+* ``content/tasks/``    → ``tasks/fireball_ai_toolkit/``
+* ``content/tests/``    → ``tests/fireball_ai_toolkit/``
 * ``content/scripts/setup.sh`` / ``setup.ps1`` → repo root
 
 Refuses if any of those paths has uncommitted local modifications (unless ``force``) — the caller
@@ -25,7 +25,7 @@ from ._git import dirty_tracked
 from .catalog import CLOBBER_TREES, packaged_content_root, read_vendor, vendored_files, vendored_trees
 from .render import RenderResult, render_repo
 
-TOOLKIT_SUBPATH = CLOBBER_TREES["ai"]  # ".fireball_ai_toolkit/toolkit" — kept as a name for back-compat imports
+TOOLKIT_SUBPATH = CLOBBER_TREES["ai"]  # ".fireball_ai_toolkit" — kept as a name for back-compat imports
 
 
 class DirtySharedError(RuntimeError):
@@ -40,7 +40,7 @@ def clobber_shared(repo_root: Path, *, force: bool = False) -> Path:
     """Replace every clobbered tree/file in ``repo_root`` with a fresh copy from the package.
 
     Honours ``.ai-toolkit.yml`` — a repo that vendors only a subset (e.g. ``[ai, scripts]``)
-    keeps its own ``modules/toolkit/`` etc. untouched.
+    keeps its own ``modules/fireball_ai_toolkit/`` etc. untouched.
     """
     content = packaged_content_root()
     trees, files = vendored_trees(repo_root), vendored_files(repo_root)

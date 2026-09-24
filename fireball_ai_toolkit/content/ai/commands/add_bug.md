@@ -5,9 +5,9 @@ argument-hint: --repo <name> --title "..." [--body "..."] | <freeform descriptio
 agent: agent
 ---
 
-!`uv run --no-sync python -m modules.toolkit.backlog.route "add bug $ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "add bug $ARGUMENTS"`
 
 Thin alias for `/backlog add bug`. Follow the **Recognition** and **Issue body format** sections
-of [.fireball_ai_toolkit/toolkit/commands/backlog.md](.fireball_ai_toolkit/toolkit/commands/backlog.md): resolve the repo from what
+of [.fireball_ai_toolkit/commands/backlog.md](.fireball_ai_toolkit/commands/backlog.md): resolve the repo from what
 the user said (ask if the fuzzy match is ambiguous), craft a clean title + a verbose repro body,
 transcribe any pasted screenshot into the body, **scrub secrets**, confirm, then file it.

@@ -4,7 +4,7 @@ it does not install anything or run any workflow. Installing is a separate, expl
 (`/upgrade` / `invoke versioning.upgrade`). Also bumps the repo's root `VERSION` file for
 development deploys and releases (`project.py`).
 
-Every check is **toolchain-aware** (`modules/toolkit/common/toolchains.py`): `versioning.check`
+Every check is **toolchain-aware** (`modules/fireball_ai_toolkit/common/toolchains.py`): `versioning.check`
 with no sub-arg runs only the checks whose toolchain the repo actually has — a Python library
 gets `libs` + `python`, a repo with `.github/workflows/` gets `workflows`, a repo with a
 `.sdkmanrc` gets `sdkman`. This is what lets `--repo <name|path>` point any check at another repo.
@@ -32,7 +32,7 @@ uv run --no-sync invoke versioning.bump build            # feature-branch build 
 ```
 
 `/update` and `/upgrade` are the slash commands; both accept a leading `[<repo>]` or
-`--repo <name|path>` (see `.fireball_ai_toolkit/toolkit/instructions/versioning.md`).
+`--repo <name|path>` (see `.fireball_ai_toolkit/instructions/versioning.md`).
 
 ## Files
 - `check.py` — the orchestrator behind `/update` / `versioning.check`: picks the applicable

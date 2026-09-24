@@ -117,7 +117,7 @@ def check_libs_need_upgrade(repo_path: Path) -> tuple[bool, int]:
 
 def sdkman_env_install(repo_path: Path) -> None:
     """`sdk env install` in `repo_path` — installs whatever `.sdkmanrc` pins (the pins are set by
-    `/update`, i.e. `python -m modules.toolkit.versioning.sdkman`). `sdk` is a shell function, so
+    `/update`, i.e. `python -m modules.fireball_ai_toolkit.versioning.sdkman`). `sdk` is a shell function, so
     this goes through a login shell that sources sdkman-init.sh."""
     info("Installing .sdkmanrc toolchain via SDKMAN...")
     result = subprocess.run(

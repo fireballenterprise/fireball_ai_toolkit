@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from .catalog import AI_ROOT_DIRNAME, ContentBundle, load_bundle, local_layer_name, packaged_ai_root
+from .catalog import ContentBundle, load_bundle, local_layer_name, packaged_ai_root
 from .renderers import ALL
 
 
@@ -23,22 +23,25 @@ def render_repo(
     *,
     canonical_root: Path | None = None,
     only: list[str] | None = None,
+    local_name: str | None = None,
 ) -> RenderResult:
-    """Regenerate every provider view in ``repo_root`` from ``.fireball_ai_toolkit/toolkit`` +
-    ``.fireball_ai_toolkit/<repo>``.
+    """Regenerate every provider view in ``repo_root`` from ``.fireball_ai_toolkit`` +
+    ``.<repo>``.
 
-    ``.fireball_ai_toolkit/toolkit/`` comes from the packaged canonical tree (or
-    ``canonical_root``); the local overlay ``.fireball_ai_toolkit/<repo>/`` is read from
+    ``.fireball_ai_toolkit/`` comes from the packaged canonical tree (or
+    ``canonical_root``); the local overlay ``.<repo>/`` is read from
     ``repo_root`` when that directory exists.
 
     Args:
         repo_root: consuming repo root.
         canonical_root: override the packaged ``content/`` tree (tests / this repo itself).
         only: restrict to a subset of renderer names (``renderers.ALL`` keys).
+        local_name: override the auto-detected local-layer dir name — needed when ``repo_root``
+            isn't the real checkout (e.g. ``check``'s temp mirror, whose folder name is random).
     """
     repo_root = repo_root.resolve()
-    local_name = local_layer_name(repo_root)
-    local_dir = repo_root / AI_ROOT_DIRNAME / local_name
+    local_name = local_name if local_name is not None else local_layer_name(repo_root)
+    local_dir = repo_root / f".{local_name}"
     bundle: ContentBundle = load_bundle(
         canonical_root=canonical_root or packaged_ai_root(),
         local_root=local_dir if local_dir.is_dir() else None,

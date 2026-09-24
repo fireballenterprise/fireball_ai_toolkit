@@ -1,10 +1,10 @@
-"""modules.toolkit.common.target_repo — the --repo selector + delegation, and its CI-safety."""
+"""modules.fireball_ai_toolkit.common.target_repo — the --repo selector + delegation, and its CI-safety."""
 
 import subprocess
 import sys
 
 import pytest
-from modules.toolkit.common import target_repo
+from modules.fireball_ai_toolkit.common import target_repo
 
 pytestmark = pytest.mark.common
 
@@ -18,7 +18,7 @@ def test_import_does_not_pull_in_properties_or_yaml():
     """Importing target_repo must stay stdlib-cheap — `versioning.bump` runs it in CI where
     properties.yml / yaml are unavailable."""
     code = (
-        "import sys; import modules.toolkit.common.target_repo as t; "
+        "import sys; import modules.fireball_ai_toolkit.common.target_repo as t; "
         "bad=[m for m in sys.modules if m.endswith('setup.properties') or m=='yaml' "
         "or m.endswith('backlog.common')]; "
         "print('BAD' if bad else 'OK', bad)"
@@ -41,7 +41,7 @@ def test_real_path_with_git_resolves(tmp_path):
 
 
 def test_bare_name_without_family_map_errors_toward_a_path(monkeypatch):
-    monkeypatch.setattr("modules.toolkit.setup.properties.get_family_repos", lambda **k: [])
+    monkeypatch.setattr("modules.fireball_ai_toolkit.setup.properties.get_family_repos", lambda **k: [])
     calls = []
     monkeypatch.setattr(
         target_repo, "error", lambda msg, *a, **k: calls.append(msg) or (_ for _ in ()).throw(SystemExit(1))

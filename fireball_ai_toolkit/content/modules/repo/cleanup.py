@@ -5,7 +5,7 @@
    no merged PR) is a warning + skip, not a hard error — later phases still run.
 2. **Trash sweep** — remove regenerable caches (``__pycache__/``, ``.pytest_cache/``, …) and
    *orphaned* directories under ``modules/`` / ``tasks/`` / ``tests/`` — dirs git tracks no file
-   in, the residue a module move (``modules/x`` → ``modules/toolkit/x``) leaves behind. Content
+   in, the residue a module move (``modules/x`` → ``modules/fireball_ai_toolkit/x``) leaves behind. Content
    roots like ``topics/`` and the scratch ``tmp/`` are never touched.
 3. **Redundant ``.gitkeep``** — ``git rm`` tracked ``.gitkeep`` placeholders in directories that
    now hold other tracked content (anywhere below them); git already materialises the directory on

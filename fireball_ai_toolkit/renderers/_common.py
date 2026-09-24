@@ -6,7 +6,7 @@ leading HTML comment would break frontmatter parsing). :func:`clean_dir` removes
 no longer produces so a dropped canonical slug's stale output disappears on the next render.
 
 Every rendered provider file is a **pointer stub**: provider-specific frontmatter + the header +
-one :func:`canonical_pointer` line back to ``.fireball_ai_toolkit/toolkit/`` or ``.fireball_ai_toolkit/<repo>/``. No canonical body
+one :func:`canonical_pointer` line back to ``.fireball_ai_toolkit/`` or ``.<repo>/``. No canonical body
 text is ever inlined into generated output.
 """
 
@@ -29,12 +29,13 @@ GENERATED_HEADER = (
 def canonical_pointer(bundle: ContentBundle, slug: str, kind: str) -> str:
     """The stub body pointing a provider file at its canonical source.
 
-    ``kind`` is ``commands`` | ``instructions`` | ``skills``. Resolves to ``.fireball_ai_toolkit/<repo>/`` (the
+    ``kind`` is ``commands`` | ``instructions`` | ``skills``. Resolves to ``.<repo>/`` (the
     bundle's ``local_name``) when the slug came from the consuming repo's overlay, else
-    ``.fireball_ai_toolkit/toolkit/``.
+    ``.fireball_ai_toolkit/``.
     """
-    layer = bundle.local_name if bundle.is_local(slug) else "toolkit"
-    return f"Source of truth: `.fireball_ai_toolkit/{layer}/{kind}/{slug}.md`"
+    if bundle.is_local(slug):
+        return f"Source of truth: `.{bundle.local_name}/{kind}/{slug}.md`"
+    return f"Source of truth: `.fireball_ai_toolkit/{kind}/{slug}.md`"
 
 
 def skill_stub_body(bundle: ContentBundle, skill: Skill, *, include_hints: bool = False) -> str:

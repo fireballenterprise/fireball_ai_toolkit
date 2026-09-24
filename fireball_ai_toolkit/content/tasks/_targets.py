@@ -16,7 +16,7 @@ def with_target(repo: str | None, module_suffix: str, args: list[str]) -> bool:
     e.g. ``"versioning.check"`` or ``"tests.style"``."""
     if not repo:
         return False
-    from modules.toolkit.common.target_repo import delegate, resolve_target_repo  # noqa: PLC0415
+    from modules.fireball_ai_toolkit.common.target_repo import delegate, resolve_target_repo  # noqa: PLC0415
 
     target = resolve_target_repo(repo)  # SystemExit + candidate list on an ambiguous name
     if target is None:

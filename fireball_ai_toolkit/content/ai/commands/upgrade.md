@@ -10,7 +10,7 @@ Performs the actual installs after you've reviewed the config changes with `/upd
 
 ## Usage
 Every applicable upgrade (interactive):
-!`uv run --no-sync python -m modules.toolkit.versioning.route "upgrade $ARGUMENTS"`
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "upgrade $ARGUMENTS"`
 
 `$ARGUMENTS` may name one toolchain (`uv` / `python` / `libs` / `sdkman`), and/or start with a
 repo selector — a family-repo name or a path, or `--repo <name|path>` (same as `/update`). Add

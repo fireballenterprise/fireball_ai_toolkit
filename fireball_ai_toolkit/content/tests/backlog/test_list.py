@@ -1,12 +1,12 @@
-"""modules.toolkit.backlog.list — the grouped-Markdown-table output and `--all` aggregation."""
+"""modules.fireball_ai_toolkit.backlog.list — the grouped-Markdown-table output and `--all` aggregation."""
 
 import json
 import subprocess
 from pathlib import Path
 
 import pytest
-from modules.toolkit.backlog import list as backlog_list
-from modules.toolkit.setup.properties import FamilyRepo
+from modules.fireball_ai_toolkit.backlog import list as backlog_list
+from modules.fireball_ai_toolkit.setup.properties import FamilyRepo
 
 pytestmark = pytest.mark.backlog
 

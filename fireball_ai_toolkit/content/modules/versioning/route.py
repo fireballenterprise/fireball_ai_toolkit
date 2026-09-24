@@ -3,8 +3,8 @@
 
 Exec lines (from the command files)::
 
-    /update   -> python -m modules.toolkit.versioning.route "check $ARGUMENTS"
-    /upgrade  -> python -m modules.toolkit.versioning.route "upgrade $ARGUMENTS"
+    /update   -> python -m modules.fireball_ai_toolkit.versioning.route "check $ARGUMENTS"
+    /upgrade  -> python -m modules.fireball_ai_toolkit.versioning.route "upgrade $ARGUMENTS"
 
 So the first token is the verb (``check`` | ``upgrade`` | ``bump``); the rest is a mix of an
 optional target (``--repo <name|path>`` or a bare leading token), an optional sub-arg

@@ -1,4 +1,4 @@
-# modules/toolkit/repo/
+# modules/fireball_ai_toolkit/repo/
 Repository-level git and PR operations, plus repo-**family** fan-out. Thin CLI wrappers — logic
 lives in these modules, reached via `/repo`, the dedicated aliases, or `inv repo.*`.
 
@@ -27,5 +27,5 @@ vault when `icloud.enabled: true` in `properties.yml` — excluding `.git`, `.cl
 hidden files so the mobile vault stays small (~700KB). It's off by default.
 
 ## Notes
-- Every module has a `main()` entry point and uses `modules/toolkit/setup/properties.py` for path resolution
-- The screenshot workflow moved to `modules/toolkit/screenshots/`
+- Every module has a `main()` entry point and uses `modules/fireball_ai_toolkit/setup/properties.py` for path resolution
+- The screenshot workflow moved to `modules/fireball_ai_toolkit/screenshots/`

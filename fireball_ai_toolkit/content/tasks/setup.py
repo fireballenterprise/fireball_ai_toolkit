@@ -10,4 +10,4 @@ def properties(context, repo=None):
     """Create/stamp properties.yml with this machine's repo path and git remote"""
     if with_target(repo, "setup.properties", []):
         return
-    context.run("python -m modules.toolkit.setup.properties")
+    context.run("python -m modules.fireball_ai_toolkit.setup.properties")

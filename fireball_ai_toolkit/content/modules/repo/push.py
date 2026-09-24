@@ -16,7 +16,7 @@ def cleanup_screenshots(repo_path: Path) -> None:
     click.echo("🧹 Cleaning up screenshots before push...")
     try:
         subprocess.run(
-            ["uv", "run", "python", "-m", "modules.toolkit.screenshots.clean", "--no-confirm"],
+            ["uv", "run", "python", "-m", "modules.fireball_ai_toolkit.screenshots.clean", "--no-confirm"],
             cwd=repo_path,
             check=True,
             capture_output=True,
