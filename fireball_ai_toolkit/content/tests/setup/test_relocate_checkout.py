@@ -10,7 +10,11 @@ pytestmark = pytest.mark.setup
 def _props(home):
     return {
         "repo": {"local": f"{home}/Development/acme/tool"},
-        "repos_local": {"acme": f"{home}/Development/acme", "other": f"{home}/Development/other"},
+        "repos_local": {
+            "acme": f"{home}/Development/acme",
+            "other": f"{home}/Development/other",
+            "elsewhere": f"{home}/Archive/elsewhere",
+        },
     }
 
 
@@ -29,8 +33,11 @@ def test_second_clone_resolves_its_own_family(tmp_path):
     props = properties._relocate_to_checkout(_props(tmp_path), clone)  # pylint: disable=protected-access
     assert props["repo"]["local"] == str(clone.resolve())
     assert props["repos_local"]["acme"] == str(clone.parent.resolve())
-    # An unrelated org base is left alone.
-    assert props["repos_local"]["other"] == f"{tmp_path}/Development/other"
+    # Sibling orgs of the primary family move with it, so family-wide commands (e.g. `pull all`)
+    # in the second clone can never reach the primary machine's other orgs.
+    assert props["repos_local"]["other"] == str((clone.parent.parent / "other").resolve())
+    # A base outside the family's root is left alone.
+    assert props["repos_local"]["elsewhere"] == f"{tmp_path}/Archive/elsewhere"
 
 
 def test_env_override_still_wins(tmp_path, monkeypatch):
