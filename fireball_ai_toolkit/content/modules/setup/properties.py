@@ -79,7 +79,34 @@ def get_properties() -> dict[str, Any]:
     props_file = repo_root / "properties.yml"
 
     with props_file.open() as f:
-        return yaml.safe_load(f)
+        props = yaml.safe_load(f)
+    if os.environ.get(REPO_ROOT_ENV):
+        return props
+    return _relocate_to_checkout(props, repo_root)
+
+
+def _relocate_to_checkout(props: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Point `repo.local` and its `repos_local` family base at the checkout actually running.
+
+    A second full clone of the family elsewhere (e.g. an automation worker's own sibling set) reads
+    the same committed properties.yml, whose paths name the primary checkout. Without this, its
+    `repos_local` lookups would build/edit the primary checkout's siblings. The primary checkout is
+    unchanged: its paths already match.
+    """
+    repo = props.get("repo") or {}
+    configured = repo.get("local")
+    if not configured:
+        return props
+    configured_path = _expand_path(configured).resolve()
+    actual = repo_root.resolve()
+    if configured_path == actual:
+        return props
+    repo["local"] = str(actual)
+    repos_local = props.get("repos_local") or {}
+    for org, base in repos_local.items():
+        if base and _expand_path(base).resolve() == configured_path.parent:
+            repos_local[org] = str(actual.parent)
+    return props
 
 
 def get_repo_local() -> Path:
