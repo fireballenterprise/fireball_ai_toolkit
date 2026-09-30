@@ -3,7 +3,6 @@ description: "Use before building or changing any Fireball app or platform: sign
 applyTo: "**"
 ---
 # Fireball Kit Rule
-
 - **A new Fireball app, or a new platform of one, starts from `invoke kit.new_app` or the
   `fireball_kit` packages.** Never copy another app's account, shell, brand, About/splash, MCP or
   built-in Sidecar code.
