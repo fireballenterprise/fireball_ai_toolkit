@@ -40,6 +40,14 @@ def test_real_path_with_git_resolves(tmp_path):
     assert target_repo.resolve_target_repo(str(tmp_path)) == tmp_path.resolve()
 
 
+def test_app_folder_inside_a_monorepo_resolves(tmp_path):
+    """`--repo ../fireball_sidecar/apps/android`: the folder has no .git of its own, its repo does."""
+    (tmp_path / ".git").mkdir()
+    app = tmp_path / "apps" / "android"
+    app.mkdir(parents=True)
+    assert target_repo.resolve_target_repo(str(app)) == app.resolve()
+
+
 def test_bare_name_without_family_map_errors_toward_a_path(monkeypatch):
     monkeypatch.setattr("modules.fireball_ai_toolkit.setup.properties.get_family_repos", lambda **k: [])
     calls = []
