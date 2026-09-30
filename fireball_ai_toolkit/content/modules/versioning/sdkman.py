@@ -1,7 +1,7 @@
 """Check a repo's `.sdkmanrc` toolchain pins (JDK / Gradle / Kotlin / …) against SDKMAN's own
 `sdk list`, and — on apply — rewrite `.sdkmanrc` (and the Gradle wrapper) to the newest usable id.
 
-Only meaningful in a repo that ships a `.sdkmanrc` (today just `fireball_sidecar_android`). When
+Only meaningful in a repo that ships a `.sdkmanrc` (today `fireball_sidecar/apps/android` and `fireball_wrangler/apps/android` — target the app folder). When
 there's no `.sdkmanrc` this exits 3 — the same "nothing to do" convention `libs`/`python` use —
 so `ver.update`'s check loop can call it unconditionally.
 

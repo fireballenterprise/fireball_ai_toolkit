@@ -38,7 +38,8 @@ def resolve_target_repo(token: str | None) -> Path | None:
 
     - ``None`` / empty  → ``None`` (caller keeps its normal cwd / ``properties.yml`` behaviour;
       nothing is imported — the CI short-circuit).
-    - a path-shaped token → ``Path(token).expanduser().resolve()``, verified to hold a ``.git``;
+    - a path-shaped token → ``Path(token).expanduser().resolve()``, verified to be (inside) a git
+      checkout — an app folder of a monorepo (``../fireball_sidecar/apps/android``) is accepted;
       ``properties.yml`` is never consulted.
     - a bare name → fuzzy-matched against the ``repos:`` family (via ``backlog.common.resolve_repo``).
       With no ``repos:`` map (a plain consumer repo, or CI) this ``error()``s and tells the caller
@@ -50,8 +51,8 @@ def resolve_target_repo(token: str | None) -> Path | None:
 
     if _looks_like_path(token):
         path = Path(token).expanduser().resolve()
-        if not (path / ".git").exists():
-            error(f"--repo {token!r}: {path} is not a git checkout (no .git)")
+        if not path.is_dir() or not any((p / ".git").exists() for p in (path, *path.parents)):
+            error(f"--repo {token!r}: {path} is not inside a git checkout (no .git)")
         return path
 
     # Bare name — needs properties.yml. Import lazily so the path / None branches stay CI-safe.
