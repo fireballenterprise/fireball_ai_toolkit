@@ -159,7 +159,9 @@ def run_family(verb: str, *, assume_yes: bool = False, scope: str | None = None)
         if verb == "push":
             cli.echo("\nEach runs the full /push: invoke fix + invoke test + commit + push.")
         if verb == "sync":
-            cli.echo("\nEach runs the full /sync: pull (auto-resolving lock/binary conflicts) + invoke fix + invoke test + commit + push.")
+            cli.echo(
+                "\nEach runs the full /sync: pull (auto-resolving lock/binary conflicts) + invoke fix + invoke test + commit + push."
+            )
         if not cli.confirm(f"Run '{verb}' in all {len(repos)} repos?", default=False):
             cli.echo("Cancelled.")
             return 1

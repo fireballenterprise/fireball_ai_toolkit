@@ -90,7 +90,7 @@ is the reference example.
 - **`--repo <name|path>`** anywhere in `$ARGUMENTS` — a `properties.yml` family-repo name, or a
   path to any git checkout (`--repo ../../levonbecker/dotfiles`).
 - **`/update` and `/upgrade` also take a bare leading token** as the repo
-  (`/update fireball_sidecar_android`) — resolved as a path when it looks like one (contains `/`
+  (`/update fireball_wrangler`) — resolved as a path when it looks like one (contains `/`
   or starts with `.` / `~` / `/`), else a family-repo name.
 - Omitted → the current repo, behaviour unchanged.
 

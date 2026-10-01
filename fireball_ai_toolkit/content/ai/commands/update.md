@@ -15,8 +15,8 @@ library gets the `pyproject.toml` dependency table and the Python-version table;
 table. Any section may say it's already up to date — treat that section as done.
 
 ## Targeting another repo
-`$ARGUMENTS` may start with a repo selector — a family-repo name (`/update fireball_sidecar_android`)
-or a path (`/update ../../levonbecker/dotfiles`), or `--repo <name|path>` anywhere. With one, the
+`$ARGUMENTS` may start with a repo selector — a family-repo name (`/update fireball_wrangler`)
+or a path (`/update ../../levonbecker/dotfiles`, or a monorepo app folder: `/update ../fireball_sidecar/apps/android`), or `--repo <name|path>` anywhere. With one, the
 check runs against that checkout instead of the current one. No selector → the current repo.
 
 ## Which section(s) to act on
