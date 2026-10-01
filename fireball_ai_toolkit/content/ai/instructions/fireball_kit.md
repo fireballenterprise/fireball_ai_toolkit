@@ -13,5 +13,5 @@ applyTo: "**"
 - **The shell spec is `fireball_kit/docs/app_shell.md`**, with exact labels, order and copy. In short:
   - Hosts (Mac, Windows, Linux) open to a read-only example, and any write opens the sign-in gate popup. Remotes (web, iPhone/iPad, Android) are sign-in first.
   - The launch splash is the About view.
-  - Every product uses Enterprise's shared Terms and Privacy pages and `© <year> Fireball Enterprise LLC`.
+  - Every product uses Enterprise's shared Terms and Privacy pages and `© <year> Fireball Enterprise` (no LLC outside legal documents, company_name.md).
 - Until the kit covers a piece, copy **fireball_designer**'s behaviour as the reference, and file or extend the kit issue for it.
