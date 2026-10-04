@@ -1,10 +1,15 @@
 # Windows setup - mirrors setup.sh (macOS/Linux). Run from the repo root in PowerShell:
-#   .\setup.ps1
+#   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+# Process-only policy for this trusted local script; enforced organization policies still apply.
 #
 # Clobbered by `invoke ai_toolkit.download` - DO NOT EDIT. Repo-specific setup goes in
 # setup.local.ps1 (git-tracked, never clobbered), which this script dot-sources if present.
 
 $ErrorActionPreference = "Stop"
+# Python's redirected streams otherwise use the Windows ANSI codepage (often cp1252).
+# Process environment only: neither user settings nor machine execution policy is changed.
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
 
 function Install-Tools {
     Write-Host "INFO: Installing Tools (uv, user-local install - no admin required)"

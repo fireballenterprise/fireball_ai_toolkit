@@ -6,10 +6,14 @@ applyTo: "setup.sh,setup.ps1,setup.local.sh,setup.local.ps1,properties.yml,modul
 ## First-time setup
 ```sh
 ./setup.sh          # macOS / Linux
-.\setup.ps1         # Windows (PowerShell)
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1  # Windows PowerShell 5.1
 ```
 Both install `uv` (user-local, no sudo/admin), run the repo-local hook, create `.venv`, `uv sync`,
 then hand off to `uv run --no-sync invoke setup.properties` to write `properties.yml`.
+
+Windows uses a process-only execution-policy option for these reviewed local scripts; never change machine/user policy to run setup or tests. Enforced `MachinePolicy`/`UserPolicy` still takes precedence: if an organization blocks the script, report that policy and use its approved signing/allowlisting process. PowerShell 7 can use the same options with `pwsh`.
+
+Setup sets Python's UTF-8 environment for its process and children. The installed toolkit task collection also configures Windows stdout/stderr as UTF-8, so future `uv run --no-sync invoke --list` and task output work when redirected without repeating setup. For standalone Python commands outside Invoke, set `$env:PYTHONUTF8 = '1'` and `$env:PYTHONIOENCODING = 'utf-8'` in that PowerShell session. No persistent profile or system setting is changed.
 
 ## `setup.sh` / `setup.ps1` are clobbered
 They come from `fireball_ai_toolkit` (`content/scripts/`) — `invoke ai_toolkit.apply`

@@ -31,6 +31,7 @@ def test_windows_setup_hooks_and_failures(tmp_path, failed_step):
 $global:steps = [System.Collections.Generic.List[string]]::new()
 $global:sourced = 0
 function uv {
+    if ($env:PYTHONUTF8 -ne '1' -or $env:PYTHONIOENCODING -ne 'utf-8') { throw 'Python must use UTF-8 before bootstrap commands' }
     $global:LASTEXITCODE = 0
     $global:steps.Add(($args -join ' '))
     if ($env:FAILED_STEP -and ($args -contains $env:FAILED_STEP)) { $global:LASTEXITCODE = 7 }
@@ -49,7 +50,7 @@ Write-Host 'PASS: bootstrap phase ordering and native exit handling'
         encoding="ascii",
     )
     result = subprocess.run(
-        [shell, "-NoProfile", "-File", "test.ps1"],
+        [shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "test.ps1"],
         cwd=tmp_path,
         env={**os.environ, "FAILED_STEP": failed_step},
         capture_output=True,
