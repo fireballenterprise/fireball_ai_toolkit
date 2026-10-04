@@ -27,11 +27,14 @@ from . import contribute as _contribute
 from . import sync as _sync
 from .apply import apply as _apply
 from .check import check as _check
+from .console import configure_windows_output
 from .mdfix import check_tree as _md_check
 from .mdfix import fix_tree as _md_fix
 from .release import release as _release
 
 _PACKAGE = "fireball-ai-toolkit"
+
+configure_windows_output()
 
 
 @task
