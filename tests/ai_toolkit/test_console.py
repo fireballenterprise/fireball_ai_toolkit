@@ -23,7 +23,7 @@ assert os.environ['PYTHONIOENCODING'] == 'utf-8'
     result = subprocess.run([sys.executable, "-c", code], capture_output=True, check=False,
                             env={**os.environ, "PYTHONIOENCODING": "cp1252"})
     assert result.returncode == 0, result.stderr.decode("utf-8", errors="replace")
-    assert result.stdout.decode("utf-8") == "✅ setup.properties → ready\n"
+    assert result.stdout.decode("utf-8").splitlines() == ["✅ setup.properties → ready"]
     assert "❌ diagnostic" in result.stderr.decode("utf-8")
 
 
