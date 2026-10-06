@@ -59,9 +59,28 @@ def test_bare_name_without_family_map_errors_toward_a_path(monkeypatch):
     assert "pass a filesystem path" in calls[0]
 
 
+def _toolkit_copy(root, *parts):
+    (root.joinpath(*parts, "common")).mkdir(parents=True)
+    root.joinpath(*parts, "common", "target_repo.py").touch()
+
+
+def test_toolkit_package_by_layout(tmp_path):
+    consumer, template, bare, legacy = (tmp_path / n for n in ("consumer", "template", "bare", "legacy"))
+    _toolkit_copy(consumer, "modules", "fireball_ai_toolkit")
+    _toolkit_copy(template, "modules")
+    bare.mkdir()
+    (legacy / "modules" / "toolkit" / "repo").mkdir(parents=True)  # the pre-rename folder name isn't a toolkit copy
+    assert target_repo.toolkit_package(consumer) == "modules.fireball_ai_toolkit"
+    assert target_repo.toolkit_package(template) == "modules"
+    assert target_repo.toolkit_package(bare) is None
+    assert target_repo.toolkit_package(legacy) is None
+    assert target_repo.pkg_root(consumer) == "modules.fireball_ai_toolkit"
+    assert target_repo.pkg_root(bare) == "modules"
+
+
 def test_delegate_picks_cwd_by_layout(tmp_path, monkeypatch):
     vendored = tmp_path / "vendored"
-    (vendored / "modules" / "toolkit").mkdir(parents=True)
+    _toolkit_copy(vendored, "modules", "fireball_ai_toolkit")
     plain = tmp_path / "plain"
     plain.mkdir()
     seen = {}
@@ -76,3 +95,9 @@ def test_delegate_picks_cwd_by_layout(tmp_path, monkeypatch):
     assert seen["cwd"] == vendored and seen["env_root"] == str(vendored)
     target_repo.delegate(plain, "versioning.check", [], caller_root=tmp_path)
     assert seen["cwd"] == tmp_path and seen["env_root"] == str(plain)
+    # A repo without its own toolkit copy runs the caller's vendored module, by the caller's layout.
+    _toolkit_copy(tmp_path, "modules", "fireball_ai_toolkit")
+    captured = {}
+    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: captured.update(cmd=cmd) or type("P", (), {"returncode": 3})())
+    assert target_repo.delegate(plain, "versioning.check", [], caller_root=tmp_path) == 3
+    assert captured["cmd"][-1] == "modules.fireball_ai_toolkit.versioning.check"

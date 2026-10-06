@@ -22,7 +22,7 @@ from pathlib import Path
 from .route_utils import REPO_ROOT_ENV
 from .utils import error
 
-__all__ = ["REPO_ROOT_ENV", "delegate", "pkg_root", "resolve_target_repo"]
+__all__ = ["REPO_ROOT_ENV", "delegate", "pkg_root", "resolve_target_repo", "toolkit_package"]
 
 
 def _looks_like_path(token: str) -> bool:
@@ -75,10 +75,25 @@ def resolve_target_repo(token: str | None) -> Path | None:
     return repo.path
 
 
+# Where a checkout keeps the toolkit's modules: a consumer vendors them under modules/fireball_ai_toolkit/, the
+# template layout has them straight under modules/. Each is recognised by a module every toolkit copy ships.
+_LAYOUTS = (("modules.fireball_ai_toolkit", ("modules", "fireball_ai_toolkit")), ("modules", ("modules",)))
+_MARKER = ("common", "target_repo.py")
+
+
+def toolkit_package(path: Path) -> str | None:
+    """The importable package of ``path``'s own toolkit copy, or None when it carries none (a Kotlin app, a
+    Shopify store, a product monorepo)."""
+    for package, parts in _LAYOUTS:
+        if path.joinpath(*parts, *_MARKER).is_file():
+            return package
+    return None
+
+
 def pkg_root(path: Path) -> str:
     """Importable prefix for a repo's vendored toolkit modules — ``modules.fireball_ai_toolkit`` in a consumer
     that vendors the toolkit, plain ``modules`` in the template layout."""
-    return "modules.fireball_ai_toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
+    return toolkit_package(path) or "modules"
 
 
 def delegate(target: Path, module_suffix: str, args: list[str], *, caller_root: Path) -> int:
@@ -89,8 +104,7 @@ def delegate(target: Path, module_suffix: str, args: list[str], *, caller_root: 
     store) the **caller's** vendored module runs with ``cwd`` at the caller and
     ``$SIDECAR_REPO_ROOT`` pointed at the target so file-scanning checks still hit the right tree.
     """
-    vendored = (target / "modules" / "toolkit").is_dir()
-    cwd = target if vendored else caller_root
+    cwd = target if toolkit_package(target) else caller_root
     module = f"{pkg_root(cwd)}.{module_suffix}"
     env = {**os.environ, REPO_ROOT_ENV: str(target)}
     completed = subprocess.run(

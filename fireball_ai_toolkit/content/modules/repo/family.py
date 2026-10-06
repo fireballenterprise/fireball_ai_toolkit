@@ -15,6 +15,7 @@ from pathlib import Path
 
 from ..common import cli
 from ..common.route_utils import REPO_ROOT_ENV, build_env
+from ..common.target_repo import pkg_root
 from ..setup.properties import FamilyRepo, find_current_repo, get_family_repos, get_repo_local
 
 _SINGLETON_NOTE = (
@@ -23,15 +24,10 @@ _SINGLETON_NOTE = (
 )
 
 
-def _pkg_root(path: Path) -> str:
-    """Importable prefix for a repo's vendored toolkit modules (consumer vs. template layout)."""
-    return "modules.fireball_ai_toolkit" if (path / "modules" / "toolkit" / "repo").is_dir() else "modules"
-
-
 def _repo_module(path: Path, verb: str) -> str:
     """The ``python -m`` target for ``verb`` inside ``path`` (handles the pr_cleanup→cleanup rename
     in family repos that haven't synced the new toolkit yet)."""
-    pkg = _pkg_root(path)
+    pkg = pkg_root(path)
     if verb == "cleanup":
         repo_dir = path / pkg.replace(".", "/") / "repo"
         leaf = "cleanup" if (repo_dir / "cleanup.py").exists() else "pr_cleanup"
