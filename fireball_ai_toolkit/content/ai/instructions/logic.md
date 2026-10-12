@@ -41,7 +41,7 @@ person is driving it.
   `PATH` to reach a task. That runs against the system interpreter, misses the `.venv`, and leaves
   packages installed outside the project. If `uv` itself isn't found, say so — don't work around it.
 - A **`/slash-command`** (`/repo`, `/push`, `/backlog`, …) is not an executable — never type one
-  into a terminal. Its behaviour is the `.fireball_ai_toolkit/commands/<name>.md` (or `.<repo>/commands/`)
+  into a terminal. Its behavior is the `.fireball_ai_toolkit/commands/<name>.md` (or `.<repo>/commands/`)
   body; the `` !`…` `` line there is the real command to run (the part *inside* the backticks, no
   leading `!`). Read that file, or run the underlying `route.py` / `invoke` directly.
 - Pass a multi-word argument as **one quoted string**: `... repo.route "pull all"`, not

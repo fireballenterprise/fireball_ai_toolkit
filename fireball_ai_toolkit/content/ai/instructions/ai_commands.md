@@ -92,7 +92,7 @@ is the reference example.
 - **`/update` and `/upgrade` also take a bare leading token** as the repo
   (`/update fireball_wrangler`) — resolved as a path when it looks like one (contains `/`
   or starts with `.` / `~` / `/`), else a family-repo name.
-- Omitted → the current repo, behaviour unchanged.
+- Omitted → the current repo, behavior unchanged.
 
 A **name** only resolves where `properties.yml` has a `repos:` + `repos_local:` map (the
 orchestrator); a **path** works anywhere; neither touches `properties.yml` in CI. Selection is

@@ -1,5 +1,5 @@
 ---
-description: "Use before building or changing any Fireball app or platform: sign-in/account, avatar and profile menu, sidebar, title bar, Settings, About/splash, Help menu, banners and states, brand colours, MCP, the built-in Sidecar, app lock, push, usage meters, logs, local files, updates. Shared app code comes from fireball_kit, never from copying another app."
+description: "Use before building or changing any Fireball app or platform: sign-in/account, avatar and profile menu, sidebar, title bar, Settings, About/splash, Help menu, banners and states, brand colors, MCP, the built-in Sidecar, app lock, push, usage meters, logs, local files, updates. Shared app code comes from fireball_kit, never from copying another app."
 applyTo: "**"
 ---
 # Fireball Kit Rule
