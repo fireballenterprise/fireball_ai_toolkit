@@ -28,8 +28,8 @@ Two independent axes:
   - **nature**: *what kind* — `--label "Regression,Usage Failure,UI"` (also `Hallucination`,
     `Performance`, `Docs`, `Refactor`, `New Module`, …). Free-form; whatever helps triage.
 
-Any label that doesn't exist yet is created on the fly (`label_color()` picks a stable colour by
-name; an already-present label keeps its own colour/description). Filter with
+Any label that doesn't exist yet is created on the fly (`label_color()` picks a stable color by
+name; an already-present label keeps its own color/description). Filter with
 `backlog list --type bug` (native Type search) and `backlog list --label backlog` (any label).
 
 ## Repo targeting

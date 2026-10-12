@@ -58,7 +58,7 @@ Written for an AI to pick up and work — err verbose, but lead with a human sum
 <repo/file/function pointers, suspected cause — only if known; omit rather than guess>
 
 ## Done when
-<concrete acceptance: the behaviour that proves it's fixed; the smoke check to run>
+<concrete acceptance: the behavior that proves it's fixed; the smoke check to run>
 ```
 
 Feature / task variant: `**Summary:**` then `## Request` then `## Why / details` then
