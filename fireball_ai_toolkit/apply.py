@@ -23,6 +23,7 @@ from pathlib import Path
 
 from ._git import dirty_tracked
 from .catalog import CLOBBER_TREES, packaged_content_root, read_vendor, vendored_files, vendored_trees
+from .migrate import migrate_skills
 from .render import RenderResult, render_repo
 
 TOOLKIT_SUBPATH = CLOBBER_TREES["ai"]  # ".fireball_ai_toolkit" — kept as a name for back-compat imports
@@ -81,6 +82,9 @@ def apply(repo_root: Path, *, force: bool = False) -> RenderResult:
     provider files are its own.
     """
     repo_root = repo_root.resolve()
+    report = migrate_skills(repo_root)  # fold a repo-local commands/ dir into skills/ (no-op once migrated)
+    if report.changed:
+        print("\n".join(["Migrated repo-local commands/ to skills/ (toolkit 2.0.0):", *report.lines()]))
     ai_root = clobber_shared(repo_root, force=force)
     if "ai" not in read_vendor(repo_root):
         return RenderResult(written=[])

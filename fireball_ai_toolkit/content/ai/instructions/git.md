@@ -21,9 +21,9 @@ flow below. `pr_create.py` refuses on a `pull_request: false` repo.
   - `## Summary` — 1-3 sentences describing the overall change
   - `## Changes` — a bulleted list of the key changes (one bullet per logical change, not per file)
 
-This is the canonical PR format for this repo — the `pr` / `pr-notes` commands implement it. Those
-commands (and every other) are authored once in `.fireball_ai_toolkit/commands/` (via
-`fireball_ai_toolkit`'s `content/commands/`) and rendered per tool; see
+This is the canonical PR format for this repo — the `pr` / `pr-notes` skills implement it. Those
+skills (and every other) are authored once in `.fireball_ai_toolkit/skills/` (via
+`fireball_ai_toolkit`'s `content/ai/skills/`) and rendered per tool; see
 `.fireball_ai_toolkit/instructions/ai_commands.md`.
 
 ## Pull Request Assignee

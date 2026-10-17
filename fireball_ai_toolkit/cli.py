@@ -15,6 +15,7 @@ from . import contribute as _contribute
 from . import sync as _sync
 from .apply import apply as _apply
 from .check import check as _check
+from .migrate import migrate_skills as _migrate_skills
 
 _ALIASES = {"download": "apply", "upload": "contribute"}
 
@@ -30,6 +31,8 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("apply", help="clobber .fireball_ai_toolkit/ etc. from the installed package, then render")
     sub.add_parser("contribute", help="open a PR against fireball_ai_toolkit with local .fireball_ai_toolkit/ changes")
     sub.add_parser("check", help="read-only drift gate")
+    p_mig = sub.add_parser("migrate-skills", help="merge this repo's local .<repo>/commands/ into skills/ (2.0.0)")
+    p_mig.add_argument("--dry-run", action="store_true", help="report what would change; write nothing")
     sub.add_parser("download", help="deprecated alias for `apply`")
     sub.add_parser("upload", help="deprecated alias for `contribute`")
     return parser
@@ -49,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         print(_contribute.contribute(repo))
     elif command == "check":
         _check(repo)
+    elif command == "migrate-skills":
+        print("\n".join(_migrate_skills(repo, dry_run=args.dry_run).lines()))
     elif command == "sync":
         plan = _sync.inspect(repo)
         print(plan.message)

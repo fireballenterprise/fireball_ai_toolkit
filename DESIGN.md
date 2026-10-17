@@ -1,6 +1,6 @@
 # fireball_ai_toolkit — Design
-Single source of truth for the shared AI-agent tooling. Canonical slash commands, agent
-instructions, and skills live here as tool-neutral markdown; a generator renders them into every
+Single source of truth for the shared AI-agent tooling. Canonical agent
+instructions and skills (a skill is a slash command) live here as tool-neutral markdown; a generator renders them into every
 AI tool's native format inside each consuming repo.
 
 Full project plan and history: `ai_vault` repo →
@@ -20,7 +20,7 @@ Full project plan and history: `ai_vault` repo →
 ```
 fireball_ai_toolkit/        <- THE distributable package (the only thing in the wheel)
   content/                       <- everything shipped, as package data. apply clobber-copies:
-    ai/{commands,instructions,skills}/*.md   -> .fireball_ai_toolkit/  (then rendered into every provider dir)
+    ai/{instructions,skills}/*.md           -> .fireball_ai_toolkit/  (then rendered into every provider dir)
     modules/                                 -> modules/fireball_ai_toolkit/   (shared Python, modules.fireball_ai_toolkit.*)
     tasks/                                   -> tasks/fireball_ai_toolkit/
     tests/                                   -> tests/fireball_ai_toolkit/
@@ -29,8 +29,9 @@ fireball_ai_toolkit/        <- THE distributable package (the only thing in the 
   cli.py            `ai-toolkit` console entrypoint
   catalog.py        parse content/ai/ (+ a repo's .<repo>/) -> ContentBundle; CLOBBER_TREES/FILES map
   render.py         run every renderer over the bundle
-  renderers/        one per target: agents, claude, cline, copilot, prompts, sidecar
-  apply.py         clobber every content/ tree into the repo, then render
+  renderers/        one per target: agents, claude, cline, copilot, sidecar
+  apply.py         migrate a repo-local commands/ dir, clobber every content/ tree into the repo, then render
+  migrate.py       migrate_skills: fold .<repo>/commands/ into .<repo>/skills/ (2.0.0)
   contribute.py    diff every clobbered path vs content/ -> PR against this repo
   sync.py          check clobbered paths -> stop on local edits -> apply
   check.py          read-only drift gate (every clobbered path + every rendered file)
@@ -113,11 +114,11 @@ modules/fireball_ai_toolkit/ clobbered copy of content/modules/ — shared Pytho
 tasks/fireball_ai_toolkit/   clobbered copy of content/tasks/
 tests/fireball_ai_toolkit/   clobbered copy of content/tests/
 setup.sh setup.ps1   clobbered from content/scripts/ — repo extras go in setup.local.sh (not clobbered)
-.<repo>/      this repo's own instructions/ commands/ skills/ (e.g. .fireball_ai_vault/) — never synced
+.<repo>/      this repo's own instructions/ skills/ (e.g. .fireball_ai_vault/) — never synced
 modules/ tasks/ tests/ (root)   this repo's own code — never touched
-<generated> .claude/ .github/{prompts,instructions,skills,copilot-instructions.md} .clinerules/
-            .sidecar/ AGENTS.md CLAUDE.md — NEVER hand-edited; each file is a pointer stub back
-            to .fireball_ai_toolkit/ or .<repo>/ (provider frontmatter + one "Source of truth:" line)
+<generated> .claude/skills/ .github/{skills,instructions,copilot-instructions.md} .clinerules/
+            .sidecar/instructions/ AGENTS.md CLAUDE.md — NEVER hand-edited. Instructions are pointer stubs
+            back to .fireball_ai_toolkit/ or .<repo>/; skills carry their full text (see below)
 ```
 - `ai_toolkit.apply` — clobber every managed path from the package, render every provider
   stub (with `.<repo>/` layered on top).
@@ -136,9 +137,62 @@ modules/ tasks/ tests/ (root)   this repo's own code — never touched
 - `ai_toolkit.release` — (toolkit repo, and a convenience wrapper elsewhere) promote
   `development` -> `main` and cut a tag.
 
+## Skills are the slash commands
+A **skill** is the one unit of AI behavior: the full text of a slash command, which a person calls as
+`/<name>` or the AI loads on its own when the description matches. There is no separate `commands/`
+layer (removed in 2.0.0).
+
+**Why.** GitHub Copilot in VS Code moved to the Agent Skills runtime (same as Copilot CLI and the Copilot
+app); `.github/prompts/` prompt files are no longer the way to expose a slash command. Claude Code already
+treats skills as slash commands. One canonical skill therefore renders to both, and Sidecar reads it directly.
+
+Canonical source, in `.fireball_ai_toolkit/skills/` (and a repo's own `.<repo>/skills/`):
+
+* **flat** — `skills/<name>.md`: frontmatter + the full command text. Use this for almost everything.
+* **bundle** — `skills/<name>/SKILL.md` (same frontmatter) plus any extra files (scripts, examples,
+  templates) next to it. Use it only when a skill needs resources. Defining both `<name>.md` and `<name>/`
+  is an error.
+
+```yaml
+---
+description: Use for ... . Equivalent to /name.        # what it does + when the AI should load it
+argument-hint: "[--repo <name|path>]"                  # shown after /name
+hints:                                                 # optional extra trigger phrases
+  - punch it
+instructions:                                          # rule/skill files to read and follow
+  - .fireball_ai_toolkit/instructions/git.md
+user-invocable: false                                  # optional; omitted = true (person may call /name)
+ai-invocable: false                                    # optional; omitted = true (AI may load it)
+---
+
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.<module>.route "$ARGUMENTS"`
+```
+
+The two switches are optional in the canonical source (omitted = both on, Sidecar's default). The generated
+`SKILL.md` always writes both keys out: `user-invocable: true|false` and
+`disable-model-invocation: false|true` (`ai-invocable: false` -> `disable-model-invocation: true`).
+
+Generated output: `.github/skills/<name>/SKILL.md` (Copilot) and `.claude/skills/<name>/SKILL.md` (Claude)
+carry `name` (== folder), `description`, `argument-hint`, both switches, and the full body; a bundle's extra
+files are copied alongside (dotfiles skipped, stale ones removed). Cline gets one workflow pointer per
+user-invocable skill; `AGENTS.md` lists the skills as the slash commands. Sidecar needs no generated skill
+files. Old generated `.github/prompts/`, `.claude/commands/`, `.sidecar/commands/` and `.sidecar/skills/`
+files are deleted on the next render.
+
+### Migrating a consuming repo (2.0.0)
+```sh
+uv run --no-sync invoke ai_toolkit.update
+uv run --no-sync invoke ai_toolkit.migrate_skills --dry-run   # optional: preview the repo-local migration
+uv run --no-sync invoke ai_toolkit.apply                      # runs migrate_skills itself, then renders
+```
+`migrate_skills` merges the repo's own `.<repo>/commands/<slug>.md` into `.<repo>/skills/<slug>.md`, deletes
+the local `commands/`, rewrites `commands/` path references in the local docs to `skills/`, and lists
+anything it cannot rewrite safely. A leftover `commands/` dir is still read for one release (with a
+deprecation warning). See [CHANGELOG.md](CHANGELOG.md).
+
 ## Open design questions
 1. **Shared vs local content split.** The initial port copied *all* of ai_vault's
-   `.github/instructions/` and `.github/prompts/`. See the plan's Shared-vs-Local table for the
+   `.github/instructions/` and the old prompt files. See the plan's Shared-vs-Local table for the
    agreed division. ai_vault-specific files move to `.<repo>/` before the first real `apply`.
 2. **`.<repo>/` merge semantics** — additive-only, or per-file override of an `.fireball_ai_toolkit/` file?
 3. **Circular dependency** — this repo is scaffolded from `template_python`; once `template_python`

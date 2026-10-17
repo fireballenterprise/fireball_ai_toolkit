@@ -15,12 +15,12 @@ from ._common import write_doc
 _PREAMBLE = (
     "This repo's rules for any AI coding tool are authored once under `.fireball_ai_toolkit/` (synced from "
     "`fireball_ai_toolkit`) and `.{local}/` (this repo's own). Every `.github/`, `.claude/`, "
-    "`.clinerules/`, and `.sidecar/` file is a generated pointer back to them. Read the relevant "
-    "canonical file before making changes:"
+    "`.clinerules/`, and `.sidecar/` file is generated from them. Skills are the slash commands "
+    "(`/<name>`, or loaded by the AI): {skills}. Read the relevant canonical file before making changes:"
 )
 
 _SOURCE_OF_TRUTH = (
-    "**Source of truth: `.fireball_ai_toolkit/` and `.{local}/`** — all rules, slash commands, and skills "
+    "**Source of truth: `.fireball_ai_toolkit/` and `.{local}/`** — all rules and skills (slash commands) "
     "live there as tool-neutral markdown. Never hand-edit a generated provider file "
     "(`.github/`, `.claude/`, `.clinerules/`, `.sidecar/`, `AGENTS.md`, `CLAUDE.md`); edit the "
     "`.fireball_ai_toolkit/` source and run `invoke ai_toolkit.apply`."
@@ -29,7 +29,7 @@ _SOURCE_OF_TRUTH = (
 _CLAUDE_MD = """# Claude Code Instructions
 
 See `AGENTS.md` for all instructions — it links to every canonical file under `.fireball_ai_toolkit/` and
-`.{local}/`, the source of truth for this repo's rules, slash commands, and skills.
+`.{local}/`, the source of truth for this repo's rules and skills (slash commands).
 
 {source_of_truth}
 """
@@ -43,9 +43,12 @@ def _canonical(bundle: ContentBundle, slug: str) -> str:
 
 def render(bundle: ContentBundle, repo_root: Path) -> list[Path]:
     local = bundle.local_name
+    skills = ", ".join(f"`/{s.name}`" for s in bundle.skills if s.user_invocable) or "none"
     source_of_truth = _SOURCE_OF_TRUTH.format(local=local)
     bullets = "\n".join(f"- **{i.label}**: `{_canonical(bundle, i.slug)}`" for i in bundle.instructions)
-    agents_body = f"# Agent Instructions\n\n{_PREAMBLE.format(local=local)}\n\n{bullets}\n\n{source_of_truth}"
+    agents_body = (
+        f"# Agent Instructions\n\n{_PREAMBLE.format(local=local, skills=skills)}\n\n{bullets}\n\n{source_of_truth}"
+    )
     claude_md = _CLAUDE_MD.format(local=local, source_of_truth=source_of_truth)
     return [
         write_doc(repo_root / "AGENTS.md", agents_body),
