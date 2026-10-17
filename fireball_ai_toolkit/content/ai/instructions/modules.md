@@ -114,8 +114,8 @@ absent). Never switch repos in-process: `setup.properties` caches the repo root 
 the process, so `delegate` always spawns a fresh subprocess (`cwd` + `$SIDECAR_REPO_ROOT`).
 
 ## AI Provider Files
-Commands, instructions, and skills are authored in `.fireball_ai_toolkit/` (via `fireball_ai_toolkit`'s
-`content/`) or this repo's `.<repo>/`, and rendered as pointer stubs into every provider dir by
+Instructions and skills (a skill is a slash command) are authored in `.fireball_ai_toolkit/` (via `fireball_ai_toolkit`'s
+`content/`) or this repo's `.<repo>/`, and rendered into every provider dir by
 `invoke ai_toolkit.apply`. There are no per-repo sync modules —
 `invoke ai_toolkit.check` (inside `invoke test`) is the drift gate. See
 `.fireball_ai_toolkit/instructions/ai_commands.md`.

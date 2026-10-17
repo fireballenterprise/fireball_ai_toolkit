@@ -6,7 +6,7 @@ uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.list --all [--sco
 The human output is Markdown: a `### <repo> · <count>` heading per repo followed by a
 `# / Title / Labels` table (issue numbers linked, titles truncated), fenced in
 `<!--sidecar:verbatim-->` markers so the Sidecar chat client renders it as-is (see
-`common.utils.verbatim` and the `commentary: skip` note in `.fireball_ai_toolkit/commands/backlog.md`).
+`common.utils.verbatim` and the `commentary: skip` note in `.fireball_ai_toolkit/skills/backlog.md`).
 `--json` is unchanged — never fenced.
 """
 

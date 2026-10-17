@@ -9,6 +9,7 @@ modules; these wrappers stay thin.
 Verbs (apt-style):
   update      pull the newest toolkit release into the venv (uv lock --upgrade + uv sync)
   apply       clobber .fireball_ai_toolkit/ + modules/fireball_ai_toolkit/ + … from the installed package, then render
+  migrate_skills  merge a repo-local commands/ dir into skills/ (2.0.0; apply runs it too)
   upgrade     update, then apply — the whole "take the new toolkit" in one
   sync        apply, but stop first if .fireball_ai_toolkit/ has local hand-edits
   contribute  open a PR to the toolkit with this repo's .fireball_ai_toolkit/ edits
@@ -30,6 +31,7 @@ from .check import check as _check
 from .console import configure_windows_output
 from .mdfix import check_tree as _md_check
 from .mdfix import fix_tree as _md_fix
+from .migrate import migrate_skills as _migrate_skills
 from .release import release as _release
 
 _PACKAGE = "fireball-ai-toolkit"
@@ -52,6 +54,12 @@ def apply(context):  # noqa: ARG001
     """Clobber .fireball_ai_toolkit/ + modules/fireball_ai_toolkit/ + … from the installed package, then render."""
     result = _apply(Path.cwd())
     print(f"Rendered {result.by_count} files.")
+
+
+@task(help={"dry_run": "report what would change; write nothing"})
+def migrate_skills(context, dry_run=False):  # noqa: ARG001
+    """Merge this repo's own .<repo>/commands/ into .<repo>/skills/ (toolkit 2.0.0). Idempotent; `apply` runs it too."""
+    print("\n".join(_migrate_skills(Path.cwd(), dry_run=dry_run).lines()))
 
 
 @task
@@ -146,5 +154,5 @@ def upload(context, branch=None, toolkit_repo=None):
 
 
 collection = Collection("toolkit")
-for _task in (update, apply, upgrade, sync, contribute, check, mdfix, release, download, upload):
+for _task in (update, apply, migrate_skills, upgrade, sync, contribute, check, mdfix, release, download, upload):
     collection.add_task(_task)

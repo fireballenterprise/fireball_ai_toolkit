@@ -4,7 +4,7 @@ the files one AI tool expects inside a consuming repo.
 A renderer is a callable ``render(bundle, repo_root) -> list[Path]`` that writes its outputs and
 returns the paths it wrote (so :mod:`fireball_ai_toolkit.render` and the drift check can diff
 them). Every generated markdown file carries the :data:`~fireball_ai_toolkit.renderers._common.GENERATED_HEADER`
-``DO NOT EDIT`` comment and is a pointer stub — the canonical source is ``.fireball_ai_toolkit/`` +
+``DO NOT EDIT`` comment and is a pointer stub (skills carry their full text) — the canonical source is ``.fireball_ai_toolkit/`` +
 ``.<repo>/`` (``content/`` in this repo).
 """
 
@@ -14,7 +14,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from ..catalog import ContentBundle
-from . import agents, claude, cline, copilot, prompts, sidecar
+from . import agents, claude, cline, copilot, sidecar
 from ._common import GENERATED_HEADER
 
 Renderer = Callable[[ContentBundle, Path], list[Path]]
@@ -25,7 +25,6 @@ ALL: dict[str, Renderer] = {
     "claude": claude.render,
     "cline": cline.render,
     "copilot": copilot.render,
-    "prompts": prompts.render,
     "sidecar": sidecar.render,
 }
 

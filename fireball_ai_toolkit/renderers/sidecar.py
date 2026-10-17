@@ -1,11 +1,9 @@
-"""Render ``.sidecar/`` for Fireball Sidecar — pointer stubs.
+"""Render ``.sidecar/`` for Fireball Sidecar — instruction pointer stubs only.
 
-``commands/``, ``instructions/``, ``skills/`` each carry the provider frontmatter Sidecar needs
-and a pointer at the canonical ``.fireball_ai_toolkit/`` or ``.<repo>/`` file. Skill stubs keep the
-canonical header verbatim — ``hints`` / ``instructions`` / ``commands`` all stay as frontmatter
-keys (Sidecar reads them directly), so the body is only the pointer. Sidecar is Levon's own tool
-and is being taught to read the canonical ``.fireball_ai_toolkit/`` tree directly; the target end state is a no-op
-renderer.
+Sidecar reads the canonical flat (or bundle) skills under ``.fireball_ai_toolkit/skills/`` and
+``.<repo>/skills/`` directly, so it needs no generated skill or command views. A previous
+version's ``.sidecar/commands/`` and ``.sidecar/skills/`` output is removed. Instructions keep
+their pointer stubs (``name`` / ``description`` / ``applyTo``).
 """
 
 from __future__ import annotations
@@ -13,31 +11,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..catalog import ContentBundle
-from ._common import canonical_pointer, clean_dir, write_doc
-
-_AGENT = "sidecar-agent"
+from ._common import canonical_pointer, clean_dir, remove_generated, write_doc
 
 
 def render(bundle: ContentBundle, repo_root: Path) -> list[Path]:
     root = repo_root / ".sidecar"
-    written: list[Path] = []
-
-    cmd_dir = root / "commands"
-    cmd_files = [
-        write_doc(
-            cmd_dir / f"{c.slug}.md",
-            canonical_pointer(bundle, c.slug, "commands"),
-            frontmatter={
-                "name": c.slug,
-                "description": c.description,
-                "argument-hint": c.argument_hint,
-                "agent": _AGENT,
-            },
-        )
-        for c in bundle.commands
-    ]
-    clean_dir(cmd_dir, cmd_files)
-    written += cmd_files
+    remove_generated(root / "commands")
+    remove_generated(root / "skills")
 
     inst_dir = root / "instructions"
     inst_files = [
@@ -49,27 +29,4 @@ def render(bundle: ContentBundle, repo_root: Path) -> list[Path]:
         for i in bundle.instructions
     ]
     clean_dir(inst_dir, inst_files)
-    written += inst_files
-
-    # Skill stubs mirror the canonical header verbatim — Sidecar reads `hints` / `instructions` /
-    # `commands` straight off the frontmatter — with only the pointer in the body.
-    skill_dir = root / "skills"
-    skill_files = []
-    for skill in bundle.skills:
-        skill_files.append(
-            write_doc(
-                skill_dir / f"{skill.name}.md",
-                canonical_pointer(bundle, skill.name, "skills"),
-                frontmatter={
-                    "name": skill.name,
-                    "description": skill.description,
-                    "hints": skill.hints,
-                    "instructions": skill.instructions,
-                    "commands": skill.commands,
-                },
-            )
-        )
-    clean_dir(skill_dir, skill_files)
-    written += skill_files
-
-    return written
+    return inst_files

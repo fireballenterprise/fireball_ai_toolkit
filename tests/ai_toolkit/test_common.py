@@ -6,19 +6,19 @@ from pathlib import Path
 
 import pytest
 
-from fireball_ai_toolkit.catalog import Command
+from fireball_ai_toolkit.catalog import Skill
 from fireball_ai_toolkit.renderers._common import derive_allowed_tools, render_frontmatter
 
 pytestmark = pytest.mark.ai_toolkit
 
 
-def _command(body: str, *, allowed=()) -> Command:
-    return Command(
-        slug="x",
+def _command(body: str, *, allowed=()) -> Skill:
+    return Skill(
+        name="x",
+        path=Path("x.md"),
         description="d",
         argument_hint="",
         body=body,
-        source=Path("x.md"),
         allowed_tools=tuple(allowed),
     )
 

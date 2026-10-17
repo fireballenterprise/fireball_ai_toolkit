@@ -15,7 +15,8 @@ specific AI tool — that is the renderers' job.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+import warnings
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import yaml
@@ -34,7 +35,7 @@ LAYERS = ("shared", "local")
 # the consuming repo verbatim; `check` drift-gates them; `contribute` maps repo edits back.
 #   content/<key>/  ->  <repo path>/
 CLOBBER_TREES = {
-    "ai": AI_ROOT_DIRNAME,  # commands/ instructions/ skills/ — then rendered per provider dir
+    "ai": AI_ROOT_DIRNAME,  # instructions/ skills/ — then rendered per provider dir
     "modules": "modules/fireball_ai_toolkit",  # shared Python — imported as modules.fireball_ai_toolkit.*
     "tasks": "tasks/fireball_ai_toolkit",  # shared invoke tasks
     "tests": "tests/fireball_ai_toolkit",  # tests for the shared modules
@@ -112,43 +113,6 @@ def _split_frontmatter(text: str) -> tuple[dict, str]:
 
 
 @dataclass(frozen=True)
-class Command:
-    """One canonical slash-command spec (``content/commands/<slug>.md``)."""
-
-    slug: str
-    description: str
-    argument_hint: str
-    body: str
-    source: Path
-    agent: str = "agent"
-    allowed_tools: tuple[str, ...] = ()
-
-    @property
-    def exec_lines(self) -> list[str]:
-        """Every ``!`...``` execution line in the body, in order."""
-        return [match.group(1).strip() for match in _EXEC_RE.finditer(self.body)]
-
-    @property
-    def exec_line(self) -> str:
-        """The first ``!`...``` execution line from the body, or ``""`` if the command has none."""
-        lines = self.exec_lines
-        return lines[0] if lines else ""
-
-    @classmethod
-    def from_file(cls, path: Path) -> Command:
-        fm, body = _split_frontmatter(path.read_text(encoding="utf-8"))
-        return cls(
-            slug=path.stem,
-            description=str(fm.get("description", "")),
-            argument_hint=str(fm.get("argument-hint", "")),
-            body=body,
-            source=path,
-            agent=str(fm.get("agent", "agent")),
-            allowed_tools=tuple(_as_list(fm.get("allowed-tools"))),
-        )
-
-
-@dataclass(frozen=True)
 class Instruction:
     """One canonical agent-rule file (``content/instructions/<slug>.md``)."""
 
@@ -182,35 +146,82 @@ def _derive_label(slug: str, body: str) -> str:
 
 @dataclass(frozen=True)
 class Skill:
-    """One canonical skill file (``content/skills/<name>.md``).
+    """One canonical skill — the unit behind a slash command *and* an AI-loadable capability.
 
-    Flat one-file-per-skill — the ``<name>/SKILL.md`` directory shape is a *rendered* artifact
-    (Claude / Copilot require it), never the canonical source.
+    Two source forms, one skill:
 
-    A canonical skill file is a **header only** — no body. ``hints`` are extra trigger phrases;
-    ``instructions`` / ``commands`` are lists of repo-relative paths (``.fireball_ai_toolkit/…`` or
-    ``.<repo>/…``) that the renderers expand into each provider stub's body so the agent knows
-    what to read and follow when the skill fires.
+    * **flat** — ``skills/<name>.md`` (frontmatter + the full slash-command text as the body)
+    * **bundle** — ``skills/<name>/SKILL.md`` (same frontmatter/body) plus any resource files next
+      to it (scripts, examples, templates). Having both ``<name>.md`` and ``<name>/`` is an error.
+
+    Frontmatter: ``description``, ``argument-hint``, ``hints`` (extra trigger phrases),
+    ``instructions`` (repo-relative rule/skill paths the renderers list as "read and follow"), and
+    the two switches ``user-invocable`` / ``ai-invocable`` (both default true; ``ai-invocable:
+    false`` renders as ``disable-model-invocation: true``). ``allowed-tools`` is optional.
     """
 
     name: str
     path: Path
     description: str = ""
+    argument_hint: str = ""
+    body: str = ""
     hints: tuple[str, ...] = ()
     instructions: tuple[str, ...] = ()
-    commands: tuple[str, ...] = ()
+    allowed_tools: tuple[str, ...] = ()
+    user_invocable: bool = True
+    ai_invocable: bool = True
+    # bundle form only: resource files next to SKILL.md, relative to the bundle dir, sorted
+    resources: tuple[Path, ...] = ()
+    bundle_dir: Path | None = None
+
+    @property
+    def exec_lines(self) -> list[str]:
+        """Every ``!`...``` execution line in the body, in order."""
+        return [match.group(1).strip() for match in _EXEC_RE.finditer(self.body)]
+
+    @property
+    def exec_line(self) -> str:
+        """The first ``!`...``` execution line from the body, or ``""`` if the skill has none."""
+        lines = self.exec_lines
+        return lines[0] if lines else ""
 
     @classmethod
-    def from_file(cls, path: Path) -> Skill:
-        fm, _ = _split_frontmatter(path.read_text(encoding="utf-8"))
+    def from_file(cls, path: Path, *, name: str | None = None, bundle_dir: Path | None = None) -> Skill:
+        fm, body = _split_frontmatter(path.read_text(encoding="utf-8"))
+        resources: tuple[Path, ...] = ()
+        if bundle_dir is not None:
+            resources = tuple(
+                sorted(
+                    p.relative_to(bundle_dir)
+                    for p in bundle_dir.rglob("*")
+                    if p.is_file()
+                    and p != path
+                    and not any(part.startswith(".") for part in p.relative_to(bundle_dir).parts)
+                    and "__pycache__" not in p.parts
+                )
+            )
         return cls(
-            name=path.stem,
+            name=name or path.stem,
             path=path,
             description=str(fm.get("description", "")),
+            argument_hint=str(fm.get("argument-hint", "")),
+            body=body,
             hints=tuple(_as_list(fm.get("hints"))),
             instructions=tuple(_as_list(fm.get("instructions"))),
-            commands=tuple(_as_list(fm.get("commands"))),
+            allowed_tools=tuple(_as_list(fm.get("allowed-tools"))),
+            user_invocable=_as_bool(fm.get("user-invocable"), default=True),
+            ai_invocable=_as_bool(fm.get("ai-invocable"), default=True),
+            resources=resources,
+            bundle_dir=bundle_dir,
         )
+
+
+def _as_bool(value: object, *, default: bool) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, str):
+        return value.strip().lower() not in ("false", "no", "0", "off")
+    return bool(value)
 
 
 def local_layer_name(repo_root: Path) -> str:
@@ -231,7 +242,6 @@ def local_layer_name(repo_root: Path) -> str:
 class ContentBundle:
     """Everything the renderers need: the merged ``shared`` + ``local`` content."""
 
-    commands: list[Command] = field(default_factory=list)
     instructions: list[Instruction] = field(default_factory=list)
     skills: list[Skill] = field(default_factory=list)
     # slug -> layer name it was resolved from ("shared" or "local")
@@ -255,13 +265,73 @@ def _collect(root: Path, subdir: str, suffix: str = ".md") -> list[Path]:
     return sorted(p for p in target.glob(f"*{suffix}") if p.is_file())
 
 
+def _collect_skills(root: Path) -> list[Skill]:
+    """Every skill under ``<root>/skills/`` — flat ``<name>.md`` or bundle ``<name>/SKILL.md``."""
+    target = root / "skills"
+    if not target.is_dir():
+        return []
+    found: dict[str, Skill] = {}
+    for path in sorted(target.iterdir()):
+        if path.name.startswith("."):
+            continue
+        if path.is_file() and path.suffix == ".md":
+            name, skill = path.stem, Skill.from_file(path)
+        elif path.is_dir() and (path / "SKILL.md").is_file():
+            name, skill = path.name, Skill.from_file(path / "SKILL.md", name=path.name, bundle_dir=path)
+        else:
+            continue
+        if name in found:
+            msg = f"skill {name!r} is defined twice in {target}: both {name}.md and {name}/ exist — keep one"
+            raise ValueError(msg)
+        found[name] = skill
+    return [found[k] for k in sorted(found)]
+
+
+def _legacy_commands(root: Path) -> dict[str, Skill]:
+    """Read a leftover ``commands/`` dir (toolkit < 2.0) as skills, with a deprecation warning."""
+    paths = _collect(root, "commands")
+    if not paths:
+        return {}
+    warnings.warn(
+        f"{root / 'commands'}: the commands/ directory is deprecated and will stop being read in the next "
+        "release — merge each command body into the same-named skills/<slug>.md (toolkit 2.0.0).",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+    out: dict[str, Skill] = {}
+    for path in paths:
+        fm, body = _split_frontmatter(path.read_text(encoding="utf-8"))
+        out[path.stem] = Skill(
+            name=path.stem,
+            path=path,
+            description=str(fm.get("description", "")),
+            argument_hint=str(fm.get("argument-hint", "")),
+            body=body,
+            allowed_tools=tuple(_as_list(fm.get("allowed-tools"))),
+        )
+    return out
+
+
+def _with_legacy(skill: Skill, command: Skill | None) -> Skill:
+    """A same-layer legacy command supplies the body/hint a header-only (old-style) skill lacks."""
+    if command is None or skill.body:
+        return skill
+    return replace(
+        skill,
+        body=command.body,
+        argument_hint=skill.argument_hint or command.argument_hint,
+        allowed_tools=skill.allowed_tools or command.allowed_tools,
+        description=skill.description or command.description,
+    )
+
+
 def packaged_content_root() -> Path:
     """Absolute path to the ``content/`` tree bundled inside this package (all shipped trees)."""
     return (Path(__file__).resolve().parent / "content").resolve()
 
 
 def packaged_ai_root() -> Path:
-    """Absolute path to ``content/ai/`` — the commands/instructions/skills bundle the renderers read."""
+    """Absolute path to ``content/ai/`` — the instructions/skills bundle the renderers read."""
     return packaged_content_root() / "ai"
 
 
@@ -287,7 +357,6 @@ def load_bundle(
     if local_root is not None:
         layers.append(("local", local_root.resolve()))
 
-    commands: dict[str, Command] = {}
     instructions: dict[str, Instruction] = {}
     skills: dict[str, Skill] = {}
     origin: dict[str, str] = {}
@@ -295,18 +364,19 @@ def load_bundle(
     for layer_name, root in layers:
         if not root.is_dir():
             continue
-        for path in _collect(root, "commands"):
-            commands[path.stem] = Command.from_file(path)
-            origin[path.stem] = layer_name
         for path in _collect(root, "instructions"):
             instructions[path.stem] = Instruction.from_file(path)
             origin[path.stem] = layer_name
-        for path in _collect(root, "skills"):
-            skills[path.stem] = Skill.from_file(path)
-            origin[path.stem] = layer_name
+        # Legacy `commands/` (toolkit < 2.0): read tolerantly for one release, skills win.
+        legacy = _legacy_commands(root)
+        for skill in _collect_skills(root):
+            skills[skill.name] = _with_legacy(skill, legacy.pop(skill.name, None))
+            origin[skill.name] = layer_name
+        for slug, command in legacy.items():
+            skills[slug] = command
+            origin[slug] = layer_name
 
     return ContentBundle(
-        commands=[commands[k] for k in sorted(commands)],
         instructions=[instructions[k] for k in sorted(instructions)],
         skills=[skills[k] for k in sorted(skills)],
         origin=origin,
