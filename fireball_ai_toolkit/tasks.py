@@ -56,7 +56,7 @@ def apply(context):  # noqa: ARG001
     print(f"Rendered {result.by_count} files.")
 
 
-@task @ task(help={"dry_run": "report what would change; write nothing"})
+@task(help={"dry_run": "report what would change; write nothing"})
 def migrate_skills(context, dry_run=False):  # noqa: ARG001
     """Merge this repo's own .<repo>/commands/ into .<repo>/skills/ (toolkit 2.0.0). Idempotent; `apply` runs it too."""
     print("\n".join(_migrate_skills(Path.cwd(), dry_run=dry_run).lines()))
