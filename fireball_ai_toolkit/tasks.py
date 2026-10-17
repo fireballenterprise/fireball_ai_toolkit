@@ -62,6 +62,7 @@ def migrate_skills(context, dry_run=False):  # noqa: ARG001
     print("\n".join(_migrate_skills(Path.cwd(), dry_run=dry_run).lines()))
 
 
+@task
 def upgrade(context, force=False):
     """update, then apply — pull the newest toolkit and take it into this repo.
 
