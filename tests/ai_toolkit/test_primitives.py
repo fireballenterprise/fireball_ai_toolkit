@@ -32,10 +32,10 @@ def repo(tmp_path: Path) -> Path:
 def test_apply_clobbers_shared_and_renders(repo: Path):
     result = apply(repo)
     assert result.by_count > 20
-    assert (repo / ".fireball_ai_toolkit" / "commands").is_dir()
+    assert (repo / ".fireball_ai_toolkit" / "skills").is_dir()
     assert (repo / ".fireball_ai_toolkit" / "instructions").is_dir()
     assert (repo / "AGENTS.md").exists()
-    assert (repo / ".claude" / "commands").is_dir()
+    assert (repo / ".claude" / "skills" / "fix" / "SKILL.md").is_file()
 
 
 def test_download_alias_still_works(repo: Path):
@@ -58,7 +58,7 @@ def test_cli_sync_stops_on_dirty_shared_without_yes(repo: Path):
     main(["--repo", str(repo), "apply"])
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "generated")
-    (repo / ".fireball_ai_toolkit" / "commands" / "fix.md").write_text("hand edit\n")
+    (repo / ".fireball_ai_toolkit" / "skills" / "fix.md").write_text("hand edit\n")
     assert main(["--repo", str(repo), "sync"]) == 2  # refuses to clobber a local edit
     assert main(["--repo", str(repo), "sync", "--yes"]) == 0  # --yes discards it
 
@@ -113,7 +113,7 @@ def test_apply_refuses_dirty_shared(repo: Path):
     apply(repo)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "generated")
-    (repo / ".fireball_ai_toolkit" / "commands" / "fix.md").write_text("tampered\n")
+    (repo / ".fireball_ai_toolkit" / "skills" / "fix.md").write_text("tampered\n")
     with pytest.raises(DirtySharedError):
         apply(repo)
     apply(repo, force=True)  # force overrides
@@ -125,7 +125,7 @@ def test_sync_inspect_reports_clean_then_dirty(repo: Path):
     _git(repo, "commit", "-qm", "generated")
     assert sync.inspect(repo).dirty is False
 
-    (repo / ".fireball_ai_toolkit" / "commands" / "fix.md").write_text("tampered\n")
+    (repo / ".fireball_ai_toolkit" / "skills" / "fix.md").write_text("tampered\n")
     plan = sync.inspect(repo)
     assert plan.dirty is True
     assert "fix.md" in plan.shared_diff
@@ -134,7 +134,7 @@ def test_sync_inspect_reports_clean_then_dirty(repo: Path):
 def test_vendor_subset_skips_python_trees(repo: Path):
     (repo / ".ai-toolkit.yml").write_text("vendor:\n  - ai\n  - scripts\n")
     apply(repo)
-    assert (repo / ".fireball_ai_toolkit" / "commands").is_dir()  # ai vendored
+    assert (repo / ".fireball_ai_toolkit" / "skills").is_dir()  # ai vendored
     assert (repo / "setup.sh").is_file()  # scripts vendored
     assert not (repo / "modules" / "fireball_ai_toolkit").exists()  # modules NOT vendored
     assert not (repo / "tasks" / "fireball_ai_toolkit").exists()

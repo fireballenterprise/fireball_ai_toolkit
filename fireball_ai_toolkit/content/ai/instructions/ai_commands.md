@@ -1,27 +1,27 @@
 ---
-description: "Use when authoring a canonical slash command or instruction file (.fireball_ai_toolkit/ via the toolkit, or a repo's .<repo>/) — the generator model, required frontmatter, and the thin-wrapper body."
-applyTo: ".*/commands/**,.*/instructions/**,.claude/commands/**,.clinerules/workflows/**,.github/prompts/**,.sidecar/commands/**"
+description: "Use when authoring a slash command (a canonical skill) or an instruction file (.fireball_ai_toolkit/ via the toolkit, or a repo's .<repo>/) — the generator model, frontmatter, and the thin-wrapper body."
+applyTo: ".*/skills/**,.*/instructions/**,.claude/skills/**,.clinerules/workflows/**,.github/skills/**"
 ---
 # AI Commands Instructions
-Standards for the slash commands / custom prompts. **Commands are authored once** in
-`fireball_ai_toolkit`'s `content/commands/*.md` (mirrored into each consuming repo as
-`.fireball_ai_toolkit/commands/`; repo-specific ones in `.<repo>/commands/`) and a generator renders one
-pointer stub per tool. **Never hand-edit a generated provider file** — edit the `.fireball_ai_toolkit/` source and
-re-run `invoke ai_toolkit.apply`.
+Standards for slash commands. **A slash command is a skill**: authored once in `fireball_ai_toolkit`'s
+`content/ai/skills/<slug>.md` (mirrored into each consuming repo as `.fireball_ai_toolkit/skills/`;
+repo-specific ones in `.<repo>/skills/`) and a generator renders each tool's native files. There is no
+`commands/` directory and no `.github/prompts/` any more (toolkit 2.0.0): Copilot in VS Code runs the Agent
+Skills runtime, where a skill is invoked as `/<slug>` or loaded by the AI. **Never hand-edit a generated
+provider file** — edit the `.fireball_ai_toolkit/` source and re-run `invoke ai_toolkit.apply`.
+See `.fireball_ai_toolkit/instructions/ai_skills.md` for the frontmatter and the flat vs bundle forms.
 
 ## Architecture
-Commands are the AI-facing entrypoint layer described in `.fireball_ai_toolkit/instructions/logic.md` (Core Principle +
-The Stack) — thin wrappers only, no business logic. See that file for why command bodies are the
+Skills are the AI-facing entrypoint layer described in `.fireball_ai_toolkit/instructions/logic.md` (Core Principle +
+The Stack) — thin wrappers only, no business logic. See that file for why skill bodies are the
 AI's decision-capture layer, and how this differs from `.fireball_ai_toolkit/instructions/tasks.md`'s plain CLI
 automation.
 
-## Canonical command file (`.fireball_ai_toolkit/commands/<slug>.md`)
+## Canonical skill file as a command (`.fireball_ai_toolkit/skills/<slug>.md`)
 ```yaml
 ---
-name: <slug>
-description: One line — what it does + when to use it
+description: Use for ... . Equivalent to /<slug>.   # what it does + when the AI should load it
 argument-hint: arg1 | arg2 [optional]      # or "no arguments required"
-agent: agent
 allowed-tools:                             # optional — only when the derived default is wrong
   - Bash(gh pr create *)
 ---
@@ -31,30 +31,27 @@ allowed-tools:                             # optional — only when the derived 
 <optional extra guidance for the agent — kept verbatim in every rendered view>
 ```
 
-The `!` prefix runs bash; `$ARGUMENTS` receives everything after the command name. A command with
+The `!` prefix runs bash; `$ARGUMENTS` receives everything after the command name. A skill with
 no `!` line is prose-only (the agent just follows the body).
 
 ## What the generator emits per tool
-Every generated file is a **pointer stub**: provider frontmatter + one line
-`Source of truth: .fireball_ai_toolkit/commands/<slug>.md` (or `.<repo>/…`). No body is inlined.
-
-| Tool | File | Frontmatter it still carries |
+| Tool | File | Content |
 |------|------|------|
-| GitHub Copilot | `.github/prompts/<slug>.prompt.md` | `name` + `description` + `argument-hint` + `agent` |
-| Claude Code | `.claude/commands/<slug>.md` | `description` + `subtask: false` + `agent: general` + `slash_command: /<slug>` + a derived `allowed-tools` glob |
-| Cline | `.clinerules/workflows/<slug>.md` | none (body-only file) |
-| Fireball Sidecar | `.sidecar/commands/<slug>.md` | `name` + `description` + `argument-hint` + `agent` |
+| GitHub Copilot | `.github/skills/<slug>/SKILL.md` | `name` (== folder) + `description` + `argument-hint` + `user-invocable` + `disable-model-invocation`, then the full body |
+| Claude Code | `.claude/skills/<slug>/SKILL.md` | same, plus a derived `allowed-tools` glob |
+| Cline | `.clinerules/workflows/<slug>.md` | a one-line pointer (body-only file) |
+| Fireball Sidecar | none — reads `.fireball_ai_toolkit/skills/` directly | n/a |
+| AGENTS.md | lists every user-invocable skill as a slash command | n/a |
 
-`allowed-tools` is still derived from the canonical `!` exec line (`uv run --no-sync …` →
+`allowed-tools` is derived from the canonical `!` exec line (`uv run --no-sync …` →
 `Bash(uv run --no-sync *)`, `AWS_PROFILE=X uv run …` → that plus the bare glob, `./setup.sh` →
 `Bash(./setup.sh)`). Override it in canonical frontmatter only when that default is wrong.
 
 ## Creating a new command
 1. Python module — `modules/<module>/<verb>.py` (ALL logic here) + `modules/<module>/route.py`
    (argument dispatch only). See `.fireball_ai_toolkit/instructions/modules.md` for the router template.
-2. `.fireball_ai_toolkit/commands/<slug>.md` — the thin wrapper above.
-3. `.fireball_ai_toolkit/skills/<slug>.md` — the matching skill (see `.fireball_ai_toolkit/instructions/ai_skills.md`).
-4. `uv run --no-sync invoke ai_toolkit.apply` to regenerate, then `uv run --no-sync invoke fix` && `uv run --no-sync invoke
+2. `.fireball_ai_toolkit/skills/<slug>.md` — the thin wrapper above (this is the command *and* the skill).
+3. `uv run --no-sync invoke ai_toolkit.apply` to regenerate, then `uv run --no-sync invoke fix` && `uv run --no-sync invoke
    test` (must be 10/10 for `.py` changes).
 
 ## Authoring instruction files (`.fireball_ai_toolkit/instructions/<slug>.md`)
@@ -92,7 +89,7 @@ is the reference example.
 - **`/update` and `/upgrade` also take a bare leading token** as the repo
   (`/update fireball_wrangler`) — resolved as a path when it looks like one (contains `/`
   or starts with `.` / `~` / `/`), else a family-repo name.
-- Omitted → the current repo, behaviour unchanged.
+- Omitted → the current repo, behavior unchanged.
 
 A **name** only resolves where `properties.yml` has a `repos:` + `repos_local:` map (the
 orchestrator); a **path** works anywhere; neither touches `properties.yml` in CI. Selection is
@@ -113,13 +110,13 @@ Every `uv run` call in a command MUST use `--no-sync`:
 ```
 
 ## Cache restart requirement
-AI tools cache command files at startup. After an `apply` regenerates them, restart the AI tool
+AI tools cache skill files at startup. After an `apply` regenerates them, restart the AI tool
 before testing.
 
 ## How a slash command routes
 ```
 User: /chat resume wire_tunnels
-  ↓  AI tool reads the rendered command file for its own format
+  ↓  AI tool reads the rendered skill file for its own format
   ↓  body executes: uv run --no-sync python -m modules.fireball_ai_toolkit.chat.route "resume wire_tunnels"
   ↓  modules/fireball_ai_toolkit/chat/route.py dispatches → modules.fireball_ai_toolkit.chat.resume --pattern="wire_tunnels"
   ↓  the Python function receives pattern="wire_tunnels"

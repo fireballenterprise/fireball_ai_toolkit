@@ -25,9 +25,9 @@ description: "Use when reviewing a pull request or code change in this repo — 
 ## Repo-Specific Consistency Checks
 - `.fireball_ai_toolkit/` + `.<repo>/` are the source of truth for all AI/agent rules — a PR that changes
   behavior without updating the relevant `.fireball_ai_toolkit/` file is incomplete, not just under-documented.
-- Commands/instructions/skills are authored once in `.fireball_ai_toolkit/` (via `fireball_ai_toolkit`'s
-  `content/`) or `.<repo>/` and rendered as pointer stubs into every provider dir
-  (`.github/prompts/`, `.github/instructions/`, `.claude/`, `.clinerules/workflows/`, `.sidecar/`).
+- Instructions/skills (a skill is a slash command) are authored once in `.fireball_ai_toolkit/` (via `fireball_ai_toolkit`'s
+  `content/`) or `.<repo>/` and rendered into every provider dir
+  (`.github/skills/`, `.github/instructions/`, `.claude/skills/`, `.clinerules/workflows/`, `.sidecar/`).
   Never hand-edit a generated provider file — flag a PR that does.
   `uv run --no-sync invoke ai_toolkit.check` confirms the generated files match
   `.fireball_ai_toolkit/` + `.<repo>/`; it runs inside `invoke test`.

@@ -1,11 +1,41 @@
 ---
-name: update
 description: Use for checking dependency, Python, workflow-action, and .sdkmanrc toolchain versions against latest releases and updating the locks — read-only, never installs. Toolchain-aware; takes --repo <name|path> or a leading repo token to target another checkout. Equivalent to /update.
+argument-hint: '[<repo>] [libs | python | workflows | sdkman] [--repo <name|path>]'
 hints:
-  - update
-  - update <repo>
+- update
+- update <repo>
 instructions:
-  - .fireball_ai_toolkit/instructions/versioning.md
-commands:
-  - .fireball_ai_toolkit/commands/update.md
+- .fireball_ai_toolkit/instructions/versioning.md
 ---
+
+Check for available version updates (read-only, makes no changes):
+
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "check $ARGUMENTS --dry-run"`
+
+The check is **toolchain-aware** — it runs only the sub-checks the repo actually has: a Python
+library gets the `pyproject.toml` dependency table and the Python-version table; a repo with
+`.github/workflows/` gets the action-ref table; a repo with a `.sdkmanrc` gets the toolchain
+table. Any section may say it's already up to date — treat that section as done.
+
+## Targeting another repo
+`$ARGUMENTS` may start with a repo selector — a family-repo name (`/update fireball_wrangler`)
+or a path (`/update ../../levonbecker/dotfiles`, or a monorepo app folder: `/update ../fireball_sidecar/apps/android`), or `--repo <name|path>` anywhere. With one, the
+check runs against that checkout instead of the current one. No selector → the current repo.
+
+## Which section(s) to act on
+- a sub-check name (`libs` / `python` / `workflows` / `sdkman`) → act only on that section.
+- no sub-check name → walk through every section the check printed.
+
+## Applying an update
+Show the user the relevant table exactly as printed, then ask whether to apply it. On yes, re-run
+the same command **without `--dry-run` and with `--yes`**, scoped to that section — e.g.
+
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "check libs --yes"`
+
+then tell them what was rewritten:
+- `libs` — only version constraints in `pyproject.toml`; `/upgrade libs` installs them.
+- `python` — only config references; `/upgrade python` installs the new Python + rebuilds `.venv`.
+- `workflows` — only `@ref` pins; suggest reviewing the diff before committing.
+- `sdkman` — only `.sdkmanrc` + the Gradle wrapper; `/upgrade sdkman` runs `sdk env install`.
+
+If the user declines a section, make no changes for it.

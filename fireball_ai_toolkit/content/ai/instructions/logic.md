@@ -41,7 +41,7 @@ person is driving it.
   `PATH` to reach a task. That runs against the system interpreter, misses the `.venv`, and leaves
   packages installed outside the project. If `uv` itself isn't found, say so — don't work around it.
 - A **`/slash-command`** (`/repo`, `/push`, `/backlog`, …) is not an executable — never type one
-  into a terminal. Its behaviour is the `.fireball_ai_toolkit/commands/<name>.md` (or `.<repo>/commands/`)
+  into a terminal. Its behavior is the `.fireball_ai_toolkit/skills/<name>.md` (or `.<repo>/skills/`)
   body; the `` !`…` `` line there is the real command to run (the part *inside* the backticks, no
   leading `!`). Read that file, or run the underlying `route.py` / `invoke` directly.
 - Pass a multi-word argument as **one quoted string**: `... repo.route "pull all"`, not
@@ -54,8 +54,8 @@ itself.
 
 **Where the "intelligence" lives.** All dynamic, judgment-based decision-making an AI applies while
 running a command — which options to pick, what to ask the user, when to stop, how to interpret
-ambiguous input — is captured in the canonical command bodies (`fireball_ai_toolkit`'s
-`content/commands/`, mirrored into each consuming repo as `.fireball_ai_toolkit/commands/`). Those bodies are
+ambiguous input — is captured in the canonical skill bodies (`fireball_ai_toolkit`'s
+`content/ai/skills/`, mirrored into each consuming repo as `.fireball_ai_toolkit/skills/`). Those bodies are
 the single source of truth every AI tool reads for command *behavior* (see
 `.fireball_ai_toolkit/instructions/ai_commands.md` for authoring them). If a decision isn't written down in a
 command body or a standing rule under `.fireball_ai_toolkit/instructions/` (or `.<repo>/instructions/`), an
@@ -63,7 +63,7 @@ AI enforcing it is not reproducible.
 
 **The reproducibility test.** Before letting an AI make a judgment call inside a command, ask:
 *could a human, or a CI script, make the same call by hand — reading the same
-`.fireball_ai_toolkit/commands/<slug>.md` file and running the same
+`.fireball_ai_toolkit/skills/<slug>.md` file and running the same
 `uv run --no-sync python -m modules.fireball_ai_toolkit.*.route "..."` / `invoke` commands — with zero AI involved?* If
 yes, the design is correct: the AI is an automated user of a CLI that already fully works without
 it. If no, the missing logic belongs in a command body (if it's judgment) or a Python module (if
@@ -81,9 +81,8 @@ Shared rules, commands, and skills are authored once in **`fireball_ai_toolkit`'
 and mirrored into each consuming repo as **`.fireball_ai_toolkit/`**; repo-specific ones live in
 **`.<repo>/`**. A generator renders both layers into every provider's native files.
 
-**Every generated provider file is a pointer stub** — provider-specific frontmatter (`applyTo`,
-`allowed-tools`, `name`, …) plus a single line back to `.fireball_ai_toolkit/<kind>/<slug>.md` (or
-`.<repo>/…`). No canonical body text is inlined anywhere. This includes Copilot's
+**Generated instruction files are pointer stubs** — provider-specific frontmatter (`applyTo`, `name`, …) plus a single line back to `.fireball_ai_toolkit/instructions/<slug>.md` (or
+`.<repo>/…`). **Generated skills (`.github/skills/`, `.claude/skills/`) carry the full skill text**, since the Agent Skills runtime executes the file itself. This includes Copilot's
 `.github/instructions/*.instructions.md`: the `applyTo` glob still auto-applies the file, but what
 it delivers is the pointer — the tool is expected to follow it to the `.fireball_ai_toolkit/` source.
 
@@ -96,7 +95,7 @@ drift.
 | Provider | Reads | Notes |
 |----------|-------|-------|
 | **GitHub Copilot** | `.github/copilot-instructions.md` + `.github/instructions/*.instructions.md` (pointer stubs) | the `applyTo` glob auto-applies the stub; Copilot must follow the pointer to `.fireball_ai_toolkit/instructions/<slug>.md` |
-| **Claude Code** | `CLAUDE.md` → `AGENTS.md` → `.fireball_ai_toolkit/ + .<repo>/instructions/`; `.claude/commands/` + `.claude/skills/` (stubs → `.fireball_ai_toolkit/`) | |
+| **Claude Code** | `CLAUDE.md` → `AGENTS.md` → `.fireball_ai_toolkit/ + .<repo>/instructions/`; `.claude/skills/` (full skill text rendered from `.fireball_ai_toolkit/skills/`) | |
 | **Fireball Sidecar** | `AGENTS.md` + `.sidecar/` stubs → `.fireball_ai_toolkit/ + .<repo>/` | |
 | **Codex / other AGENTS.md tools** | `AGENTS.md` → `.fireball_ai_toolkit/ + .<repo>/instructions/` | |
 

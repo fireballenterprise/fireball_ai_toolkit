@@ -98,6 +98,8 @@ def test_delegate_picks_cwd_by_layout(tmp_path, monkeypatch):
     # A repo without its own toolkit copy runs the caller's vendored module, by the caller's layout.
     _toolkit_copy(tmp_path, "modules", "fireball_ai_toolkit")
     captured = {}
-    monkeypatch.setattr(subprocess, "run", lambda cmd, **kw: captured.update(cmd=cmd) or type("P", (), {"returncode": 3})())
+    monkeypatch.setattr(
+        subprocess, "run", lambda cmd, **kw: captured.update(cmd=cmd) or type("P", (), {"returncode": 3})()
+    )
     assert target_repo.delegate(plain, "versioning.check", [], caller_root=tmp_path) == 3
     assert captured["cmd"][-1] == "modules.fireball_ai_toolkit.versioning.check"

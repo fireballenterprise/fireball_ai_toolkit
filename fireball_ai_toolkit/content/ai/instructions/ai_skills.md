@@ -1,63 +1,68 @@
 ---
-description: "Use when creating or editing a canonical skill file — .fireball_ai_toolkit/ + .<repo>/skills/<name>.md and the SKILL.md stubs the generator renders from it."
-applyTo: ".*/skills/**,.claude/skills/**,.github/skills/**,.sidecar/skills/**"
+description: "Use when creating or editing a canonical skill file — .fireball_ai_toolkit/ + .<repo>/skills/ (flat <name>.md or <name>/SKILL.md bundle) and the SKILL.md files the generator renders from it."
+applyTo: ".*/skills/**,.claude/skills/**,.github/skills/**"
 ---
 # AI Skills Instructions
+A **skill is the slash command** (`/<name>`) and also what the AI can load on its own. One canonical
+file holds the full command text — there is no separate `commands/` layer (removed in toolkit 2.0.0).
+
 ## Canonical skill file (`.fireball_ai_toolkit/skills/<name>.md`)
-A canonical skill is a **header only — no body**. Flat, one file per skill (repo-specific ones in
-`.<repo>/skills/<name>.md`):
+Flat, one file per skill (repo-specific ones in `.<repo>/skills/<name>.md`):
 
 ```yaml
 ---
-name: command_name
-description: Use for ... . Equivalent to /command_name.
+description: Use for ... . Equivalent to /<name>.   # what it does + when the AI should load it
+argument-hint: "[--repo <name|path>]"                # optional
 hints:                 # optional — extra natural-language trigger phrases
   - punch it
-instructions:          # repo-relative paths to the rule files this skill pulls in
+instructions:          # repo-relative paths to rule/skill files this skill pulls in
   - .fireball_ai_toolkit/instructions/git.md
-commands:              # repo-relative paths to the command files this skill drives
-  - .fireball_ai_toolkit/commands/command_name.md
+user-invocable: false  # optional, default true — a person may call /<name>
+ai-invocable: false    # optional, default true — the AI may call/auto-load it
 ---
+
+!`uv run --no-sync python -m modules.fireball_ai_toolkit.<module>.route "$ARGUMENTS"`
+
+Full behavior text the agent follows.
 ```
 
-A skill is pure wiring: trigger phrases (`description` + `hints`) plus pointers to the
-`instructions` and `commands` that carry the actual "how". Never write prose or bash under the
-frontmatter — if a skill needs to explain something, that belongs in one of its `instructions`
-files.
+- The body is the whole command text (the `!` exec line plus judgment guidance). Keep it thin: logic
+  lives in Python modules, rules in `instructions/`.
+- `instructions:` is a list of **repo-relative paths**, written verbatim (`.fireball_ai_toolkit/…` for toolkit
+  content, `.<repo>/…` for a repo's own). They are rendered into the body as a "read and follow" list.
+- The two switches are optional; omitted = both true (Sidecar's default). The generator always writes
+  both keys into `SKILL.md`: `user-invocable: true|false` and `disable-model-invocation: false|true`
+  (`ai-invocable: false` renders as `disable-model-invocation: true`).
+- An alias / sub-verb (`add_bug` → `backlog add bug`, `pr-notes`) is simply its own small skill.
 
-- `instructions:` / `commands:` are lists of **repo-relative paths**, written verbatim
-  (`.fireball_ai_toolkit/…` for toolkit content, `.<repo>/…` for a repo's own).
-- Every canonical command (`.fireball_ai_toolkit/commands/<slug>.md`) is wired to at least one skill —
-  it appears in some skill's `commands:` list. Most commands have a same-named skill that lists
-  itself; **alias / sub-verb commands ride on a parent skill instead** and get no skill of their
-  own (`add_bug` / `add_feature` / `add_task` → `backlog`; `pr-notes` → `pr`). Bundle a command
-  onto a parent skill only when it is the same *intent* as that skill (a phrasing, an alias, or an
-  earlier stopping point) — distinct-effect operations keep their own skill.
+## Bundle form for larger skills
+A skill that needs resources (scripts, examples, templates) is a directory instead of a file:
 
-## Rendered stubs (generated — never hand-edit)
-| Location | Tool | Frontmatter | Body the generator writes |
-|---|---|---|---|
-| `.claude/skills/<name>/SKILL.md` | Claude Code | `name` + `description` only | pointer + **Trigger phrases** + **Instructions** / **Commands** lists |
-| `.github/skills/<name>/SKILL.md` | GitHub Copilot (VS Code) | `name` + `description` only | same |
-| `.sidecar/skills/<name>.md` | Fireball Sidecar | the whole canonical header (`name` + `description` + `hints` + `instructions` + `commands`) | pointer only |
+```
+skills/<name>/SKILL.md      same frontmatter + body as a flat skill
+skills/<name>/scripts/…     any extra files, any depth
+```
 
-Claude Code and Copilot reject unknown frontmatter keys, so their stubs carry only `name` +
-`description` and everything else — the trigger phrases (as a **Trigger phrases** list) and the
-`instructions:` / `commands:` paths — is materialised into the body. `.sidecar/` stubs are a
-near-verbatim copy of the canonical header (Sidecar reads those keys straight off the
-frontmatter). No canonical body text is inlined anywhere — there is none. The `<name>/SKILL.md`
-directory shape is a rendered artifact Claude Code / Copilot require; the canonical source is
-always the flat `.fireball_ai_toolkit/…/skills/<name>.md`.
+Having both `<name>.md` and `<name>/` is an error. Use the flat form unless the skill really has
+resources. The generator copies the extra files next to the generated `SKILL.md` (relative paths kept,
+dotfiles skipped) and removes resources that disappeared from the bundle.
+
+## Rendered output (generated — never hand-edit)
+| Location | Tool | Content |
+|---|---|---|
+| `.github/skills/<name>/SKILL.md` | GitHub Copilot (VS Code, CLI, app) | `name` + `description` + `argument-hint` + both switches; full body |
+| `.claude/skills/<name>/SKILL.md` | Claude Code | same, plus derived `allowed-tools` |
+| `.clinerules/workflows/<name>.md` | Cline | pointer to the canonical skill |
+| (none) | Fireball Sidecar | reads `.fireball_ai_toolkit/skills/` and `.<repo>/skills/` directly |
+
+Claude Code and Copilot reject unknown frontmatter keys, so `hints` and `instructions` are materialised
+into the body, not carried as keys. `.github/prompts/` is no longer generated.
 
 ## Trigger phrases
 Add a `hints:` entry (or spell the phrase out in `description`) for any trigger beyond the slash
-name — e.g. `ship-it` also responds to "punch it" / "ship it". Every skill also gets its own
-name spelled out (`_` / `-` → spaces) as a hint. An implied phrase that is written down nowhere
-is not discovered.
-
-Uses the Agent Skills open spec, but treat it as Claude Code-specific until other targeted tools
-adopt it — hence `.claude/` rather than a vendor-neutral `.agents/`.
+name — e.g. `ship-it` also responds to "punch it" / "ship it". An implied phrase that is written down
+nowhere is not discovered.
 
 ## Related
-- `.fireball_ai_toolkit/instructions/ai_commands.md` — canonical command / instruction authoring
+- `.fireball_ai_toolkit/instructions/ai_commands.md` — slash-command / instruction authoring
 - `.fireball_ai_toolkit/instructions/logic.md` — overall AI/logic architecture
