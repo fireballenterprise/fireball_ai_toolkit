@@ -117,7 +117,7 @@ setup.sh setup.ps1   clobbered from content/scripts/ — repo extras go in setup
 .<repo>/      this repo's own instructions/ skills/ (e.g. .fireball_ai_vault/) — never synced
 modules/ tasks/ tests/ (root)   this repo's own code — never touched
 <generated> .claude/skills/ .github/{skills,instructions,copilot-instructions.md} .clinerules/
-            .sidecar/instructions/ AGENTS.md CLAUDE.md — NEVER hand-edited. Instructions are pointer stubs
+            .sidecar/{skills,instructions}/ AGENTS.md CLAUDE.md — NEVER hand-edited. Instructions are pointer stubs
             back to .fireball_ai_toolkit/ or .<repo>/; skills carry their full text (see below)
 ```
 - `ai_toolkit.apply` — clobber every managed path from the package, render every provider
@@ -144,7 +144,7 @@ layer (removed in 2.0.0).
 
 **Why.** GitHub Copilot in VS Code moved to the Agent Skills runtime (same as Copilot CLI and the Copilot
 app); `.github/prompts/` prompt files are no longer the way to expose a slash command. Claude Code already
-treats skills as slash commands. One canonical skill therefore renders to both, and Sidecar reads it directly.
+treats skills as slash commands. One canonical skill therefore renders to both, and to Sidecar's flat mirror.
 
 Canonical source, in `.fireball_ai_toolkit/skills/` (and a repo's own `.<repo>/skills/`):
 
@@ -175,9 +175,9 @@ The two switches are optional in the canonical source (omitted = both on, Sideca
 Generated output: `.github/skills/<name>/SKILL.md` (Copilot) and `.claude/skills/<name>/SKILL.md` (Claude)
 carry `name` (== folder), `description`, `argument-hint`, both switches, and the full body; a bundle's extra
 files are copied alongside (dotfiles skipped, stale ones removed). Cline gets one workflow pointer per
-user-invocable skill; `AGENTS.md` lists the skills as the slash commands. Sidecar needs no generated skill
-files. Old generated `.github/prompts/`, `.claude/commands/`, `.sidecar/commands/` and `.sidecar/skills/`
-files are deleted on the next render.
+user-invocable skill; `AGENTS.md` lists the skills as the slash commands. Sidecar reads either the canonical
+`.fireball_ai_toolkit/skills` or its `.sidecar/skills` mirror (the VS Code extension and the Mac app read the
+mirror): one flat snake_case file per skill (`add_bug.md`), no folders, full text, bundle resources not mirrored. Old generated `.github/prompts/`, `.claude/commands/`, `.sidecar/commands/` and stale `.sidecar/skills/` files are deleted on the next render.
 
 ### Migrating a consuming repo (2.0.0)
 ```sh

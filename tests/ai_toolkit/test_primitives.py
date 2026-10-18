@@ -198,6 +198,18 @@ def test_validate_skills_rejects_invalid_names(repo: Path, folder: str, name: st
         check(repo)
 
 
+@pytest.mark.parametrize(
+    ("stem", "name", "message"),
+    [("Add-Bug", "Add-Bug", "is not [a-z0-9_]+"), ("add_bug", "add_task", "!= file name")],
+)
+def test_validate_skills_covers_sidecar_flat_files(repo: Path, stem: str, name: str, message: str):
+    path = repo / ".sidecar" / "skills" / f"{stem}.md"
+    path.parent.mkdir(parents=True)
+    path.write_text(f"---\nname: {name}\ndescription: d\n---\n\nbody\n")
+    with pytest.raises(SkillValidationError, match=re.escape(message)):
+        validate_skills(repo)
+
+
 def test_apply_fails_when_a_generated_skill_is_invalid(repo: Path):
     local = repo / f".{repo.name}" / "skills"
     local.mkdir(parents=True)
