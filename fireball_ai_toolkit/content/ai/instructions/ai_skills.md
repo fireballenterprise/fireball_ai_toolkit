@@ -68,7 +68,7 @@ dotfiles skipped) and removes resources that disappeared from the bundle.
 | `.github/skills/<name>/SKILL.md` | GitHub Copilot (VS Code, CLI, app) | `name` + `description` + `argument-hint` + both switches; full body |
 | `.claude/skills/<name>/SKILL.md` | Claude Code | same, plus derived `allowed-tools` |
 | `.clinerules/workflows/<name>.md` | Cline | pointer to the canonical skill |
-| (none) | Fireball Sidecar | reads `.fireball_ai_toolkit/skills/` and `.<repo>/skills/` directly |
+| `.sidecar/skills/<snake_name>.md` | Fireball Sidecar (VS Code, Mac) | flat file, no folder; `name` (== stem, `[a-z0-9_]+`), `description`, `argument-hint`, both switches, `hints`, `instructions`; full body. Claude and Copilot need `<name>/SKILL.md` folders; Sidecar reads files directly |
 
 Claude Code and Copilot reject unknown frontmatter keys, so `hints` and `instructions` are materialised
 into the body, not carried as keys. `.github/prompts/` is no longer generated.

@@ -45,7 +45,7 @@ and the old spelling kept as a trigger phrase, but name it right at the source. 
 | GitHub Copilot | `.github/skills/<slug>/SKILL.md` | `name` (== folder) + `description` + `argument-hint` + `user-invocable` + `disable-model-invocation`, then the full body |
 | Claude Code | `.claude/skills/<slug>/SKILL.md` | same, plus a derived `allowed-tools` glob |
 | Cline | `.clinerules/workflows/<slug>.md` | a one-line pointer (body-only file) |
-| Fireball Sidecar | none — reads `.fireball_ai_toolkit/skills/` directly | n/a |
+| Fireball Sidecar | `.sidecar/skills/<snake_slug>.md` (flat, no folder) | same keys plus `hints`/`instructions`; full body |
 | AGENTS.md | lists every user-invocable skill as a slash command | n/a |
 
 `allowed-tools` is derived from the canonical `!` exec line (`uv run --no-sync …` →

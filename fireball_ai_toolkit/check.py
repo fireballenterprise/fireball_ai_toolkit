@@ -18,6 +18,7 @@ import tempfile
 from pathlib import Path
 
 from .catalog import (
+    SIDECAR_SKILL_NAME_RE,
     SKILL_DESCRIPTION_MAX,
     SKILL_NAME_MAX,
     SKILL_NAME_RE,
@@ -46,16 +47,31 @@ class SkillValidationError(RuntimeError):
 
 
 SKILL_DIRS = (".github/skills", ".claude/skills")
+SIDECAR_SKILLS_DIR = ".sidecar/skills"  # flat snake_case files, validated with its own rule
 
 
 def validate_skills(repo_root: Path) -> None:
-    """Fail if any generated ``SKILL.md`` has a name/folder outside ``[a-z0-9-]+``, ``name != folder``,
+    """Fail if any generated ``.sidecar/skills/<name>.md`` has a name/stem outside ``[a-z0-9_]+``,
+    ``name != stem`` or a description over 1024 chars, or if any generated ``SKILL.md`` has a name/folder outside ``[a-z0-9-]+``, ``name != folder``,
     a name over 64 chars or a description over 1024 chars.
 
     Copilot's Agent Skills runtime silently ignores such skills — they just stop loading — so this
     is a hard error at render time (``apply``) and in the drift gate (``check``).
     """
     problems: list[str] = []
+    for skill_md in sorted((repo_root / SIDECAR_SKILLS_DIR).glob("*.md")):
+        where = f"{SIDECAR_SKILLS_DIR}/{skill_md.name}"
+        fm, _ = _split_frontmatter(skill_md.read_text(encoding="utf-8"))
+        name = str(fm.get("name", ""))
+        if not SIDECAR_SKILL_NAME_RE.fullmatch(skill_md.stem):
+            problems.append(f"{where}: file name {skill_md.stem!r} is not [a-z0-9_]+")
+        if not SIDECAR_SKILL_NAME_RE.fullmatch(name):
+            problems.append(f"{where}: name {name!r} is not [a-z0-9_]+")
+        if name != skill_md.stem:
+            problems.append(f"{where}: name {name!r} != file name {skill_md.stem!r}")
+        description = str(fm.get("description", ""))
+        if len(description) > SKILL_DESCRIPTION_MAX:
+            problems.append(f"{where}: description is {len(description)} chars (max {SKILL_DESCRIPTION_MAX})")
     for rel in SKILL_DIRS:
         root = repo_root / rel
         if not root.is_dir():

@@ -239,6 +239,15 @@ def normalize_skill_name(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:SKILL_NAME_MAX].strip("-")
 
 
+SIDECAR_SKILL_NAME_RE = re.compile(r"[a-z0-9_]+")
+
+
+def sidecar_skill_name(name: str) -> str:
+    """The Sidecar file stem for a skill: lowercase, every run of characters outside ``[a-z0-9]``
+    becomes one ``_`` (``add-bug`` / ``add_bug`` / ``Add Bug`` -> ``add_bug``), edges stripped."""
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+
+
 def _normalized(name: str, source: Path) -> str:
     norm = normalize_skill_name(name)
     if not norm:
