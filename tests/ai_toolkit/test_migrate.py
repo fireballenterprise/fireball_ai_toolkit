@@ -61,7 +61,8 @@ def test_merges_commands_into_skills(repo: Path):
     assert "user-invocable" not in text
     assert "name:" not in text
     assert "agent:" not in text
-    assert skills["deploy_all"].body == "See deploy."
+    assert skills["deploy-all"].body == "See deploy."
+    assert "deploy_all" in skills["deploy-all"].hints  # original spelling still matches
 
 
 def test_rewrites_safe_references_and_reports_the_rest(repo: Path):
@@ -108,4 +109,23 @@ def test_cli_dry_run_then_apply_runs_it(repo: Path, capsys: pytest.CaptureFixtur
     apply(repo)
     assert not (repo / ".my_repo" / "commands").exists()
     assert (repo / ".claude" / "skills" / "deploy" / "SKILL.md").is_file()
-    assert (repo / ".github" / "skills" / "deploy_all" / "SKILL.md").is_file()
+    assert (repo / ".github" / "skills" / "deploy-all" / "SKILL.md").is_file()
+
+
+@pytest.mark.parametrize(
+    "stub",
+    [
+        "Use this file as source of truth: .github/prompts/deploy.prompt.md",
+        "Source of truth: `.my_repo/commands/deploy.md`",
+    ],
+)
+def test_pointer_stub_skill_counts_as_empty_and_the_command_merges(repo: Path, stub: str):
+    skill = repo / ".my_repo" / "skills" / "deploy.md"
+    skill.write_text(f"---\ndescription: Use for deploys.\nhints:\n  - ship it\n---\n\n{stub}\n")
+    report = migrate_skills(repo)
+    assert "deploy" in report.merged
+    assert not report.skipped
+    text = skill.read_text()
+    assert "Then verify." in text
+    assert "source of truth" not in text.lower()
+    assert "ship it" in text

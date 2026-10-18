@@ -96,6 +96,23 @@ the local `commands/`, rewrites `commands/` path references in the local docs to
 anything it cannot rewrite safely. A leftover `commands/` dir is still read for one release (with a
 deprecation warning). See [CHANGELOG.md](CHANGELOG.md).
 
+### Skill names (2.1.0)
+The generated skill name and folder are always `[a-z0-9-]+` (lowercase; any run of other characters,
+`_` included, becomes one `-`; leading/trailing `-` stripped; max 64 chars; name == folder). A source
+`add_size_chart.md` renders as `add-size-chart` and keeps `add_size_chart` as a trigger phrase; two skills
+that normalise to the same name are an error. `ai_toolkit.check` and `apply` fail on any generated skill whose
+name/folder is outside `[a-z0-9-]+`, whose name differs from its folder or exceeds 64 chars, or whose
+description exceeds 1024 chars. Why: Copilot's Agent Skills runtime silently drops invalid skills, whereas
+the old prompt files allowed underscores (so `/add_bug` worked, then stopped loading after 2.0.0). The shipped
+`add_bug` / `add_feature` / `add_task` are now `add-bug` / `add-feature` / `add-task`.
+
+Consumer migration: `ai_toolkit.update`, then a SEPARATE `ai_toolkit.apply` (not `upgrade`: one process
+would render with the old code), then rename repo-local underscore skills to hyphens (files and references).
+`ai_toolkit.migrate_skills` is also `ai-toolkit migrate-skills`: the console script takes both spellings, while
+the invoke task needs `auto_dash_names: true` for the hyphen form (this family sets it to false, so use the
+underscore form with invoke). `migrate_skills` also treats a 1.x pointer-stub skill body ("Use this file as
+source of truth: .github/prompts/<x>.prompt.md") as empty and merges the command body in.
+
 ## Branch model
 `development` (integration, PRs merge here) → promoted to `main` (stable) via
 `ai_toolkit.release`, which tags a release. Consumers pin `@0` (stable, pre-1.0) → `@1` after launch or `@development`
