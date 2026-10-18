@@ -1,4 +1,29 @@
 # Changelog
+## 2.2.0
+**Sidecar gets `.sidecar/skills/` again, as flat snake_case files.**
+
+Why: the owner wants skills generated for Sidecar like for the other AIs. 2.0.0 made the Sidecar renderer
+instructions-only on the assumption that Sidecar reads the canonical skills, but the VS Code extension and
+the Mac app read `.sidecar/skills/`, so consumer repos lost their skills there.
+
+- `.sidecar/skills/<snake_case_name>.md`, one flat file per skill (`add_bug.md`, `ship_it.md`,
+  `pr_notes.md`), no folders and no `SKILL.md`. Claude and Copilot get `<name>/SKILL.md` folders because
+  their runtimes require it; Sidecar reads files directly. The name is the normalised skill name with every
+  run of non-`[a-z0-9]` characters turned into `_`.
+- Content is the full skill, not a pointer: frontmatter `name` (== file stem), `description`,
+  `argument-hint`, explicit `user-invocable` / `disable-model-invocation`, `hints` (the skill's own plus the
+  other spellings of the name, e.g. `add-bug`, `add bug`) and `instructions`; then the full body and the
+  source-of-truth line. Bundle skills write only their main body; resources are not mirrored (none exist).
+- `.sidecar/instructions/` pointer stubs are unchanged. Stale `.sidecar/skills/*` files and the old
+  `.sidecar/commands/` stubs are deleted on render.
+- `ai_toolkit.check` and `apply` validate `.sidecar/skills/*.md` (`[a-z0-9_]+`, name == file stem,
+  description <= 1024). The Copilot hyphen rule does not apply there.
+
+Migration for a consuming repo
+1. `uv run --no-sync invoke ai_toolkit.update`
+2. In a SEPARATE command: `uv run --no-sync invoke ai_toolkit.apply` (not `upgrade`).
+3. Commit the result.
+
 ## 2.1.0
 **Skill names are normalised to `[a-z0-9-]+`.**
 
