@@ -54,7 +54,8 @@ def test_every_renderer_produces_output(tmp_path):
     assert not (tmp_path / ".claude" / "commands").exists()
     assert not (tmp_path / ".github" / "prompts").exists()
     assert not (tmp_path / ".sidecar" / "commands").exists()
-    assert not (tmp_path / ".sidecar" / "skills").exists()
+    assert (tmp_path / ".sidecar" / "skills" / "fix.md").exists()
+    assert not (tmp_path / ".sidecar" / "skills" / "fix").exists()
 
 
 def test_generated_header_on_every_markdown_file(tmp_path):
@@ -157,8 +158,20 @@ def test_copilot_index_describes_skills_not_prompts(tmp_path):
     assert "commands" not in index.lower()
 
 
-def test_sidecar_only_gets_instruction_pointers(tmp_path):
-    render_repo(tmp_path, canonical_root=_mini_content(tmp_path))
+def test_sidecar_gets_flat_snake_case_skills_and_instruction_pointers(tmp_path):
+    canonical = _mini_content(tmp_path)
+    (canonical / "skills" / "add-bug.md").write_text(
+        "---\ndescription: File a bug\nargument-hint: text\nhints:\n  - add bug\nai-invocable: false\n---\n\nBody here\n"
+    )
+    render_repo(tmp_path, canonical_root=canonical)
+    skills = tmp_path / ".sidecar" / "skills"
+    bug = (skills / "add_bug.md").read_text()
+    assert "name: add_bug" in bug and "user-invocable: true" in bug and "disable-model-invocation: true" in bug
+    assert "  - add bug" in bug and "  - add-bug" in bug and "Body here" in bug
+    assert "Source of truth: `.fireball_ai_toolkit/skills/add-bug.md`" in bug
+    assert "name: fix" in (skills / "fix.md").read_text()
+    assert (skills / "big.md").is_file() and not (skills / "big").exists()  # bundle: main body only
+    assert not list(skills.rglob("SKILL.md"))
     inst = (tmp_path / ".sidecar" / "instructions" / "python.md").read_text()
     assert 'applyTo: "**/*.py"' in inst
     assert "Source of truth: `.fireball_ai_toolkit/instructions/python.md`" in inst
@@ -177,7 +190,8 @@ def test_old_generated_commands_and_prompts_are_removed(tmp_path):
         ".claude/commands/fix.md",
         ".github/prompts/fix.prompt.md",
         ".sidecar/commands/fix.md",
-        ".sidecar/skills/fix.md",
+        ".sidecar/skills/fix/SKILL.md",
+        ".sidecar/skills/old_gone.md",
     ):
         f = tmp_path / rel
         f.parent.mkdir(parents=True, exist_ok=True)
@@ -188,7 +202,9 @@ def test_old_generated_commands_and_prompts_are_removed(tmp_path):
     assert not (tmp_path / ".claude/commands/fix.md").exists()
     assert not (tmp_path / ".github/prompts").exists()
     assert not (tmp_path / ".sidecar/commands").exists()
-    assert not (tmp_path / ".sidecar/skills").exists()
+    assert not (tmp_path / ".sidecar/skills/old_gone.md").exists()
+    assert not (tmp_path / ".sidecar/skills/fix").exists()
+    assert "name: fix" in (tmp_path / ".sidecar/skills/fix.md").read_text()
     assert hand.exists()  # never touch a hand-written file
 
 
