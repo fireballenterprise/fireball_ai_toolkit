@@ -34,6 +34,11 @@ allowed-tools:                             # optional — only when the derived 
 The `!` prefix runs bash; `$ARGUMENTS` receives everything after the command name. A skill with
 no `!` line is prose-only (the agent just follows the body).
 
+**Name the file with hyphens** (`add-bug.md`, not `add_bug.md`): the generated skill name must be
+`[a-z0-9-]+` and equal its folder or Copilot silently ignores it. Underscores are normalised to hyphens
+and the old spelling kept as a trigger phrase, but name it right at the source. Details:
+`.fireball_ai_toolkit/instructions/ai_skills.md` (Skill names).
+
 ## What the generator emits per tool
 | Tool | File | Content |
 |------|------|------|

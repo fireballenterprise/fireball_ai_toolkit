@@ -23,6 +23,7 @@ from pathlib import Path
 
 from ._git import dirty_tracked
 from .catalog import CLOBBER_TREES, packaged_content_root, read_vendor, vendored_files, vendored_trees
+from .check import validate_skills
 from .migrate import migrate_skills
 from .render import RenderResult, render_repo
 
@@ -88,7 +89,9 @@ def apply(repo_root: Path, *, force: bool = False) -> RenderResult:
     ai_root = clobber_shared(repo_root, force=force)
     if "ai" not in read_vendor(repo_root):
         return RenderResult(written=[])
-    return render_repo(repo_root, canonical_root=ai_root)
+    result = render_repo(repo_root, canonical_root=ai_root)
+    validate_skills(repo_root)  # Copilot silently drops a skill with an invalid name — fail loudly instead
+    return result
 
 
 #: Deprecated alias — use :func:`apply`.

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from fireball_ai_toolkit.catalog import load_bundle, packaged_ai_root, packaged_content_root
+from fireball_ai_toolkit.catalog import load_bundle, normalize_skill_name, packaged_ai_root, packaged_content_root
 
 pytestmark = pytest.mark.ai_toolkit
 
@@ -144,3 +144,53 @@ def test_local_overlay_wins_and_is_flagged(tmp_path):
     assert bundle.is_local("push")
     assert bundle.is_local("mine")
     assert bundle.layer_of("push") == "local"
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("add_bug", "add-bug"),
+        ("Add__Size  Chart", "add-size-chart"),
+        ("_lead_and_trail_", "lead-and-trail"),
+        ("already-ok", "already-ok"),
+        ("a" * 80, "a" * 64),
+        ("a" * 63 + "_b", "a" * 63),
+    ],
+)
+def test_normalize_skill_name(raw, expected):
+    assert normalize_skill_name(raw) == expected
+
+
+def test_underscore_skill_is_normalised_and_original_becomes_a_hint(tmp_path):
+    skills = tmp_path / "skills"
+    skills.mkdir()
+    (skills / "add_size_chart.md").write_text("---\ndescription: d\nhints:\n  - size chart\n---\nbody\n")
+    (skills / "ok.md").write_text("---\ndescription: d\n---\nbody\n")
+    by = {s.name: s for s in load_bundle(canonical_root=tmp_path).skills}
+    chart = by["add-size-chart"]
+    assert chart.hints == ("size chart", "add_size_chart")
+    assert chart.source_name == "add_size_chart"
+    assert by["ok"].hints == ()
+
+
+def test_skills_that_normalise_alike_raise(tmp_path):
+    skills = tmp_path / "skills"
+    skills.mkdir()
+    (skills / "add_bug.md").write_text("---\ndescription: d\n---\nx\n")
+    (skills / "add-bug.md").write_text("---\ndescription: d\n---\nx\n")
+    with pytest.raises(ValueError, match="both normalise to the generated skill name 'add-bug'"):
+        load_bundle(canonical_root=tmp_path)
+
+
+def test_packaged_skills_are_already_normalised():
+    for skill in load_bundle().skills:
+        assert skill.name == normalize_skill_name(skill.name)
+        assert not skill.source_name, f"{skill.path} should be renamed to {skill.name}.md"
+
+
+def test_backlog_aliases_keep_their_underscore_triggers():
+    by = {s.name: s for s in load_bundle().skills}
+    for kind in ("bug", "feature", "task"):
+        skill = by[f"add-{kind}"]
+        assert {f"add_{kind}", f"add {kind}"} <= set(skill.hints)
+        assert f"backlog.route \"add {kind} $ARGUMENTS\"" in skill.exec_line

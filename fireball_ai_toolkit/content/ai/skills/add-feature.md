@@ -1,6 +1,9 @@
 ---
 description: File a feature request as a GitHub Issue on a repo in the family (native Feature type + enhancement label). Alias for /backlog add feature.
 argument-hint: --repo <name> --title "..." [--body "..."] | <freeform description>
+hints:
+  - add_feature
+  - add feature
 ---
 
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "add feature $ARGUMENTS"`

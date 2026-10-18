@@ -18,6 +18,10 @@ import tempfile
 from pathlib import Path
 
 from .catalog import (
+    SKILL_DESCRIPTION_MAX,
+    SKILL_NAME_MAX,
+    SKILL_NAME_RE,
+    _split_frontmatter,
     local_layer_name,
     packaged_ai_root,
     packaged_content_root,
@@ -35,6 +39,50 @@ class DriftError(RuntimeError):
 
 
 _DRIFT_MSG = "Toolkit-managed files are stale:\n  - {items}\nRun `invoke ai_toolkit.sync` (or `apply`) to regenerate."
+
+
+class SkillValidationError(RuntimeError):
+    """A generated skill would be silently dropped by Copilot's Agent Skills runtime."""
+
+
+SKILL_DIRS = (".github/skills", ".claude/skills")
+
+
+def validate_skills(repo_root: Path) -> None:
+    """Fail if any generated ``SKILL.md`` has a name/folder outside ``[a-z0-9-]+``, ``name != folder``,
+    a name over 64 chars or a description over 1024 chars.
+
+    Copilot's Agent Skills runtime silently ignores such skills — they just stop loading — so this
+    is a hard error at render time (``apply``) and in the drift gate (``check``).
+    """
+    problems: list[str] = []
+    for rel in SKILL_DIRS:
+        root = repo_root / rel
+        if not root.is_dir():
+            continue
+        for skill_md in sorted(root.glob("*/SKILL.md")):
+            folder = skill_md.parent.name
+            fm, _ = _split_frontmatter(skill_md.read_text(encoding="utf-8"))
+            name = str(fm.get("name", ""))
+            where = f"{rel}/{folder}/SKILL.md"
+            if not SKILL_NAME_RE.fullmatch(folder):
+                problems.append(f"{where}: folder {folder!r} is not [a-z0-9-]+")
+            if not SKILL_NAME_RE.fullmatch(name):
+                problems.append(f"{where}: name {name!r} is not [a-z0-9-]+")
+            if name != folder:
+                problems.append(f"{where}: name {name!r} != folder {folder!r}")
+            if len(name) > SKILL_NAME_MAX:
+                problems.append(f"{where}: name is {len(name)} chars (max {SKILL_NAME_MAX})")
+            description = str(fm.get("description", ""))
+            if len(description) > SKILL_DESCRIPTION_MAX:
+                problems.append(f"{where}: description is {len(description)} chars (max {SKILL_DESCRIPTION_MAX})")
+    if problems:
+        msg = (
+            "Invalid generated skills (Copilot would silently drop them):\n  - "
+            + "\n  - ".join(problems)
+            + "\nRename the source skill to lowercase letters, digits and hyphens, and shorten long descriptions."
+        )
+        raise SkillValidationError(msg)
 
 
 def _files(root: Path) -> set[Path]:
@@ -93,6 +141,9 @@ def check(repo_root: Path) -> None:
                 stale.append(f"{rel} (missing)")
             elif on_disk.read_bytes() != produced.read_bytes():
                 stale.append(str(rel))
+        validate_skills(mirror)  # what a fresh render would produce
+
+    validate_skills(repo_root)  # and what is on disk now
 
     if stale:
         raise DriftError(_DRIFT_MSG.format(items="\n  - ".join(stale)))

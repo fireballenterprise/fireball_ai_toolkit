@@ -1,6 +1,9 @@
 ---
 description: File a bug as a GitHub Issue on a repo in the family (native Bug type + bug label). Alias for /backlog add bug.
 argument-hint: --repo <name> --title "..." [--body "..."] | <freeform description>
+hints:
+  - add_bug
+  - add bug
 ---
 
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "add bug $ARGUMENTS"`
