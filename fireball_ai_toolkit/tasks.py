@@ -58,7 +58,11 @@ def apply(context):  # noqa: ARG001
 
 @task(help={"dry_run": "report what would change; write nothing"})
 def migrate_skills(context, dry_run=False):  # noqa: ARG001
-    """Merge this repo's own .<repo>/commands/ into .<repo>/skills/ (toolkit 2.0.0). Idempotent; `apply` runs it too."""
+    """Merge this repo's own .<repo>/commands/ into .<repo>/skills/ (toolkit 2.0.0). Idempotent; `apply` runs it too.
+
+    The hyphen spelling works as `ai_toolkit.migrate-skills` only where invoke runs with `auto_dash_names: true`;
+    the `ai-toolkit migrate-skills` console script always accepts it (and `migrate_skills`).
+    """
     print("\n".join(_migrate_skills(Path.cwd(), dry_run=dry_run).lines()))
 
 

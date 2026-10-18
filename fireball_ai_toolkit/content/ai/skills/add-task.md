@@ -1,6 +1,9 @@
 ---
 description: File a task (chore / cross-cutting work) as a GitHub Issue on a repo in the family (native Task type + task label). Alias for /backlog add task.
 argument-hint: --repo <name> --title "..." [--body "..."] | <freeform description>
+hints:
+  - add_task
+  - add task
 ---
 
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "add task $ARGUMENTS"`

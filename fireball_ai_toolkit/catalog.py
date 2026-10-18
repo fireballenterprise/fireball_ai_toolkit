@@ -160,7 +160,7 @@ class Skill:
     false`` renders as ``disable-model-invocation: true``). ``allowed-tools`` is optional.
     """
 
-    name: str
+    name: str  # normalised ([a-z0-9-]+) — the generated skill name, folder and slash name
     path: Path
     description: str = ""
     argument_hint: str = ""
@@ -173,6 +173,8 @@ class Skill:
     # bundle form only: resource files next to SKILL.md, relative to the bundle dir, sorted
     resources: tuple[Path, ...] = ()
     bundle_dir: Path | None = None
+    # the name as authored (file/folder stem) when it differed from the normalised ``name``
+    source_name: str = ""
 
     @property
     def exec_lines(self) -> list[str]:
@@ -200,13 +202,19 @@ class Skill:
                     and "__pycache__" not in p.parts
                 )
             )
+        source = name or path.stem
+        norm = _normalized(source, path)
+        hints = _as_list(fm.get("hints"))
+        if source != norm and source not in hints:
+            hints.append(source)  # typing the original spelling must keep matching
         return cls(
-            name=name or path.stem,
+            name=norm,
+            source_name=source if source != norm else "",
             path=path,
             description=str(fm.get("description", "")),
             argument_hint=str(fm.get("argument-hint", "")),
             body=body,
-            hints=tuple(_as_list(fm.get("hints"))),
+            hints=tuple(hints),
             instructions=tuple(_as_list(fm.get("instructions"))),
             allowed_tools=tuple(_as_list(fm.get("allowed-tools"))),
             user_invocable=_as_bool(fm.get("user-invocable"), default=True),
@@ -214,6 +222,29 @@ class Skill:
             resources=resources,
             bundle_dir=bundle_dir,
         )
+
+
+SKILL_NAME_MAX = 64
+SKILL_DESCRIPTION_MAX = 1024
+SKILL_NAME_RE = re.compile(r"[a-z0-9-]+")
+
+
+def normalize_skill_name(name: str) -> str:
+    """The generated skill name/folder: lowercase, every run of characters outside ``[a-z0-9]``
+    (``_`` included) becomes one ``-``, leading/trailing ``-`` stripped, at most 64 chars.
+
+    Copilot's Agent Skills runtime silently drops a skill whose name is not ``[a-z0-9-]+`` or does
+    not equal its folder, so the generated name is always normalised (``add_bug`` -> ``add-bug``).
+    """
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:SKILL_NAME_MAX].strip("-")
+
+
+def _normalized(name: str, source: Path) -> str:
+    norm = normalize_skill_name(name)
+    if not norm:
+        msg = f"skill {name!r} ({source}) has no usable characters — a skill name needs at least one of [a-z0-9]"
+        raise ValueError(msg)
+    return norm
 
 
 def _as_bool(value: object, *, default: bool) -> bool:
@@ -275,13 +306,21 @@ def _collect_skills(root: Path) -> list[Skill]:
         if path.name.startswith("."):
             continue
         if path.is_file() and path.suffix == ".md":
-            name, skill = path.stem, Skill.from_file(path)
+            skill = Skill.from_file(path)
         elif path.is_dir() and (path / "SKILL.md").is_file():
-            name, skill = path.name, Skill.from_file(path / "SKILL.md", name=path.name, bundle_dir=path)
+            skill = Skill.from_file(path / "SKILL.md", name=path.name, bundle_dir=path)
         else:
             continue
+        name = skill.name
         if name in found:
-            msg = f"skill {name!r} is defined twice in {target}: both {name}.md and {name}/ exist — keep one"
+            other = found[name]
+            if (other.source_name or other.name) == (skill.source_name or skill.name):
+                msg = f"skill {name!r} is defined twice in {target}: both {name}.md and {name}/ exist — keep one"
+            else:
+                msg = (
+                    f"skills {other.path.relative_to(target)} and {path.relative_to(target)} in {target} both "
+                    f"normalise to the generated skill name {name!r} — rename or remove one"
+                )
             raise ValueError(msg)
         found[name] = skill
     return [found[k] for k in sorted(found)]
@@ -301,8 +340,10 @@ def _legacy_commands(root: Path) -> dict[str, Skill]:
     out: dict[str, Skill] = {}
     for path in paths:
         fm, body = _split_frontmatter(path.read_text(encoding="utf-8"))
-        out[path.stem] = Skill(
-            name=path.stem,
+        norm = _normalized(path.stem, path)
+        out[norm] = Skill(
+            name=norm,
+            source_name=path.stem if path.stem != norm else "",
             path=path,
             description=str(fm.get("description", "")),
             argument_hint=str(fm.get("argument-hint", "")),

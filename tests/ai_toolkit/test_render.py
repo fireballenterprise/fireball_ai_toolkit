@@ -222,3 +222,19 @@ def test_dropped_slug_is_cleaned_on_rerender(tmp_path):
     assert not (tmp_path / ".claude" / "skills" / "bedrock").exists()
     assert not (tmp_path / ".github" / "skills" / "bedrock").exists()
     assert (tmp_path / ".claude" / "skills" / "fix" / "SKILL.md").exists()
+
+
+def test_underscore_local_skill_renders_normalised_with_original_hint(tmp_path):
+    local = tmp_path / f".{tmp_path.name}"
+    (local / "skills").mkdir(parents=True)
+    (local / "skills" / "add_size_chart.md").write_text("---\ndescription: charts\n---\n\nDo charts.\n")
+    render_repo(tmp_path, canonical_root=_mini_content(tmp_path))
+
+    for root in (".claude", ".github"):
+        text = (tmp_path / root / "skills" / "add-size-chart" / "SKILL.md").read_text()
+        assert "name: add-size-chart" in text.split("---")[1]
+        assert "- add_size_chart" in text  # the original spelling is a trigger phrase
+        assert f"Source of truth: `.{tmp_path.name}/skills/add_size_chart.md`" in text
+        assert not (tmp_path / root / "skills" / "add_size_chart").exists()
+    assert (tmp_path / ".clinerules" / "workflows" / "add-size-chart.md").exists()
+    assert "`/add-size-chart`" in (tmp_path / "AGENTS.md").read_text()

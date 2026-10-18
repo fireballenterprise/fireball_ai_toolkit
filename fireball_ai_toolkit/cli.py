@@ -18,6 +18,7 @@ from .check import check as _check
 from .migrate import migrate_skills as _migrate_skills
 
 _ALIASES = {"download": "apply", "upload": "contribute"}
+_SPELLINGS = {"migrate_skills": "migrate-skills"}  # underscore spelling of the invoke task name
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -39,6 +40,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    argv = [_SPELLINGS.get(a, a) for a in argv]
     args = _build_parser().parse_args(argv)
     repo: Path = args.repo.resolve()
     command = _ALIASES.get(args.command, args.command)

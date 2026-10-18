@@ -1,6 +1,6 @@
 # modules/backlog
 Track bugs / features / tasks as **GitHub Issues**, one tracker per family repo, driven by `gh`.
-No local state. Reachable as `/backlog` (+ the `/add_bug`, `/add_feature`, `/add_task` aliases)
+No local state. Reachable as `/backlog` (+ the `/add-bug`, `/add-feature`, `/add-task` aliases)
 and `invoke backlog.*`.
 
 | file | what |

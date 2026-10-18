@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import pytest
 
 from fireball_ai_toolkit import sync
 from fireball_ai_toolkit.apply import DirtySharedError, apply
-from fireball_ai_toolkit.check import DriftError, check
+from fireball_ai_toolkit.check import DriftError, SkillValidationError, check, validate_skills
 
 pytestmark = pytest.mark.ai_toolkit
 
@@ -165,4 +166,41 @@ def test_vendor_subset_without_ai_skips_render(repo: Path):
 def test_vendor_config_rejects_unknown_keys(repo: Path):
     (repo / ".ai-toolkit.yml").write_text("vendor: [ai, bogus]\n")
     with pytest.raises(ValueError, match="bogus"):
+        apply(repo)
+
+
+def _skill_md(repo: Path, folder: str, name: str, description: str = "d") -> None:
+    path = repo / ".github" / "skills" / folder / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text(f"---\nname: {name}\ndescription: {description}\n---\n\nbody\n")
+
+
+def test_validate_skills_passes_for_clean_output(repo: Path):
+    apply(repo)
+    validate_skills(repo)  # no raise
+
+
+@pytest.mark.parametrize(
+    ("folder", "name", "description", "message"),
+    [
+        ("add_bug", "add_bug", "d", "is not [a-z0-9-]+"),
+        ("Add-Bug", "Add-Bug", "d", "is not [a-z0-9-]+"),
+        ("add-bug", "add-feature", "d", "!= folder"),
+        ("a" * 65, "a" * 65, "d", "max 64"),
+        ("ok", "ok", "x" * 1025, "description is 1025 chars"),
+    ],
+)
+def test_validate_skills_rejects_invalid_names(repo: Path, folder: str, name: str, description: str, message: str):
+    _skill_md(repo, folder, name, description)
+    with pytest.raises(SkillValidationError, match=re.escape(message)):
+        validate_skills(repo)
+    with pytest.raises(SkillValidationError):
+        check(repo)
+
+
+def test_apply_fails_when_a_generated_skill_is_invalid(repo: Path):
+    local = repo / f".{repo.name}" / "skills"
+    local.mkdir(parents=True)
+    (local / "long.md").write_text(f"---\ndescription: {'x' * 1100}\n---\n\nbody\n")
+    with pytest.raises(SkillValidationError, match="description is 1100 chars"):
         apply(repo)

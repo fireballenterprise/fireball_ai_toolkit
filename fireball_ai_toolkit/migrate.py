@@ -58,6 +58,16 @@ class MigrationReport:
         return out
 
 
+_STUB_RE = re.compile(r"^\W*(use this file as )?(the )?source of truth\b[^\n]*\.(prompt\.)?md\W*$", re.IGNORECASE)
+
+
+def _is_stub(body: str) -> bool:
+    """A 1.x pointer stub (``Use this file as source of truth: .github/prompts/<x>.prompt.md``) carries
+    no real body — treat it as empty so the command body merges in."""
+    text = body.strip()
+    return not text or (len(text.splitlines()) <= 2 and len(text) < 200 and bool(_STUB_RE.match(text)))
+
+
 def _dump(fm: dict, body: str) -> str:
     head = yaml.safe_dump(fm, sort_keys=False, width=10000, allow_unicode=True, default_flow_style=False)
     return f"---\n{head}---\n" + (f"\n{body.strip()}\n" if body.strip() else "")
@@ -102,7 +112,7 @@ def migrate_skills(repo_root: Path, *, dry_run: bool = False) -> MigrationReport
     for command in sorted(commands_dir.glob("*.md")):
         slug = command.stem
         skill = skills_dir / f"{slug}.md"
-        if skill.is_file() and _split_frontmatter(skill.read_text(encoding="utf-8"))[1].strip():
+        if skill.is_file() and not _is_stub(_split_frontmatter(skill.read_text(encoding="utf-8"))[1]):
             report.skipped.append(f"{slug}: skills/{slug}.md already has a body — merge by hand, command kept")
             leftover = True
             continue

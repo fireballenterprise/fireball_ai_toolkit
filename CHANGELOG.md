@@ -1,4 +1,34 @@
 # Changelog
+## 2.1.0
+**Skill names are normalised to `[a-z0-9-]+`.**
+
+Why: Copilot's Agent Skills runtime silently drops a skill whose name is not lowercase letters, digits
+and hyphens or does not equal its folder. The old prompt files allowed underscores, so `/add_bug` worked
+before 2.0.0 and quietly stopped loading after the migration (fireball_ai_toolkit#107).
+
+- Renamed `add_bug`, `add_feature`, `add_task` to `add-bug`, `add-feature`, `add-task`; the underscore
+  spellings (and "add bug" etc.) stay as `hints:` trigger phrases. References in the backlog skill,
+  rules and module README updated. The `!` command bodies are unchanged.
+- The generated skill name and folder are always normalised: lowercase, any run of other characters
+  (including `_`) becomes `-`, leading/trailing `-` stripped, max 64 chars, name == folder. If the source
+  name differed (a repo-local `add_size_chart.md`), the original spelling is added to the skill's hints
+  automatically. Two skills that normalise to the same name raise an error. The slash name shown by
+  Sidecar, Claude and Copilot is the normalised one.
+- `ai_toolkit.check` and `apply` fail with a clear message if any generated skill has a name or folder
+  outside `[a-z0-9-]+`, a name different from its folder or longer than 64, or a description over 1024 chars.
+- `ai-toolkit migrate-skills` also accepts `migrate_skills`. The invoke task is `ai_toolkit.migrate_skills`;
+  the hyphen form works there only when invoke runs with `auto_dash_names: true`.
+- `migrate_skills` treats a 1.x pointer-stub skill body (`Use this file as source of truth:
+  .github/prompts/<x>.prompt.md`) as empty and merges the command body in (fireball_ai_toolkit#106).
+
+Migration for a consuming repo
+1. `uv run --no-sync invoke ai_toolkit.update`
+2. In a SEPARATE command: `uv run --no-sync invoke ai_toolkit.apply` (not `upgrade`: one process would render
+   with the old code).
+3. Rename repo-local underscore skills to hyphens (files under `.<repo>/skills/` and every reference to them),
+   then `apply` again.
+4. Commit the result.
+
 ## 2.0.0
 **Skills are the slash commands.** The separate `commands/` layer is gone.
 

@@ -1,5 +1,5 @@
 ---
-description: Use for tracking bugs / features / tasks as GitHub Issues on any repo in the family — filing, listing, viewing, working, commenting, closing. Equivalent to /backlog (and the /add_bug, /add_feature, /add_task aliases).
+description: Use for tracking bugs / features / tasks as GitHub Issues on any repo in the family — filing, listing, viewing, working, commenting, closing. Equivalent to /backlog (and the /add-bug, /add-feature, /add-task aliases).
 argument-hint: add bug|feature|task --repo <name> --title "..." | list [--repo <name> | --all] | start --repo <name> --number N | close --repo <name> --number N --pr M
 hints:
 - backlog
@@ -25,9 +25,9 @@ hints:
 - mark it shipped
 instructions:
 - .fireball_ai_toolkit/instructions/backlog.md
-- .fireball_ai_toolkit/skills/add_bug.md
-- .fireball_ai_toolkit/skills/add_feature.md
-- .fireball_ai_toolkit/skills/add_task.md
+- .fireball_ai_toolkit/skills/add-bug.md
+- .fireball_ai_toolkit/skills/add-feature.md
+- .fireball_ai_toolkit/skills/add-task.md
 ---
 
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.backlog.route "$ARGUMENTS"`

@@ -39,6 +39,14 @@ def canonical_pointer(bundle: ContentBundle, slug: str, kind: str) -> str:
     return f"Source of truth: `.fireball_ai_toolkit/{kind}/{slug}.md`"
 
 
+def skill_pointer(bundle: ContentBundle, skill: Skill) -> str:
+    """The source-of-truth line for a skill: the file keeps its authored spelling (``add_size_chart.md``)
+    even though the generated name is normalised."""
+    if bundle.is_local(skill.name):
+        return f"Source of truth: `.{bundle.local_name}/skills/{skill.source_name or skill.name}.md`"
+    return f"Source of truth: `.fireball_ai_toolkit/skills/{skill.source_name or skill.name}.md`"
+
+
 def skill_body(bundle: ContentBundle, skill: Skill) -> str:
     """The body of a rendered ``SKILL.md``: the full slash-command text from the canonical skill,
     then its trigger phrases and ``instructions`` paths expanded into a "read and follow" block,
@@ -54,7 +62,7 @@ def skill_body(bundle: ContentBundle, skill: Skill) -> str:
         parts.append(
             "When this skill fires, read and follow:\n\n" + "\n".join(f"- `{path}`" for path in skill.instructions)
         )
-    parts.append(canonical_pointer(bundle, skill.name, "skills"))
+    parts.append(skill_pointer(bundle, skill))
     return "\n\n".join(parts)
 
 

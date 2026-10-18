@@ -3,7 +3,7 @@ description: "Use when filing, triaging, working, or closing a backlog item (bug
 ---
 # Backlog Instructions
 The backlog is GitHub Issues — there is no local bug/backlog markdown. `/backlog` (and the
-`/add_bug`, `/add_feature`, `/add_task` aliases) file and drive them; `invoke backlog.*` is the
+`/add-bug`, `/add-feature`, `/add-task` aliases) file and drive them; `invoke backlog.*` is the
 CRUD layer. This file is the tool-neutral "how" — see `.fireball_ai_toolkit/skills/backlog.md` for the
 verb-to-CLI mapping.
 
