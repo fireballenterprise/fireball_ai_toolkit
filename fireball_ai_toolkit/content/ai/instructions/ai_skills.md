@@ -33,7 +33,22 @@ Full behavior text the agent follows.
 - The two switches are optional; omitted = both true (Sidecar's default). The generator always writes
   both keys into `SKILL.md`: `user-invocable: true|false` and `disable-model-invocation: false|true`
   (`ai-invocable: false` renders as `disable-model-invocation: true`).
-- An alias / sub-verb (`add_bug` → `backlog add bug`, `pr-notes`) is simply its own small skill.
+- An alias / sub-verb (`add-bug` → `backlog add bug`, `pr-notes`) is simply its own small skill.
+
+## Skill names: `[a-z0-9-]+` only
+The skill **name is the folder and the slash name**, and Copilot's Agent Skills runtime silently drops
+any skill whose name is not lowercase letters, digits and hyphens, equals its folder, is at most 64
+chars, or whose description is over 1024 chars. (Old `.github/prompts/` files allowed underscores,
+so `add_bug` worked before 2.0.0 and quietly stopped loading after it.)
+
+- Name new skills with hyphens: `add-bug.md`, `ship-it.md`, `bedrock-update-models.md`.
+- The generator always normalises: lowercase, every run of other characters (including `_`) becomes
+  one `-`, leading/trailing `-` stripped, cut at 64 chars. `add_size_chart.md` renders as
+  `.github/skills/add-size-chart/` with `name: add-size-chart`. The original spelling is added to the
+  skill's trigger phrases automatically, so typing `add_size_chart` still matches. Rename the file anyway.
+- Two skills that normalise to the same name (`add_bug.md` + `add-bug.md`) are an error.
+- `ai_toolkit.check` and `apply` fail on any generated skill that breaks these rules.
+- Keep the old spelling as a `hints:` entry when you rename (`hints: [add_bug, add bug]`).
 
 ## Bundle form for larger skills
 A skill that needs resources (scripts, examples, templates) is a directory instead of a file:
