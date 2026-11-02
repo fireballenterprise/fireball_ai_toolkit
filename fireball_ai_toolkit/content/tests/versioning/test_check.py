@@ -74,6 +74,7 @@ def test_route_peels_repo_and_subarg(monkeypatch, argv, expect_repo, expect_only
         return _FakeProc()
 
     monkeypatch.setattr(route, "resolve_target_repo", fake_resolve)
+    monkeypatch.setattr(route, "_repo_has_task", lambda _name: False)
     monkeypatch.setattr(route.subprocess, "run", fake_run)
     monkeypatch.setattr("sys.argv", ["route", *argv])
     route.main()

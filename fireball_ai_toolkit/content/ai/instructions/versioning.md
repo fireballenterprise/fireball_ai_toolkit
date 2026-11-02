@@ -44,6 +44,7 @@ toolchains enable (via `modules/fireball_ai_toolkit/common/toolchains.py`) — a
 - `python` — pinned Python vs latest stable 3.x; rewrites config references (does not install)
 - `workflows` — `.github/workflows/*.yml` `uses: owner/repo@vN` vs latest major tag on GitHub
 - `sdkman` — `.sdkmanrc` toolchain pins vs `sdk list`; rewrites `.sdkmanrc` + the Gradle wrapper
+- `cdk` — only where the repo defines it (the orchestrator's `invoke versioning.check`): the `properties.yml` `binary_versions.cdk` pin vs npm
 
 ```sh
 uv run --no-sync invoke versioning.check                 # every applicable check
@@ -66,11 +67,17 @@ uv run --no-sync invoke versioning.upgrade --only uv            # just the uv bi
 uv run --no-sync invoke versioning.upgrade --only python        # just Python + .venv rebuild
 uv run --no-sync invoke versioning.upgrade --only libs          # just `uv sync --upgrade`
 uv run --no-sync invoke versioning.upgrade --only sdkman        # just `sdk env install`
+uv run --no-sync invoke versioning.upgrade --only cdk           # orchestrator only: CDK CLI at the pin (brew-managed cdk → `brew upgrade aws-cdk`, else npm)
 uv run --no-sync invoke versioning.upgrade --sync        # `uv sync --upgrade`, no version check
 uv run --no-sync invoke upgrade                          # top-level alias
 ```
 The `uv` binary is **unpinned** (always latest) — so `check` never touches it; only `upgrade`
 refreshes it.
+A failed `sdk env install` (e.g. SDKMAN's corrupt archive) is self-repairing: the uninstalled pin is
+appended to `.sdkmanrc` as `# sdkman-skip: <candidate> <id>`, re-pinned to the next newest release and
+retried once.
+**Slash commands run the repo's own tasks:** `versioning/route.py` runs `invoke versioning.<verb>`
+when the current repo defines it (so repo extras like `cdk` are included), else the shared module.
 `/update [<repo>] [sub-check]` walks through applying the checks; `/upgrade [<repo>] [toolchain]`
 runs the installs. Both take a leading `[<repo>]` or `--repo <name|path>`.
 

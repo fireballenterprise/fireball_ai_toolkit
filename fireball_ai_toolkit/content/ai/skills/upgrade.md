@@ -1,6 +1,6 @@
 ---
-description: Use for installing the toolchain upgrades reviewed via /update — refresh the uv binary, install pinned Python + .venv rebuild, uv sync --upgrade, .sdkmanrc toolchain. Toolchain-aware; takes --repo <name|path> or a leading repo token. Equivalent to /upgrade.
-argument-hint: '[<repo>] [uv | python | libs | sdkman] [--repo <name|path>]'
+description: Use for installing the toolchain upgrades reviewed via /update — refresh the uv binary, install pinned Python + .venv rebuild, uv sync --upgrade, CDK CLI (repos that pin one), .sdkmanrc toolchain. Toolchain-aware; takes --repo <name|path> or a leading repo token. Equivalent to /upgrade.
+argument-hint: '[<repo>] [uv | python | libs | sdkman | cdk] [--repo <name|path>]'
 hints:
 - upgrade
 - upgrade <repo>
@@ -15,7 +15,7 @@ Performs the actual installs after you've reviewed the config changes with `/upd
 Every applicable upgrade (interactive):
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "upgrade $ARGUMENTS"`
 
-`$ARGUMENTS` may name one toolchain (`uv` / `python` / `libs` / `sdkman`), and/or start with a
+`$ARGUMENTS` may name one toolchain (`uv` / `python` / `libs` / `sdkman` / `cdk`), and/or start with a
 repo selector — a family-repo name or a path, or `--repo <name|path>` (same as `/update`). Add
 `--sync` for just `uv sync --upgrade` with no version check.
 
@@ -23,7 +23,8 @@ repo selector — a family-repo name or a path, or `--repo <name|path>` (same as
 - uv: refresh the `uv` binary itself (unpinned — `brew upgrade uv`, or `uv self update`)
 - Python: install the pinned version, rebuild `.venv`
 - libs: `uv sync --upgrade`
-- sdkman: `sdk env install` (installs whatever `.sdkmanrc` pins)
+- cdk (only where the repo defines `invoke versioning.upgrade` with it, e.g. the orchestrator): install the CDK CLI at the `properties.yml` pin — `brew upgrade aws-cdk` when cdk is Homebrew-managed, else `npm install -g aws-cdk@<pin>`; repairs a broken Homebrew `node`
+- sdkman: `sdk env install` (installs whatever `.sdkmanrc` pins); if an install fails (corrupt SDKMAN archive) the bad id is added as a `# sdkman-skip:` line, the pin moves to the next newest release, and it retries once
 
 ## Workflow
 1. `/update` — review + rewrite config files
