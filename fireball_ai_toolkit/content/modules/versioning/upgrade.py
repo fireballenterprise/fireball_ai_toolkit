@@ -1,6 +1,7 @@
 """Execute Python and/or library upgrades."""
 
 import logging
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -12,7 +13,7 @@ from ..setup.properties import get_binary_version, get_repo_local
 # Import check functions
 from .libs import get_declared_dependency_names, get_outdated_packages, load_pyproject
 from .python import get_runtime_python_version
-from .sdkman import read_sdkmanrc
+from .sdkman import _channel_suffix, latest_identifier, read_sdkmanrc, read_skip_list
 
 LOGGER = logging.getLogger(__name__)
 
@@ -115,20 +116,79 @@ def check_libs_need_upgrade(repo_path: Path) -> tuple[bool, int]:
     return (len(relevant_outdated) > 0, len(relevant_outdated))
 
 
+def _run_sdk_env_install(repo_path: Path) -> tuple[int, str]:
+    """Run `sdk env install` in a login shell; echo its output and return `(exit code, output)`."""
+    result = subprocess.run(
+        ["bash", "-lc", 'source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk env install 2>&1'],
+        cwd=repo_path,
+        stdout=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    output = result.stdout or ""
+    if output:
+        cli.echo(output.rstrip())
+    return result.returncode, output
+
+
+def _failed_pins(repo_path: Path) -> dict[str, str]:
+    """The `.sdkmanrc` pins that are not installed (no `~/.sdkman/candidates/<candidate>/<id>` dir) —
+    i.e. the ones a failed `sdk env install` could not install (corrupt archive, bad release...)."""
+    sdkman_dir = Path(os.environ.get("SDKMAN_DIR", Path.home() / ".sdkman"))
+    return {
+        candidate: identifier
+        for candidate, identifier in read_sdkmanrc(repo_path).items()
+        if not (sdkman_dir / "candidates" / candidate / identifier).is_dir()
+    }
+
+
+def _skip_and_repin(repo_path: Path, candidate: str, bad: str) -> str | None:
+    """Append `# sdkman-skip: <candidate> <bad>` to `.sdkmanrc` and re-pin `candidate` to the newest
+    non-skipped, non-pre-release identifier `sdk list` offers in the same channel. Returns the new
+    identifier, or `None` when there is none (the skip line is still written)."""
+    path = repo_path / ".sdkmanrc"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    skip_line = f"# sdkman-skip: {candidate} {bad}"
+    if skip_line not in lines:
+        lines.append(skip_line)
+    skip = read_skip_list(repo_path).get(candidate, set()) | {bad}
+    replacement = latest_identifier(candidate, f"0.0.0{_channel_suffix(bad)}", skip)
+    if replacement:
+        lines = [f"{candidate}={replacement}" if line.strip().startswith(f"{candidate}=") else line for line in lines]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return replacement
+
+
 def sdkman_env_install(repo_path: Path) -> None:
     """`sdk env install` in `repo_path` — installs whatever `.sdkmanrc` pins (the pins are set by
     `/update`, i.e. `python -m modules.fireball_ai_toolkit.versioning.sdkman`). `sdk` is a shell function, so
-    this goes through a login shell that sources sdkman-init.sh."""
+    this goes through a login shell that sources sdkman-init.sh.
+
+    When the install fails (e.g. SDKMAN published a release with a corrupt archive), find the pin(s)
+    that did not install, record each as a `# sdkman-skip:` line in `.sdkmanrc`, re-pin to the next
+    newest non-skipped identifier from `sdk list`, and retry once."""
     info("Installing .sdkmanrc toolchain via SDKMAN...")
-    result = subprocess.run(
-        ["bash", "-lc", 'source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk env install'],
-        cwd=repo_path,
-        check=False,
-    )
-    if result.returncode != 0:
-        warning("sdk env install completed with warnings — check `sdk env` output")
-    else:
+    code, _output = _run_sdk_env_install(repo_path)
+    if code == 0:
         success("SDKMAN toolchain installed")
+        return
+
+    failed = _failed_pins(repo_path)
+    if not failed:
+        warning("sdk env install completed with warnings — check `sdk env` output")
+        return
+    for candidate, bad in failed.items():
+        replacement = _skip_and_repin(repo_path, candidate, bad)
+        if replacement:
+            warning(f"SDKMAN could not install {candidate} {bad}; skipped it and re-pinned to {replacement}")
+        else:
+            warning(f"SDKMAN could not install {candidate} {bad}; skipped it, no other release to re-pin to")
+    info("Retrying sdk env install once...")
+    code, _output = _run_sdk_env_install(repo_path)
+    if code == 0:
+        success("SDKMAN toolchain installed after re-pinning")
+    else:
+        warning("sdk env install still failing after the re-pin — check `sdk env` output")
 
 
 def _print_summary(
