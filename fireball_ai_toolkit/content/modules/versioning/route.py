@@ -57,6 +57,11 @@ def _repo_has_task(task_name: str) -> bool:
     except OSError, subprocess.SubprocessError:
         return False
     if listing.returncode != 0:
+        first = (listing.stderr or "").strip().splitlines()[:1]
+        sys.stderr.write(
+            "versioning.route: `invoke --list` failed — repo-specific steps are skipped"
+            f"{': ' + first[0][:160] if first else ''}\n"
+        )
         return False
     return any(line.split() and line.split()[0] == task_name for line in listing.stdout.splitlines())
 
