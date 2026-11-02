@@ -33,7 +33,14 @@ function Invoke-LocalHook {
 
 function Setup-PythonEnv {
     Write-Host "`nINFO: Creating Python Virtual Environment"
-    uv venv .venv --python 3.14 --clear
+    # The pin comes from .python-version (the one source /update python rewrites).
+    $pythonPin = "3.14"
+    if (Test-Path .python-version) {
+        $fromFile = (Get-Content .python-version -Raw).Trim()
+        if ($fromFile) { $pythonPin = $fromFile }
+    }
+    Write-Host "INFO: Python pin: $pythonPin"
+    uv venv .venv --python $pythonPin --clear
     if ($LASTEXITCODE -ne 0) { throw "uv venv failed ($LASTEXITCODE)" }
 
     Write-Host "`nINFO: Installing Libraries"

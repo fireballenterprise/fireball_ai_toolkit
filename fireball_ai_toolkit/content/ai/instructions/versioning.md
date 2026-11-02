@@ -73,9 +73,14 @@ uv run --no-sync invoke upgrade                          # top-level alias
 ```
 The `uv` binary is **unpinned** (always latest) — so `check` never touches it; only `upgrade`
 refreshes it.
-A failed `sdk env install` (e.g. SDKMAN's corrupt archive) is self-repairing: the uninstalled pin is
-appended to `.sdkmanrc` as `# sdkman-skip: <candidate> <id>`, re-pinned to the next newest release and
+`sdk env install` is self-repairing. On Apple Silicon it runs under `arch -arm64` and first flips SDKMAN's
+`sdkman_rosetta2_compatible=true` (its default, which makes it fetch x86_64 JDKs that die with "Bad CPU type in
+executable") to `false`. An installed pin that cannot execute (`<candidate>/bin/java -version`) is removed and
+reinstalled natively; if it still cannot run, or a pin fails to install (e.g. SDKMAN's corrupt archive), it is
+appended to `.sdkmanrc` as `# sdkman-skip: <candidate> <id>  # <reason>`, re-pinned to the next newest release and
 retried once.
+`setup.sh` / `setup.ps1` read the Python pin from `.python-version` (the file `/update python` rewrites), so a
+`.venv` rebuild always lands on the pinned Python and `ai_toolkit.apply` can never revert it.
 **Slash commands run the repo's own tasks:** `versioning/route.py` runs `invoke versioning.<verb>`
 when the current repo defines it (so repo extras like `cdk` are included), else the shared module.
 `/update [<repo>] [sub-check]` walks through applying the checks; `/upgrade [<repo>] [toolchain]`

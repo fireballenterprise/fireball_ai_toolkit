@@ -2,6 +2,8 @@
 
 import logging
 import os
+import platform
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -116,10 +118,45 @@ def check_libs_need_upgrade(repo_path: Path) -> tuple[bool, int]:
     return (len(relevant_outdated) > 0, len(relevant_outdated))
 
 
+def _apple_silicon() -> bool:
+    """True on an arm64 Mac (the native architecture SDKMAN must install for)."""
+    return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+
+def _sdkman_dir() -> Path:
+    return Path(os.environ.get("SDKMAN_DIR", Path.home() / ".sdkman"))
+
+
+def ensure_native_sdkman_platform() -> bool:
+    """On Apple Silicon make SDKMAN fetch arm64 builds: its default config ships
+    `sdkman_rosetta2_compatible=true`, which makes `infer_platform` answer `darwinx64` even on an
+    arm64 shell, so every JDK lands as an x86_64 binary that dies with "Bad CPU type in executable"
+    when there is no Rosetta. Flips that flag to `false`. Returns True when the config was changed."""
+    if not _apple_silicon():
+        return False
+    config = _sdkman_dir() / "etc" / "config"
+    if not config.is_file():
+        return False
+    text = config.read_text(encoding="utf-8")
+    updated = re.sub(r"^(sdkman_rosetta2_compatible\s*=\s*)true\s*$", r"\1false", text, flags=re.MULTILINE)
+    if updated == text:
+        return False
+    config.write_text(updated, encoding="utf-8")
+    warning("SDKMAN was set to Rosetta (x86_64) mode; switched sdkman_rosetta2_compatible to false for native arm64")
+    return True
+
+
+def _sdk_shell_command(script: str) -> list[str]:
+    """argv running `script` in a login shell with sdkman-init.sh sourced — under `arch -arm64` on
+    Apple Silicon, so the shell (and SDKMAN's platform detection) is native even if the caller is not."""
+    argv = ["bash", "-lc", f'source "$HOME/.sdkman/bin/sdkman-init.sh" && {script}']
+    return ["arch", "-arm64", *argv] if _apple_silicon() else argv
+
+
 def _run_sdk_env_install(repo_path: Path) -> tuple[int, str]:
     """Run `sdk env install` in a login shell; echo its output and return `(exit code, output)`."""
     result = subprocess.run(
-        ["bash", "-lc", 'source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk env install 2>&1'],
+        _sdk_shell_command("sdk env install 2>&1"),
         cwd=repo_path,
         stdout=subprocess.PIPE,
         text=True,
@@ -131,25 +168,58 @@ def _run_sdk_env_install(repo_path: Path) -> tuple[int, str]:
     return result.returncode, output
 
 
-def _failed_pins(repo_path: Path) -> dict[str, str]:
-    """The `.sdkmanrc` pins that are not installed (no `~/.sdkman/candidates/<candidate>/<id>` dir) —
-    i.e. the ones a failed `sdk env install` could not install (corrupt archive, bad release...)."""
-    sdkman_dir = Path(os.environ.get("SDKMAN_DIR", Path.home() / ".sdkman"))
+# Candidates whose installed binary can be executed cheaply to prove it matches this machine.
+_RUN_CHECK: dict[str, list[str]] = {"java": ["bin/java", "-version"]}
+
+
+def _candidate_runs(candidate: str, identifier: str) -> bool:
+    """Whether the installed `candidate`/`identifier` actually executes (a wrong-architecture JDK
+    fails with "Bad CPU type in executable"). Candidates without a cheap probe count as fine."""
+    probe = _RUN_CHECK.get(candidate)
+    if probe is None:
+        return True
+    exe = _sdkman_dir() / "candidates" / candidate / identifier / probe[0]
+    if not exe.is_file():
+        return False
+    try:
+        result = subprocess.run([str(exe), *probe[1:]], capture_output=True, check=False, timeout=30)
+    except OSError, subprocess.TimeoutExpired:
+        return False
+    return result.returncode == 0
+
+
+def _broken_pins(repo_path: Path) -> dict[str, str]:
+    """The `.sdkmanrc` pins that are installed (dir exists) but cannot execute."""
     return {
         candidate: identifier
         for candidate, identifier in read_sdkmanrc(repo_path).items()
-        if not (sdkman_dir / "candidates" / candidate / identifier).is_dir()
+        if (_sdkman_dir() / "candidates" / candidate / identifier).is_dir()
+        and not _candidate_runs(candidate, identifier)
     }
 
 
-def _skip_and_repin(repo_path: Path, candidate: str, bad: str) -> str | None:
-    """Append `# sdkman-skip: <candidate> <bad>` to `.sdkmanrc` and re-pin `candidate` to the newest
-    non-skipped, non-pre-release identifier `sdk list` offers in the same channel. Returns the new
-    identifier, or `None` when there is none (the skip line is still written)."""
+def _remove_install(candidate: str, identifier: str) -> None:
+    shutil.rmtree(_sdkman_dir() / "candidates" / candidate / identifier, ignore_errors=True)
+
+
+def _failed_pins(repo_path: Path) -> dict[str, str]:
+    """The `.sdkmanrc` pins that are not installed (no `~/.sdkman/candidates/<candidate>/<id>` dir) —
+    i.e. the ones a failed `sdk env install` could not install (corrupt archive, bad release...)."""
+    return {
+        candidate: identifier
+        for candidate, identifier in read_sdkmanrc(repo_path).items()
+        if not (_sdkman_dir() / "candidates" / candidate / identifier).is_dir()
+    }
+
+
+def _skip_and_repin(repo_path: Path, candidate: str, bad: str, reason: str = "") -> str | None:
+    """Append `# sdkman-skip: <candidate> <bad>  # <reason>` to `.sdkmanrc` and re-pin `candidate` to
+    the newest non-skipped, non-pre-release identifier `sdk list` offers in the same channel. Returns
+    the new identifier, or `None` when there is none (the skip line is still written)."""
     path = repo_path / ".sdkmanrc"
     lines = path.read_text(encoding="utf-8").splitlines()
-    skip_line = f"# sdkman-skip: {candidate} {bad}"
-    if skip_line not in lines:
+    skip_line = f"# sdkman-skip: {candidate} {bad}" + (f"  # {reason}" if reason else "")
+    if not any(line.startswith(f"# sdkman-skip: {candidate} {bad}") for line in lines):
         lines.append(skip_line)
     skip = read_skip_list(repo_path).get(candidate, set()) | {bad}
     replacement = latest_identifier(candidate, f"0.0.0{_channel_suffix(bad)}", skip)
@@ -159,16 +229,45 @@ def _skip_and_repin(repo_path: Path, candidate: str, bad: str) -> str | None:
     return replacement
 
 
+def _finish_retry(repo_path: Path) -> None:
+    """The single retry after a re-pin; the result must be installed and runnable."""
+    info("Retrying sdk env install once...")
+    code, _output = _run_sdk_env_install(repo_path)
+    if code == 0 and not _broken_pins(repo_path):
+        success("SDKMAN toolchain installed after re-pinning")
+    else:
+        warning("sdk env install still failing after the re-pin — check `sdk env` output")
+
+
 def sdkman_env_install(repo_path: Path) -> None:
     """`sdk env install` in `repo_path` — installs whatever `.sdkmanrc` pins (the pins are set by
     `/update`, i.e. `python -m modules.fireball_ai_toolkit.versioning.sdkman`). `sdk` is a shell function, so
-    this goes through a login shell that sources sdkman-init.sh.
+    this goes through a login shell that sources sdkman-init.sh (native arm64 on Apple Silicon).
 
-    When the install fails (e.g. SDKMAN published a release with a corrupt archive), find the pin(s)
-    that did not install, record each as a `# sdkman-skip:` line in `.sdkmanrc`, re-pin to the next
-    newest non-skipped identifier from `sdk list`, and retry once."""
+    Self-repairing, one retry:
+    - an installed pin that cannot execute (e.g. an x86_64 JDK on arm64 without Rosetta) is removed
+      and reinstalled natively; if it still cannot run it is recorded as a `# sdkman-skip:` line
+      with the reason and re-pinned to the next newest identifier;
+    - a pin that did not install (corrupt archive, bad release...) is skipped and re-pinned too."""
     info("Installing .sdkmanrc toolchain via SDKMAN...")
+    ensure_native_sdkman_platform()
+    for candidate, identifier in _broken_pins(repo_path).items():
+        warning(f"{candidate} {identifier} is installed but cannot run (wrong architecture?); removing it to reinstall")
+        _remove_install(candidate, identifier)
     code, _output = _run_sdk_env_install(repo_path)
+
+    broken = _broken_pins(repo_path)
+    if broken:
+        for candidate, identifier in broken.items():
+            _remove_install(candidate, identifier)
+            replacement = _skip_and_repin(
+                repo_path, candidate, identifier, "installed but cannot execute on this machine"
+            )
+            warning(
+                f"{candidate} {identifier} still cannot run after a native reinstall; skipped, re-pinned to {replacement}"
+            )
+        _finish_retry(repo_path)
+        return
     if code == 0:
         success("SDKMAN toolchain installed")
         return
@@ -183,12 +282,7 @@ def sdkman_env_install(repo_path: Path) -> None:
             warning(f"SDKMAN could not install {candidate} {bad}; skipped it and re-pinned to {replacement}")
         else:
             warning(f"SDKMAN could not install {candidate} {bad}; skipped it, no other release to re-pin to")
-    info("Retrying sdk env install once...")
-    code, _output = _run_sdk_env_install(repo_path)
-    if code == 0:
-        success("SDKMAN toolchain installed after re-pinning")
-    else:
-        warning("sdk env install still failing after the re-pin — check `sdk env` output")
+    _finish_retry(repo_path)
 
 
 def _print_summary(

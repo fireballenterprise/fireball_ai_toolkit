@@ -58,7 +58,13 @@ run_local_hook() {
 setup_python_env() {
   echo -e
   echo "INFO: Creating Python Virtual Environment"
-  uv venv .venv --python 3.14 --clear
+  # The pin comes from .python-version (the one source /update python rewrites), so a rebuild
+  # lands on the repo's pinned Python and a re-apply of this script never drifts from it.
+  local python_pin=""
+  [ -f .python-version ] && python_pin="$(tr -d '[:space:]' < .python-version)"
+  python_pin="${python_pin:-3.14}"
+  echo "INFO: Python pin: ${python_pin}"
+  uv venv .venv --python "${python_pin}" --clear
   echo -e
   echo "INFO: Activating Python Virtual Environment"
   source .venv/bin/activate
