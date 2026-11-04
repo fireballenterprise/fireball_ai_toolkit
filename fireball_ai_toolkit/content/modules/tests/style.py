@@ -1,7 +1,7 @@
 """``tests.style`` — run every linter / formatter that applies to this repo.
 
 No ``--only`` → the toolchains present decide which run (Python repo: ruff + pylint + yamllint +
-actionlint; Kotlin repo: ktlint + detekt + android-lint; …). ``--fix`` applies autofixes where the
+actionlint; Kotlin repo: ktlint + detekt + android-lint; Rust repo: rustfmt + clippy + cargo-deny; …). ``--fix`` applies autofixes where the
 tool supports it. Exit is non-zero only when a tool reported real offences — a tool that isn't
 installed is reported as skipped, never a failure.
 """
@@ -11,7 +11,7 @@ from __future__ import annotations
 from ..common import cli
 from ..common.route_utils import find_repo_root
 from ..common.utils import info
-from . import actionlint, android_lint, detekt, ktlint, pylint, ruff, yamllint
+from . import actionlint, android_lint, cargo_deny, clippy, detekt, ktlint, pylint, ruff, rustfmt, yamllint
 from .common import summarise
 
 #: display name → tool module, in run order.
@@ -23,12 +23,19 @@ _LINTERS = {
     "ktlint": ktlint,
     "detekt": detekt,
     "android-lint": android_lint,
+    "rustfmt": rustfmt,
+    "clippy": clippy,
+    "cargo-deny": cargo_deny,
 }
 
 
 @cli.command()
 @cli.option(
-    "--only", help="Run just this linter (ruff | pylint | yamllint | actionlint | ktlint | detekt | android-lint)"
+    "--only",
+    help=(
+        "Run just this linter (ruff | pylint | yamllint | actionlint | ktlint | detekt | android-lint"
+        " | rustfmt | clippy | cargo-deny)"
+    ),
 )
 @cli.option("--fix", is_flag=True, help="Apply autofixes where the tool supports it")
 def main(only: str | None, fix: bool) -> None:
@@ -43,7 +50,7 @@ def main(only: str | None, fix: bool) -> None:
     else:
         names = [name for name, module in _LINTERS.items() if module.applies(root)]
         # `--fix` with no target = "apply autofixes" — run only the tools that can fix (ruff,
-        # ktlint), not the check-only linters (that's `tests.style` / `invoke test`).
+        # ktlint, rustfmt, clippy), not the check-only linters (that's `tests.style` / `invoke test`).
         if fix:
             names = [name for name in names if hasattr(_LINTERS[name], "fix")]
     if not names:

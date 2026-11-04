@@ -1,7 +1,8 @@
 """``tests.unit`` — run every unit-test runner that applies to this repo.
 
 Python repo → pytest (``--scope`` passes a marker expression through); Kotlin/Gradle repo →
-``./gradlew testDebugUnitTest``.
+``./gradlew testDebugUnitTest``; Rust repo → ``cargo test --workspace --release``
+(``--scope`` is the test-name filter).
 """
 
 from __future__ import annotations
@@ -9,19 +10,20 @@ from __future__ import annotations
 from ..common import cli
 from ..common.route_utils import find_repo_root
 from ..common.utils import info
-from . import gradle_unit
+from . import cargo_test, gradle_unit
 from . import pytest as pytest_runner
 from .common import summarise
 
 _RUNNERS = {
     "pytest": pytest_runner,
     "gradle-unit": gradle_unit,
+    "cargo-test": cargo_test,
 }
 
 
 @cli.command()
-@cli.option("--only", help="Run just this runner (pytest | gradle-unit)")
-@cli.option("--scope", help="pytest marker expression, e.g. 'versioning' or 'not style' (pytest only)")
+@cli.option("--only", help="Run just this runner (pytest | gradle-unit | cargo-test)")
+@cli.option("--scope", help="pytest marker expression ('versioning', 'not style') or a cargo test-name filter")
 def main(only: str | None, scope: str | None) -> None:
     root = find_repo_root()
 
