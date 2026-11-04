@@ -32,6 +32,7 @@ _PRUNE = frozenset(
         ".kotlin",
         "dist",
         ".mypy_cache",
+        "target",
     }
 )
 
@@ -44,6 +45,7 @@ _ENABLES: dict[str, set[str]] = {
     "yaml": {"style:yamllint"},
     "kotlin": {"style:ktlint", "style:detekt", "unit:gradle"},
     "agp": {"style:android-lint"},
+    "rust": {"style:rustfmt", "style:clippy", "style:cargo-deny", "unit:cargo"},
 }
 
 
@@ -134,6 +136,9 @@ def detect(root: Path) -> set[str]:
             tokens.add("kotlin")
         if has_agp(root):
             tokens.add("agp")
+
+    if (root / "Cargo.toml").is_file():
+        tokens.add("rust")
 
     if (root / "package.json").is_file():
         tokens.add("node")
