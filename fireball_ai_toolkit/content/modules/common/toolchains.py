@@ -32,6 +32,7 @@ _PRUNE = frozenset(
         ".kotlin",
         "dist",
         ".mypy_cache",
+        "target",
     }
 )
 
@@ -40,11 +41,12 @@ _PRUNE = frozenset(
 _ENABLES: dict[str, set[str]] = {
     "python": {"check:python", "check:libs", "style:ruff", "style:pylint", "unit:pytest"},
     "sdkman": {"check:sdkman"},
-    "rust": {"check:rust"},
+    "rust_pin": {"check:rust"},
     "workflows": {"check:workflows", "style:actionlint"},
     "yaml": {"style:yamllint"},
     "kotlin": {"style:ktlint", "style:detekt", "unit:gradle"},
     "agp": {"style:android-lint"},
+    "rust": {"style:rustfmt", "style:clippy", "style:cargo-deny", "unit:cargo"},
 }
 
 
@@ -131,7 +133,7 @@ def detect(root: Path) -> set[str]:
         tokens.add("sdkman")
 
     if owns_rust(root):
-        tokens.add("rust")
+        tokens.add("rust_pin")  # the repo that owns the pin (`rust` is the Cargo-workspace token, a different thing)
 
     if _has_workflows(root):
         tokens.add("workflows")
@@ -146,6 +148,9 @@ def detect(root: Path) -> set[str]:
             tokens.add("kotlin")
         if has_agp(root):
             tokens.add("agp")
+
+    if (root / "Cargo.toml").is_file():
+        tokens.add("rust")
 
     if (root / "package.json").is_file():
         tokens.add("node")

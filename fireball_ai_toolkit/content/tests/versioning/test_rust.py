@@ -157,11 +157,11 @@ def test_owns_rust_and_detect(tmp_path):
     assert not toolchains.owns_rust(tmp_path)
     _pin(tmp_path)
     assert toolchains.owns_rust(tmp_path)
-    assert "rust" in toolchains.detect(tmp_path)
+    assert "rust_pin" in toolchains.detect(tmp_path)
     assert "check:rust" in toolchains.capabilities(tmp_path)
     (tmp_path / "Cargo.toml").write_text("[workspace]\n", encoding="utf-8")
     assert not toolchains.owns_rust(tmp_path)
-    assert "rust" not in toolchains.detect(tmp_path)
+    assert "rust_pin" not in toolchains.detect(tmp_path)
 
 
 def test_check_runs_rust_for_the_owner(monkeypatch, tmp_path):

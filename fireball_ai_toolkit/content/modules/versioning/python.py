@@ -89,7 +89,6 @@ def get_files_to_update() -> list[dict]:
         },
         {"file": ".python-version", "patterns": [r"^(\d+\.\d+)$"]},
         {"file": ".pylintrc", "patterns": [r"(py-version=)(\d+\.\d+)"]},
-        {"file": "setup.sh", "patterns": [r"(--python\s+)(\d+\.\d+)"]},
         {
             "file": ".github/actions/setup_uv/action.yml",
             "patterns": [r"(--python\s+)(\d+\.\d+)"],
@@ -250,7 +249,7 @@ def main(dry_run: bool, no_confirm: bool) -> None:
     - pyproject.toml (requires-python, target-version)
     - .python-version
     - .pylintrc
-    - setup.sh
+    (setup.sh / setup.ps1 read .python-version at run time — nothing to rewrite there)
     - .github/actions/setup_uv/action.yml
     - properties.yml (binary_versions.python)
 

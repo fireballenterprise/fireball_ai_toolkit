@@ -47,6 +47,7 @@ one to force just it. Each sub-check runs as its own subprocess; one exiting `3`
 - `sdkman` — `.sdkmanrc` toolchain pins vs `sdk list`; rewrites `.sdkmanrc` + the Gradle wrapper
 - `rust` — `rust-toolchain.toml` exact pin vs the latest stable in `static.rust-lang.org/dist/channel-rust-stable.toml`
   (a release younger than 14 days is held; offline = warning, exit 3); rewrites the `channel` pin, does not install
+- `cdk` — only where the repo defines it (the orchestrator's `invoke versioning.check`): the `properties.yml` `binary_versions.cdk` pin vs npm
 
 ```sh
 uv run --no-sync invoke versioning.check                 # every applicable check
@@ -70,11 +71,22 @@ uv run --no-sync invoke versioning.upgrade --only python        # just Python + 
 uv run --no-sync invoke versioning.upgrade --only libs          # just `uv sync --upgrade`
 uv run --no-sync invoke versioning.upgrade --only sdkman        # just `sdk env install`
 uv run --no-sync invoke versioning.upgrade --only rust          # just the pinned Rust into .rust/
+uv run --no-sync invoke versioning.upgrade --only cdk           # orchestrator only: CDK CLI at the pin (brew-managed cdk → `brew upgrade aws-cdk`, else npm)
 uv run --no-sync invoke versioning.upgrade --sync        # `uv sync --upgrade`, no version check
 uv run --no-sync invoke upgrade                          # top-level alias
 ```
 The `uv` binary is **unpinned** (always latest) — so `check` never touches it; only `upgrade`
 refreshes it.
+`sdk env install` is self-repairing. On Apple Silicon it runs under `arch -arm64` and first flips SDKMAN's
+`sdkman_rosetta2_compatible=true` (its default, which makes it fetch x86_64 JDKs that die with "Bad CPU type in
+executable") to `false`. An installed pin that cannot execute (`<candidate>/bin/java -version`) is removed and
+reinstalled natively; if it still cannot run, or a pin fails to install (e.g. SDKMAN's corrupt archive), it is
+appended to `.sdkmanrc` as `# sdkman-skip: <candidate> <id>  # <reason>`, re-pinned to the next newest release and
+retried once.
+`setup.sh` / `setup.ps1` read the Python pin from `.python-version` (the file `/update python` rewrites), so a
+`.venv` rebuild always lands on the pinned Python and `ai_toolkit.apply` can never revert it.
+**Slash commands run the repo's own tasks:** `versioning/route.py` runs `invoke versioning.<verb>`
+when the current repo defines it (so repo extras like `cdk` are included), else the shared module.
 `/update [<repo>] [sub-check]` walks through applying the checks; `/upgrade [<repo>] [toolchain]`
 runs the installs. Both take a leading `[<repo>]` or `--repo <name|path>`.
 

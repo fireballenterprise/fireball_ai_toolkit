@@ -1,5 +1,5 @@
 ---
-description: Use for auto-fix requests — every applicable autofixer (ruff --fix + format; ktlint format for Kotlin). Takes --repo <name|path>. Equivalent to /fix.
+description: Use for auto-fix requests — every applicable autofixer (ruff --fix + format; ktlint format for Kotlin; cargo fmt + clippy --fix for Rust). Takes --repo <name|path>. Equivalent to /fix.
 argument-hint: '[--repo <name|path>]'
 hints:
 - fix

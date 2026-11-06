@@ -63,7 +63,8 @@ def read_skip_list(repo_path: Path) -> dict[str, set[str]]:
     for line in path.read_text(encoding="utf-8").splitlines():
         match = re.match(r"#\s*sdkman-skip:\s*(\S+)\s+(.+)", line.strip())
         if match:
-            candidate, ids = match.group(1), match.group(2).split()
+            # an optional `  # reason` tail documents why; it is not part of the id list
+            candidate, ids = match.group(1), match.group(2).split("#", 1)[0].split()
             skip.setdefault(candidate, set()).update(ids)
     return skip
 
