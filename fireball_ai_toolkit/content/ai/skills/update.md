@@ -1,6 +1,6 @@
 ---
-description: Use for checking dependency, Python, workflow-action, and .sdkmanrc toolchain versions against latest releases and updating the locks — read-only, never installs. Toolchain-aware; takes --repo <name|path> or a leading repo token to target another checkout. Equivalent to /update.
-argument-hint: '[<repo>] [libs | python | workflows | sdkman] [--repo <name|path>]'
+description: Use for checking dependency, Python, workflow-action, .sdkmanrc toolchain, and pinned Rust toolchain (rust-toolchain.toml) versions against latest releases and updating the locks — read-only, never installs. Toolchain-aware; takes --repo <name|path> or a leading repo token to target another checkout. Equivalent to /update.
+argument-hint: '[<repo>] [libs | python | workflows | sdkman | rust] [--repo <name|path>]'
 hints:
 - update
 - update <repo>
@@ -15,7 +15,9 @@ Check for available version updates (read-only, makes no changes):
 The check is **toolchain-aware** — it runs only the sub-checks the repo actually has: a Python
 library gets the `pyproject.toml` dependency table and the Python-version table; a repo with
 `.github/workflows/` gets the action-ref table; a repo with a `.sdkmanrc` gets the toolchain
-table. Any section may say it's already up to date — treat that section as done.
+table; the repo that owns the Rust pin (`rust-toolchain.toml`, no root `Cargo.toml`: the orchestrator) gets the Rust
+row (pinned version vs the latest stable in the Rust channel manifest; a release younger than 14 days is not
+adopted yet). Any section may say it's already up to date — treat that section as done.
 
 ## Targeting another repo
 `$ARGUMENTS` may start with a repo selector — a family-repo name (`/update fireball_wrangler`)
@@ -23,7 +25,7 @@ or a path (`/update ../../levonbecker/dotfiles`, or a monorepo app folder: `/upd
 check runs against that checkout instead of the current one. No selector → the current repo.
 
 ## Which section(s) to act on
-- a sub-check name (`libs` / `python` / `workflows` / `sdkman`) → act only on that section.
+- a sub-check name (`libs` / `python` / `workflows` / `sdkman` / `rust`) → act only on that section.
 - no sub-check name → walk through every section the check printed.
 
 ## Applying an update
@@ -37,5 +39,6 @@ then tell them what was rewritten:
 - `python` — only config references; `/upgrade python` installs the new Python + rebuilds `.venv`.
 - `workflows` — only `@ref` pins; suggest reviewing the diff before committing.
 - `sdkman` — only `.sdkmanrc` + the Gradle wrapper; `/upgrade sdkman` runs `sdk env install`.
+- `rust` — only the `channel` pin in `rust-toolchain.toml`; `/upgrade rust` installs it into the repo-local `.rust/`.
 
 If the user declines a section, make no changes for it.

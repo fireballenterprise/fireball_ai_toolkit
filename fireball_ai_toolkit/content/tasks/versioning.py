@@ -28,7 +28,7 @@ def _flags(dry_run: bool, yes: bool) -> list[str]:
 
 @task(
     help={
-        "only": "Force one sub-check: libs | python | workflows | sdkman (default: every applicable one)",
+        "only": "Force one sub-check: libs | python | workflows | sdkman | rust (default: every applicable one)",
         "repo": "Run against another checkout — a family-repo name or a path",
         "dry-run": "Preview only, never write",
         "yes": "Skip confirmation prompts",
@@ -47,14 +47,14 @@ def check(context, only=None, repo=None, dry_run=False, yes=False):
 
 @task(
     help={
-        "only": "Force one: uv | python | libs | sdkman (default: every applicable one)",
+        "only": "Force one: uv | python | libs | sdkman | rust (default: every applicable one)",
         "sync": "Just `uv sync --upgrade` — no version checks",
         "repo": "Run against another checkout — a family-repo name or a path",
         "yes": "Skip confirmation prompts",
     }
 )
 def upgrade(context, only=None, sync=False, repo=None, yes=False):
-    """Install the upgrades reviewed by ``check`` — uv + Python binaries, .venv, libs, SDKMAN."""
+    """Install the upgrades reviewed by ``check`` — uv + Python binaries, .venv, libs, SDKMAN, Rust (.rust/)."""
     args: list[str] = []
     if only:
         args += ["--only", only]

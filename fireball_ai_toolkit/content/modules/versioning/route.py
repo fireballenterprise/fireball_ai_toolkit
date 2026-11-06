@@ -8,8 +8,8 @@ Exec lines (from the command files)::
 
 So the first token is the verb (``check`` | ``upgrade`` | ``bump``); the rest is a mix of an
 optional target (``--repo <name|path>`` or a bare leading token), an optional sub-arg
-(``libs`` / ``python`` / ``workflows`` / ``sdkman`` for check; ``python`` / ``libs`` / ``sdkman``
-for upgrade; ``patch`` / ``minor`` / ``major`` / ``build`` for bump), and pass-through flags
+(``libs`` / ``python`` / ``workflows`` / ``sdkman`` / ``rust`` for check; ``python`` / ``libs`` / ``sdkman`` /
+``rust`` for upgrade; ``patch`` / ``minor`` / ``major`` / ``build`` for bump), and pass-through flags
 (``--dry-run``, ``--yes``, ``--sync``).
 """
 
@@ -25,8 +25,8 @@ from ..common.target_repo import delegate, resolve_target_repo
 
 #: verb → (module suffix under the toolkit package, recognised sub-args)
 _VERBS: dict[str, tuple[str, set[str]]] = {
-    "check": ("versioning.check", {"libs", "python", "workflows", "sdkman"}),
-    "upgrade": ("versioning.upgrade", {"uv", "python", "libs", "sdkman"}),
+    "check": ("versioning.check", {"libs", "python", "workflows", "sdkman", "rust"}),
+    "upgrade": ("versioning.upgrade", {"uv", "python", "libs", "sdkman", "rust"}),
     "bump": ("versioning.project", {"patch", "minor", "major", "build"}),
 }
 

@@ -1,4 +1,25 @@
 # Changelog
+## 2.3.0
+**Rust is a pinned, repo-local toolchain with `/update` and `/upgrade` support.**
+
+Why: the Owner (2026-11-06) wants one Rust version for the whole family, pinned in the repo and used by CI, owned by
+the orchestrator like the Python venv and the `.sdkmanrc` JDK. Product repos never install Rust.
+
+- New `versioning/rust.py` (`/update rust`, `invoke versioning.check --only rust`): compares the exact `channel` in
+  `rust-toolchain.toml` with the latest stable in the Rust channel manifest (stdlib `urllib`), holds a release younger
+  than 14 days, and rewrites only the pin. Offline is a warning and exit 3, never a failure.
+- `/upgrade rust` (`invoke versioning.upgrade --only rust`) installs the exact pin into the repo-local, gitignored
+  `.rust/` (`RUSTUP_HOME=.rust/rustup`, `CARGO_HOME=.rust/cargo`), bootstrapping rustup there if missing and
+  uninstalling superseded toolchains. It never touches `~/.rustup`, `~/.cargo` or a shell profile.
+- `common/toolchains.py` gets a `rust` token (`check:rust`) and `owns_rust()`: a root `rust-toolchain[.toml]` and no
+  root `Cargo.toml`. A Cargo workspace (a product repo) is not the owner, so `/update` and `/upgrade` skip it.
+- `update` and `upgrade` skills, `versioning.md` and the versioning README name Rust.
+
+Migration for a consuming repo that owns Rust (the orchestrator)
+1. Add `rust-toolchain.toml` (exact `channel`, `profile = "minimal"`, components clippy + rustfmt) and gitignore `/.rust/`.
+2. `uv run --no-sync invoke ai_toolkit.update`, then in a SEPARATE command `uv run --no-sync invoke ai_toolkit.apply`.
+3. Repo-specific bootstrap (`ensure_rust` in `setup.local.sh` / `setup.local.ps1`) stays in the repo.
+
 ## 2.2.0
 **Sidecar gets `.sidecar/skills/` again, as flat snake_case files.**
 

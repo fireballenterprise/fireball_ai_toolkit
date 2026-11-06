@@ -1,6 +1,6 @@
 ---
-description: Use for installing the toolchain upgrades reviewed via /update — refresh the uv binary, install pinned Python + .venv rebuild, uv sync --upgrade, .sdkmanrc toolchain. Toolchain-aware; takes --repo <name|path> or a leading repo token. Equivalent to /upgrade.
-argument-hint: '[<repo>] [uv | python | libs | sdkman] [--repo <name|path>]'
+description: Use for installing the toolchain upgrades reviewed via /update — refresh the uv binary, install pinned Python + .venv rebuild, uv sync --upgrade, .sdkmanrc toolchain, pinned Rust toolchain. Toolchain-aware; takes --repo <name|path> or a leading repo token. Equivalent to /upgrade.
+argument-hint: '[<repo>] [uv | python | libs | sdkman | rust] [--repo <name|path>]'
 hints:
 - upgrade
 - upgrade <repo>
@@ -15,7 +15,7 @@ Performs the actual installs after you've reviewed the config changes with `/upd
 Every applicable upgrade (interactive):
 !`uv run --no-sync python -m modules.fireball_ai_toolkit.versioning.route "upgrade $ARGUMENTS"`
 
-`$ARGUMENTS` may name one toolchain (`uv` / `python` / `libs` / `sdkman`), and/or start with a
+`$ARGUMENTS` may name one toolchain (`uv` / `python` / `libs` / `sdkman` / `rust`), and/or start with a
 repo selector — a family-repo name or a path, or `--repo <name|path>` (same as `/update`). Add
 `--sync` for just `uv sync --upgrade` with no version check.
 
@@ -24,6 +24,10 @@ repo selector — a family-repo name or a path, or `--repo <name|path>` (same as
 - Python: install the pinned version, rebuild `.venv`
 - libs: `uv sync --upgrade`
 - sdkman: `sdk env install` (installs whatever `.sdkmanrc` pins)
+- rust: install the exact version `rust-toolchain.toml` pins into the repo-local, gitignored `.rust/`
+  (`RUSTUP_HOME=.rust/rustup`, `CARGO_HOME=.rust/cargo`; rustup is bootstrapped there if missing, superseded
+  toolchains are uninstalled, `~/.rustup` / `~/.cargo` are never touched). Only the repo that owns the pin (the
+  orchestrator) does this; product repos never install Rust
 
 ## Workflow
 1. `/update` — review + rewrite config files
