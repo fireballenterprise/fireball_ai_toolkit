@@ -1,5 +1,5 @@
 ---
-description: "Use when working with the modules/fireball_ai_toolkit/versioning/ package — bumping the repo's VERSION file for releases, or checking/updating dependency version locks, GitHub Actions action-ref pins, and .sdkmanrc toolchain pins."
+description: "Use when working with the modules/fireball_ai_toolkit/versioning/ package — bumping the repo's VERSION file for releases, or checking/updating dependency version locks, GitHub Actions action-ref pins, .sdkmanrc toolchain pins, and the pinned Rust toolchain."
 applyTo: "modules/fireball_ai_toolkit/versioning/**"
 ---
 # Versioning Instructions
@@ -33,17 +33,20 @@ has its **own** `get_repo_root()` keyed on `pyproject.toml` + `VERSION` — **no
 CI, where `version.yml` / `release.yml` run this). `setup.properties.get_repo_root()` also now
 honours `$SIDECAR_REPO_ROOT`; `project.py`'s does not, deliberately.
 
-## Version Checks (`check.py` → `libs.py`, `python.py`, `workflows.py`, `sdkman.py`)
+## Version Checks (`check.py` → `libs.py`, `python.py`, `workflows.py`, `sdkman.py`, `rust.py`)
 `versioning.check` is **toolchain-aware**: with no sub-arg it runs only the checks the repo's
 toolchains enable (via `modules/fireball_ai_toolkit/common/toolchains.py`) — a Python library gets `libs` +
 `python`, a repo with `.github/workflows/` gets `workflows`, a repo with a `.sdkmanrc` gets
-`sdkman`. Name one to force just it. Each sub-check runs as its own subprocess; one exiting `3`
+`sdkman`, and the repo that **owns the Rust pin** (a `rust-toolchain.toml`, no root `Cargo.toml`) gets `rust`. Name
+one to force just it. Each sub-check runs as its own subprocess; one exiting `3`
 ("nothing to do", including "no pyproject.toml") never stops the others.
 
 - `libs` — `pyproject.toml` `[project.dependencies]` vs latest releases (`uv pip list --outdated`)
 - `python` — pinned Python vs latest stable 3.x; rewrites config references (does not install)
 - `workflows` — `.github/workflows/*.yml` `uses: owner/repo@vN` vs latest major tag on GitHub
 - `sdkman` — `.sdkmanrc` toolchain pins vs `sdk list`; rewrites `.sdkmanrc` + the Gradle wrapper
+- `rust` — `rust-toolchain.toml` exact pin vs the latest stable in `static.rust-lang.org/dist/channel-rust-stable.toml`
+  (a release younger than 14 days is held; offline = warning, exit 3); rewrites the `channel` pin, does not install
 - `cdk` — only where the repo defines it (the orchestrator's `invoke versioning.check`): the `properties.yml` `binary_versions.cdk` pin vs npm
 
 ```sh
@@ -60,13 +63,14 @@ it bare: `/update libs`, via `versioning/route.py`.)
 ## Installs (`upgrade.py`) — `versioning.upgrade`
 `check` rewrites the locks/pins; `upgrade` does the actual installs — the **binaries** (uv,
 Python; the orchestrator fork adds cdk) **and** the libs (`uv sync --upgrade`) + the `.sdkmanrc`
-toolchain.
+toolchain, and the pinned Rust toolchain.
 ```sh
 uv run --no-sync invoke versioning.upgrade               # every applicable install (+ refresh uv)
 uv run --no-sync invoke versioning.upgrade --only uv            # just the uv binary (brew / uv self update)
 uv run --no-sync invoke versioning.upgrade --only python        # just Python + .venv rebuild
 uv run --no-sync invoke versioning.upgrade --only libs          # just `uv sync --upgrade`
 uv run --no-sync invoke versioning.upgrade --only sdkman        # just `sdk env install`
+uv run --no-sync invoke versioning.upgrade --only rust          # just the pinned Rust into .rust/
 uv run --no-sync invoke versioning.upgrade --only cdk           # orchestrator only: CDK CLI at the pin (brew-managed cdk → `brew upgrade aws-cdk`, else npm)
 uv run --no-sync invoke versioning.upgrade --sync        # `uv sync --upgrade`, no version check
 uv run --no-sync invoke upgrade                          # top-level alias

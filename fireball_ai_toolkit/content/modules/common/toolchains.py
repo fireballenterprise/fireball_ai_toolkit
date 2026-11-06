@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-__all__ = ["capabilities", "detect", "enables", "has_agp"]
+__all__ = ["capabilities", "detect", "enables", "has_agp", "owns_rust"]
 
 #: Directory names never walked when sniffing for source files.
 _PRUNE = frozenset(
@@ -41,6 +41,7 @@ _PRUNE = frozenset(
 _ENABLES: dict[str, set[str]] = {
     "python": {"check:python", "check:libs", "style:ruff", "style:pylint", "unit:pytest"},
     "sdkman": {"check:sdkman"},
+    "rust_pin": {"check:rust"},
     "workflows": {"check:workflows", "style:actionlint"},
     "yaml": {"style:yamllint"},
     "kotlin": {"style:ktlint", "style:detekt", "unit:gradle"},
@@ -112,6 +113,14 @@ def has_agp(root: Path) -> bool:
     return False
 
 
+def owns_rust(root: Path) -> bool:
+    """True when this checkout OWNS the Rust toolchain: it carries a ``rust-toolchain[.toml]`` pin and is not itself
+    a Cargo workspace. The family keeps one owner (the orchestrator, like the Python venv); a product repo with a
+    root ``Cargo.toml`` (fireball_helix, a future Rust core) only mirrors the pin and never installs Rust."""
+    has_pin = (root / "rust-toolchain.toml").is_file() or (root / "rust-toolchain").is_file()
+    return has_pin and not (root / "Cargo.toml").is_file()
+
+
 def detect(root: Path) -> set[str]:
     """The set of toolchain tokens present in ``root``."""
     tokens: set[str] = set()
@@ -122,6 +131,9 @@ def detect(root: Path) -> set[str]:
     tokens |= _sdkman_candidates(root)
     if tokens & {"java", "gradle", "kotlin"} or (root / ".sdkmanrc").is_file():
         tokens.add("sdkman")
+
+    if owns_rust(root):
+        tokens.add("rust_pin")  # the repo that owns the pin (`rust` is the Cargo-workspace token, a different thing)
 
     if _has_workflows(root):
         tokens.add("workflows")

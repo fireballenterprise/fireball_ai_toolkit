@@ -3,8 +3,9 @@
 
 With no sub-check named it inspects the repo's toolchains (``common.toolchains``) and runs only
 the checks that apply: a Python library gets ``libs`` + ``python``, a repo with workflows gets
-``workflows``, a repo with a ``.sdkmanrc`` gets ``sdkman``. Name one (``libs`` / ``python`` /
-``workflows`` / ``sdkman``) to force just that one even if its toolchain isn't detected.
+``workflows``, a repo with a ``.sdkmanrc`` gets ``sdkman``, the repo that owns the Rust pin (a
+``rust-toolchain.toml`` and no root ``Cargo.toml``) gets ``rust``. Name one (``libs`` / ``python`` /
+``workflows`` / ``sdkman`` / ``rust``) to force just that one even if its toolchain isn't detected.
 
 Each sub-check runs as its own ``python -m modules.fireball_ai_toolkit.versioning.<name>`` subprocess so one
 exiting early (exit 3 = "nothing to do") never stops the others. Overall exit is non-zero only
@@ -26,6 +27,7 @@ _CHECKS: dict[str, str] = {
     "python": "check:python",
     "workflows": "check:workflows",
     "sdkman": "check:sdkman",
+    "rust": "check:rust",
 }
 
 _OK_EXIT_CODES = (0, 3)
@@ -41,7 +43,7 @@ def _run_one(name: str, flags: list[str]) -> int:
 
 
 @cli.command()
-@cli.option("--only", help="Run just this sub-check (libs | python | workflows | sdkman)")
+@cli.option("--only", help="Run just this sub-check (libs | python | workflows | sdkman | rust)")
 @cli.option("--dry-run", is_flag=True, help="Show updates without applying")
 @cli.option("--yes", "-y", "no_confirm", is_flag=True, help="Skip confirmation prompts")
 def main(only: str | None, dry_run: bool, no_confirm: bool) -> None:

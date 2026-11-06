@@ -8,8 +8,8 @@ Exec lines (from the command files)::
 
 So the first token is the verb (``check`` | ``upgrade`` | ``bump``); the rest is a mix of an
 optional target (``--repo <name|path>`` or a bare leading token), an optional sub-arg
-(``libs`` / ``python`` / ``workflows`` / ``sdkman`` / ``cdk`` for check; ``uv`` / ``python`` / ``libs`` /
-``sdkman`` / ``cdk`` for upgrade; ``patch`` / ``minor`` / ``major`` / ``build`` for bump), and pass-through flags
+(``libs`` / ``python`` / ``workflows`` / ``sdkman`` / ``rust`` / ``cdk`` for check; ``uv`` / ``python`` / ``libs`` /
+``sdkman`` / ``rust`` / ``cdk`` for upgrade; ``patch`` / ``minor`` / ``major`` / ``build`` for bump), and pass-through flags
 (``--dry-run``, ``--yes``, ``--sync``).
 
 For the current repo (no target), when the repo defines its own ``invoke versioning.<verb>`` task
@@ -29,8 +29,8 @@ from ..common.target_repo import delegate, resolve_target_repo
 
 #: verb → (module suffix under the toolkit package, recognised sub-args)
 _VERBS: dict[str, tuple[str, set[str]]] = {
-    "check": ("versioning.check", {"libs", "python", "workflows", "sdkman", "cdk"}),
-    "upgrade": ("versioning.upgrade", {"uv", "python", "libs", "sdkman", "cdk"}),
+    "check": ("versioning.check", {"libs", "python", "workflows", "sdkman", "rust", "cdk"}),
+    "upgrade": ("versioning.upgrade", {"uv", "python", "libs", "sdkman", "rust", "cdk"}),
     "bump": ("versioning.project", {"patch", "minor", "major", "build"}),
 }
 

@@ -9,12 +9,14 @@ import subprocess
 from pathlib import Path
 
 from ..common import cli
+from ..common.toolchains import owns_rust
 from ..common.utils import error, info, success, version_tuple, warning
 from ..setup.properties import get_binary_version, get_repo_local
 
 # Import check functions
 from .libs import get_declared_dependency_names, get_outdated_packages, load_pyproject
 from .python import get_runtime_python_version
+from .rust import install_pinned, is_installed, read_pin
 from .sdkman import _channel_suffix, latest_identifier, read_sdkmanrc, read_skip_list
 
 LOGGER = logging.getLogger(__name__)
@@ -285,12 +287,23 @@ def sdkman_env_install(repo_path: Path) -> None:
     _finish_retry(repo_path)
 
 
+def rust_install(repo_path: Path, version: str) -> None:
+    """Install the exact Rust version `rust-toolchain.toml` pins into the repo-local `.rust/` (rustup is bootstrapped
+    there if missing), and uninstall superseded toolchains. Never touches ~/.rustup or ~/.cargo."""
+    info(f"Installing Rust {version} into .rust/ ...")
+    if install_pinned(repo_path, version):
+        success(f"Rust {version} installed (repo-local .rust/)")
+    else:
+        error(f"Rust {version} install failed — see the output above")
+
+
 def _print_summary(
     *,
     upgrade_uv: bool,
     upgrade_python: bool,
     upgrade_libs: bool,
     upgrade_sdkman: bool,
+    rust_pin: str | None,
     python_only: bool,
     libs_only: bool,
     python_current: str,
@@ -325,6 +338,12 @@ def _print_summary(
         cli.echo("   Actions:\n   - Run sdk env install (installs whatever .sdkmanrc pins)")
         will_upgrade.append("SDKMAN toolchain")
 
+    if rust_pin:
+        cli.echo(f"\n🦀 Rust toolchain: rust-toolchain.toml pins {rust_pin}")
+        cli.echo("   Actions:\n   - Install it into the repo-local .rust/ (rustup bootstrapped if missing)")
+        cli.echo("   - Uninstall superseded toolchains")
+        will_upgrade.append("Rust toolchain")
+
     return will_upgrade
 
 
@@ -334,6 +353,7 @@ def _print_final(
     upgrade_python: bool,
     upgrade_libs: bool,
     upgrade_sdkman: bool,
+    rust_pin: str | None,
     python_latest: str,
     libs_count: int,
 ) -> None:
@@ -348,11 +368,13 @@ def _print_final(
         cli.echo(f"\n✅ {libs_count} libraries updated")
     if upgrade_sdkman:
         cli.echo("\n✅ SDKMAN toolchain installed (`sdk env` to activate in a shell)")
+    if rust_pin:
+        cli.echo(f"\n✅ Rust {rust_pin} installed in .rust/ (the orchestrator's tasks use it automatically)")
     cli.echo("\n💡 Changes installed and ready to use\n")
 
 
 @cli.command()
-@cli.option("--only", help="Upgrade just one toolchain: uv | python | libs | sdkman")
+@cli.option("--only", help="Upgrade just one toolchain: uv | python | libs | sdkman | rust")
 @cli.option("--sync", "sync_only", is_flag=True, help="Only run `uv sync --upgrade` (no version checks)")
 @cli.option("--yes", "-y", "no_confirm", is_flag=True, help="Skip confirmation")
 def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
@@ -364,6 +386,7 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
     - Downloads and installs the pinned Python version, rebuilds .venv if it changed
     - Runs uv sync --upgrade to install updated dependencies
     - Runs `sdk env install` for the .sdkmanrc toolchain
+    - Installs the exact Rust in rust-toolchain.toml into the repo-local .rust/ (only in the repo that owns it)
 
     IMPORTANT: Run /update first to update config files before upgrading.
 
@@ -373,6 +396,7 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
         /upgrade python           # Only Python
         /upgrade libs             # Only libraries
         /upgrade sdkman           # Only the .sdkmanrc toolchain
+        /upgrade rust             # Only the pinned Rust toolchain (.rust/)
         /upgrade --sync           # Just `uv sync --upgrade`
         /upgrade --yes            # Skip confirmation
     """
@@ -382,8 +406,8 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
         run_uv_sync()
         return
 
-    if only and only not in ("uv", "python", "libs", "sdkman"):
-        cli.echo(f"Unknown target {only!r} — pick one of: uv, python, libs, sdkman", err=True)
+    if only and only not in ("uv", "python", "libs", "sdkman", "rust"):
+        cli.echo(f"Unknown target {only!r} — pick one of: uv, python, libs, sdkman, rust", err=True)
         raise SystemExit(2)
     scoped = bool(only)  # any --only <x> means "just that one"
 
@@ -409,6 +433,14 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
     # `/update` has already rewritten the pins by now; this just installs them.
     upgrade_sdkman = (only == "sdkman" or not scoped) and bool(read_sdkmanrc(repo_path))
 
+    # Rust — only in the repo that owns the pin (rust-toolchain.toml, no root Cargo.toml), and only when the exact
+    # pinned version is not installed repo-locally yet. `/update` has already moved the pin.
+    rust_pin = read_pin(repo_path) if (only == "rust" or not scoped) and owns_rust(repo_path) else None
+    if rust_pin and is_installed(repo_path, rust_pin):
+        if only == "rust":
+            cli.echo(f"\n🦀 Rust: {rust_pin} already installed in .rust/")
+        rust_pin = None
+
     # Filter based on flags
     if upgrade_python and not python_needs_upgrade:
         upgrade_python = False
@@ -421,6 +453,7 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
         upgrade_python=upgrade_python,
         upgrade_libs=upgrade_libs,
         upgrade_sdkman=upgrade_sdkman,
+        rust_pin=rust_pin,
         python_only=python_only,
         libs_only=libs_only,
         python_current=python_current,
@@ -466,11 +499,16 @@ def main(only: str | None, sync_only: bool, no_confirm: bool) -> None:
         cli.echo("\n☕ Installing SDKMAN toolchain...")
         sdkman_env_install(repo_path)
 
+    if rust_pin:
+        cli.echo("\n🦀 Installing Rust toolchain...")
+        rust_install(repo_path, rust_pin)
+
     _print_final(
         upgrade_uv=upgrade_uv,
         upgrade_python=upgrade_python,
         upgrade_libs=upgrade_libs,
         upgrade_sdkman=upgrade_sdkman,
+        rust_pin=rust_pin,
         python_latest=python_latest,
         libs_count=libs_count,
     )

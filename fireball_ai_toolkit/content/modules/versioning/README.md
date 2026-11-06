@@ -7,7 +7,8 @@ development deploys and releases (`project.py`).
 Every check is **toolchain-aware** (`modules/fireball_ai_toolkit/common/toolchains.py`): `versioning.check`
 with no sub-arg runs only the checks whose toolchain the repo actually has — a Python library
 gets `libs` + `python`, a repo with `.github/workflows/` gets `workflows`, a repo with a
-`.sdkmanrc` gets `sdkman`. This is what lets `--repo <name|path>` point any check at another repo.
+`.sdkmanrc` gets `sdkman`, and the repo that owns the Rust pin (`rust-toolchain.toml`, no root `Cargo.toml`) gets
+`rust`. This is what lets `--repo <name|path>` point any check at another repo.
 
 ## Usage
 ```sh
@@ -49,12 +50,15 @@ uv run --no-sync invoke versioning.bump build            # feature-branch build 
   published major tag (`git ls-remote`, no API token), rewrites the pins in place
 - `sdkman.py` — checks `.sdkmanrc` toolchain pins (JDK/Gradle/Kotlin) against `sdk list`, rewrites
   `.sdkmanrc` + the Gradle wrapper (exits `3` when there's no `.sdkmanrc`)
+- `rust.py` — checks the `rust-toolchain.toml` exact pin against the latest stable Rust (channel manifest, 14-day
+  hold, offline-safe), rewrites the pin (exits `3` when current / not the owner / offline); also the repo-local install
+  used by `/upgrade` (`.rust/rustup`, `.rust/cargo`, bootstrap rustup, uninstall superseded toolchains)
 - `upgrade.py` — the installs behind `/upgrade`: the `uv` binary (`brew upgrade uv` / `uv self
-  update` — unpinned), the pinned Python + `.venv` rebuild, `uv sync --upgrade`, `sdk env install`.
-  `--only uv|python|libs|sdkman`, `--sync`
+  update` — unpinned), the pinned Python + `.venv` rebuild, `uv sync --upgrade`, `sdk env install`, the pinned Rust into `.rust/`.
+  `--only uv|python|libs|sdkman|rust`, `--sync`
 - `project.py` — bumps the root `VERSION` file. Has its **own** `get_repo_root()` (keyed on
   `pyproject.toml` + `VERSION`, **not** `properties.yml`) so it works in CI. Does not commit,
   push, or trigger any workflow.
 
-`libs.py`, `python.py`, `workflows.py`, `sdkman.py`, `project.py` only edit files — review the
+`libs.py`, `python.py`, `workflows.py`, `sdkman.py`, `rust.py` (check), `project.py` only edit files — review the
 diff before committing.
