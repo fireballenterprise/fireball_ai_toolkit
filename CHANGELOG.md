@@ -1,4 +1,13 @@
 # Changelog
+## 2.3.2
+**`tests.*` runs cargo with the orchestrator's pinned, repo-local Rust toolchain, and a Rust repo can no longer pass by skipping.**
+
+Why: since 2.3.0 the Rust toolchain lives in the orchestrator's `.rust/` (not on PATH), so `invoke test`, `/test` and `/fix` on a repo with a root `Cargo.toml` found no `cargo`, reported it as skipped and went green. With the product repos moving to a Rust core that would have hidden every Rust failure.
+
+- `tests/common.py` `run()`: for `cargo`, sets `RUSTUP_HOME`, `CARGO_HOME`, `RUSTUP_TOOLCHAIN` (the exact pin) and PATH from the checkout that owns `rust-toolchain.toml` and `.rust/` (found by walking up from the module). No pin or no install: plain `cargo` on PATH as before.
+- A missing `cargo` in a repo that has a root `Cargo.toml` is now a failure (`run `invoke setup``), not a skip. Other missing tools still skip.
+- No `Cargo.toml` at the root: no Rust gate is enabled at all (unchanged).
+
 ## 2.3.0
 **Rust is a pinned, repo-local toolchain with `/update` and `/upgrade` support.**
 
