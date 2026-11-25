@@ -3,7 +3,7 @@ name = "fireball_ai_toolkit"
 dynamic = ["version"]  # read from the VERSION file (see [tool.setuptools.dynamic])
 description = "Single source of truth for Fireball's shared AI-agent tooling: canonical slash commands, agent instructions, and skills, plus the generator that renders them into every AI tool's native format."
 readme = "README.md"
-license = "MIT"
+license = "LicenseRef-Proprietary"
 license-files = ["LICENSE"]
 authors = [{ name = "Levon Becker" }]
 keywords = ["ai", "agents", "claude", "copilot", "slash-commands", "codegen", "devtools"]
