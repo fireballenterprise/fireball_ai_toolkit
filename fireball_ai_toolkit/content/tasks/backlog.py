@@ -37,7 +37,7 @@ def add(context, repo=None, type=None, title=None, body="", images="", area="", 
     )
 
 
-@task
+@task()
 def close(context, repo=None, number=None, pr="", sha="", reason="completed", comment=""):
     """Close an issue, optionally noting the PR / sha that fixed it"""
     _run(
@@ -52,7 +52,7 @@ def close(context, repo=None, number=None, pr="", sha="", reason="completed", co
     )
 
 
-@task
+@task()
 def comment(context, repo=None, number=None, body=None, images=""):
     """Add a comment to an issue"""
     _run(context, "comment", ("repo", repo), ("number", number), ("body", body), ("images", images))
@@ -73,13 +73,13 @@ def list_issues(context, repo="", type="", label="", state="open", limit=30, min
     )
 
 
-@task
+@task()
 def start(context, repo=None, number=None, comment=""):
     """Show + self-assign an issue and print the repo's ship rules"""
     _run(context, "start", ("repo", repo), ("number", number), ("comment", comment))
 
 
-@task
+@task()
 def view(context, repo=None, number=None, json=False):  # noqa: A002
     """Show one issue"""
     _run(context, "view", ("repo", repo), ("number", number), flags=["json"] if json else [])

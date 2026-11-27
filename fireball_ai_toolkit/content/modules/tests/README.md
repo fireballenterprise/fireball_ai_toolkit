@@ -15,7 +15,7 @@ uv run --no-sync invoke tests.unit --scope versioning   # pytest marker subset
 
 ## How it works
 `style.py` / `unit.py` ask `common.toolchains.capabilities(repo_root)` which tools apply, then run
-each. A Python repo → ruff + pylint + yamllint + actionlint + pytest; a Kotlin/Gradle repo →
+each. A Python repo → ruff + pylint + ty (when installed) + yamllint + actionlint + pytest; a Kotlin/Gradle repo →
 ktlint + detekt + android-lint + gradle-unit; a Rust/Cargo repo → rustfmt + clippy + cargo-deny
 (only with a `deny.toml`) + cargo-test. Naming one (`tests.style ktlint`) forces just that
 one even if the toolchain isn't detected.
@@ -28,7 +28,7 @@ A tool that isn't installed (`shutil.which` miss, or a Gradle task that doesn't 
 - `style.py` — `tests.style` entry: discover + run linters / formatters
 - `unit.py` — `tests.unit` entry: discover + run unit-test runners
 - one module per tool — `applies(root) -> bool`, `check(root) -> ToolResult`, optional `fix(root)`:
-  `ruff`, `pylint`, `yamllint`, `actionlint` (Python / YAML / Actions); `ktlint`, `detekt`,
+  `ruff`, `pylint`, `ty`, `yamllint`, `actionlint` (Python / YAML / Actions); `ktlint`, `detekt`,
   `android_lint` (Kotlin, via `./gradlew`); `rustfmt`, `clippy`, `cargo_deny` (Rust, via `cargo`); `pytest`,
   `gradle_unit`, `cargo_test` (unit suites)
 

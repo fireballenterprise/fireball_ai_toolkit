@@ -39,7 +39,7 @@ _PRUNE = frozenset(
 #: toolchain token → the capability strings it turns on. A capability is ``<area>:<name>`` where
 #: area is ``check`` (versioning.check), ``style`` (tests.style) or ``unit`` (tests.unit).
 _ENABLES: dict[str, set[str]] = {
-    "python": {"check:python", "check:libs", "style:ruff", "style:pylint", "unit:pytest"},
+    "python": {"check:python", "check:libs", "style:ruff", "style:pylint", "style:ty", "unit:pytest"},
     "sdkman": {"check:sdkman"},
     "rust_pin": {"check:rust"},
     "workflows": {"check:workflows", "style:actionlint"},

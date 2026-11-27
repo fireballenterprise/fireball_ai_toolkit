@@ -16,7 +16,7 @@ def test_python_repo(tmp_path):
     tokens = toolchains.detect(tmp_path)
     assert "python" in tokens
     caps = toolchains.capabilities(tmp_path)
-    assert {"check:libs", "check:python", "style:ruff", "style:pylint", "unit:pytest"} <= caps
+    assert {"check:libs", "check:python", "style:ruff", "style:pylint", "style:ty", "unit:pytest"} <= caps
 
 
 def test_sdkmanrc_gives_sdkman_and_candidates(tmp_path):

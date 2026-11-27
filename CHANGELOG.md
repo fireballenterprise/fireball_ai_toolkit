@@ -1,4 +1,14 @@
 # Changelog
+## 2.3.5
+**`tests.style` runs ty, the Python type checker, in every Python repo that has it installed (orchestrator#253).**
+
+Why: the family had no type checker; the orchestrator adopted ty (pinned under the dependency age rule) with every diagnostic fixed.
+
+- New `tests/ty.py` (`style:ty`, on for every Python repo): `ty check`, configured by the repo's `pyproject.toml` `[tool.ty]`. A repo
+  without ty in its environment skips it, like every other tool, so each repo turns it on by adding the dev dependency.
+- `tests.style --only ty` runs it alone.
+- The shared tasks use `@task()` instead of a bare `@task`, so a type checker sees them as invoke `Task`s.
+
 ## 2.3.2
 **`tests.*` runs cargo with the orchestrator's pinned, repo-local Rust toolchain, and a Rust repo can no longer pass by skipping.**
 

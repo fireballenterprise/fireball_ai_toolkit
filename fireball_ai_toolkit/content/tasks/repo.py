@@ -17,7 +17,7 @@ def _repo_flag(repo):
     return f" --repo {repo}" if repo else ""
 
 
-@task
+@task()
 def pull(context, family=False, repo=None):
     """Pull updates from git remote; --family for the whole family, --repo for one other checkout"""
     if family:
@@ -26,7 +26,7 @@ def pull(context, family=False, repo=None):
     context.run(f'python -m modules.fireball_ai_toolkit.repo.route "pull{_repo_flag(repo)}"')
 
 
-@task
+@task()
 def push(context, no_confirm=False, family=False, repo=None):
     """Push to git remote and iCloud (fix → test → commit → push); --family / --repo"""
     if family:
@@ -39,7 +39,7 @@ def push(context, no_confirm=False, family=False, repo=None):
     context.run(f"python -m modules.fireball_ai_toolkit.repo.push{flag}")
 
 
-@task
+@task()
 def sync(context, family=False, no_confirm=False, no_tests=False):
     """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; --family for the whole family"""
     if family:
@@ -49,7 +49,7 @@ def sync(context, family=False, no_confirm=False, no_tests=False):
     context.run(f"python -m modules.fireball_ai_toolkit.repo.sync{flags}")
 
 
-@task
+@task()
 def cleanup(context, family=False, repo=None):
     """Clean up a merged feature branch, then sweep local build/cache trash; --family / --repo"""
     if family:
@@ -58,26 +58,26 @@ def cleanup(context, family=False, repo=None):
     context.run(f'python -m modules.fireball_ai_toolkit.repo.route "cleanup{_repo_flag(repo)}"')
 
 
-@task
+@task()
 def pr_cleanup(context):
     """Deprecated alias for `cleanup`"""
     cleanup(context)
 
 
-@task
+@task()
 def list_family(context):
     """Show the repos:/lineage: family map from properties.yml"""
     context.run('python -m modules.fireball_ai_toolkit.repo.route "list"')
 
 
-@task
+@task()
 def pr_push(context, confirm=True):
     """Push the current feature branch (--confirm/--no-confirm, default: confirm)"""
     flag = "--confirm" if confirm else "--no-confirm"
     context.run(f"python -m modules.fireball_ai_toolkit.repo.pr_push {flag}")
 
 
-@task
+@task()
 def rebase(context, repo=None):
     """Rebase onto remote default branch (optionally squash first)"""
     if with_target(repo, "repo.rebase", []):
@@ -85,7 +85,7 @@ def rebase(context, repo=None):
     context.run("python -m modules.fireball_ai_toolkit.repo.rebase")
 
 
-@task
+@task()
 def squash(context, repo=None):
     """Anchored squash of all commits to root with optional force push"""
     if with_target(repo, "repo.squash", []):
@@ -93,20 +93,20 @@ def squash(context, repo=None):
     context.run("python -m modules.fireball_ai_toolkit.repo.squash")
 
 
-@task
+@task()
 def pr_diff(context):
     """Show current branch's commit log/diff vs. its detected base branch"""
     context.run("python -m modules.fireball_ai_toolkit.repo.pr_diff")
 
 
-@task
+@task()
 def pr_notes_save(context, content=None):
     """Save PR notes to tmp/pull_requests/ (--content=...)"""
     flag = f' --content="{content}"' if content else ""
     context.run(f"python -m modules.fireball_ai_toolkit.repo.pr_notes{flag}")
 
 
-@task
+@task()
 def pr_create(context, title=None, content=None):
     """Open a GitHub PR for the current branch (gh pr create)"""
     flags = ""
