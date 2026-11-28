@@ -143,7 +143,8 @@ def run_family(verb: str, *, assume_yes: bool = False, scope: str | None = None)
     ``scope``: ``ai`` or ``dev_prd``)."""
     label = f"/repo {verb} {scope or 'all'}"
     try:
-        repos = select_family(scope)
+        named = scope not in (None, "all", "ai", "dev_prd")
+        repos = select_family(scope) if named else get_family_repos(include_self=True, scope=scope)
     except ValueError as error:
         sys.stderr.write(f"{error}\n")
         return 2
