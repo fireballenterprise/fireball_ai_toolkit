@@ -36,5 +36,5 @@ refuses to push unless the tests pass; `--no-tests` exists but should not be the
 a summary at the end — same as `/repo sync <scope>`.
 
 For a natural-language request ("sync all repos", "pull and push everything", "sync it up"), run
-`uv run --no-sync invoke repo.sync all` for the family or `uv run --no-sync invoke repo.sync` for
+`uv run --no-sync invoke repo.sync --scope=all` for the family or `uv run --no-sync invoke repo.sync` for
 this repo. Do not hand-roll git loops.

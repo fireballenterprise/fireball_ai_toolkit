@@ -59,6 +59,15 @@ function Configure-Properties {
 }
 
 Install-Tools
+# A repo that declares its Windows build tools in a winget configuration file gets them too (idempotent).
+foreach ($wingetFile in @("configuration.winget", "winget.dsc.yaml")) {
+    if ((Test-Path $wingetFile) -and (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host "`nINFO: Installing the winget configuration's tools ($wingetFile)"
+        winget configure --file $wingetFile --accept-configuration-agreements --disable-interactivity
+        if ($LASTEXITCODE -ne 0) { throw "winget configure failed ($LASTEXITCODE)" }
+        break
+    }
+}
 # Source at script scope so both hook phases (and their helpers) remain available.
 if (Test-Path "setup.local.ps1") { . ./setup.local.ps1 }
 Invoke-LocalHook Tools

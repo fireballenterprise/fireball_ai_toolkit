@@ -211,6 +211,30 @@ def _parent_depth(name: str, parents: dict[str, str | None]) -> int:
     return depth
 
 
+def select_family(scope: str | None = "all", *, include_self: bool = True) -> list[FamilyRepo]:
+    """The repos a ``--scope`` names, root-to-leaf: ``all`` (default) | ``ai`` | ``dev_prd`` | one or more repo names
+    (``name`` or ``org/name``, comma-separated). An unknown name raises ``ValueError`` listing the valid ones; a name with no
+    local clone raises too (nothing to pull)."""
+    token = (scope or "all").strip()
+    if token in ("all", *FAMILY_SCOPES):
+        return get_family_repos(include_self=include_self, scope=None if token == "all" else token)
+    every = get_family_repos(include_self=True, include_missing=True)
+    known = {repo.name: repo for repo in every} | {f"{repo.org}/{repo.name}": repo for repo in every}
+    wanted = [name.strip() for name in token.split(",") if name.strip()]
+    unknown = [name for name in wanted if name not in known]
+    if unknown:
+        valid = ", ".join(sorted(repo.name for repo in every))
+        raise ValueError(
+            f"unknown repo(s) {', '.join(unknown)}; --scope takes all | ai | dev_prd | one or more of: {valid}"
+        )
+    names = {known[name].name for name in wanted}
+    picked = [repo for repo in every if repo.name in names]
+    missing = [repo.name for repo in picked if not repo.exists]
+    if missing:
+        raise ValueError(f"not cloned on this machine: {', '.join(missing)}")
+    return picked
+
+
 def get_family_repos(
     *,
     include_self: bool = False,

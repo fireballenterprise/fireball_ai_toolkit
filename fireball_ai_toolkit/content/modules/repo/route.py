@@ -126,7 +126,8 @@ def main() -> int:
         return 0
 
     if first in _FAMILY_VERBS:
-        scopes = [token for token in rest if token in _SCOPE_TOKENS]
+        named = [token.split("=", 1)[1] for token in rest if token.startswith("--scope=")]
+        scopes = named or [token for token in rest if token in _SCOPE_TOKENS]
         if scopes:
             scope = None if scopes[0] == "all" else scopes[0]
             return family.run_family(first, assume_yes="--yes" in rest or "-y" in rest, scope=scope)

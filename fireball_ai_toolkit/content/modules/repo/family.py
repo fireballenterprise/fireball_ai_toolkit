@@ -16,7 +16,7 @@ from pathlib import Path
 from ..common import cli
 from ..common.route_utils import REPO_ROOT_ENV, build_env
 from ..common.target_repo import pkg_root
-from ..setup.properties import FamilyRepo, find_current_repo, get_family_repos, get_repo_local
+from ..setup.properties import FamilyRepo, find_current_repo, get_family_repos, get_repo_local, select_family
 
 _SINGLETON_NOTE = (
     "ℹ  family run requested, but properties.yml has no repos: family map (or none are cloned) —\n"
@@ -142,7 +142,11 @@ def run_family(verb: str, *, assume_yes: bool = False, scope: str | None = None)
     """Run ``verb`` (``pull`` | ``push`` | ``sync`` | ``cleanup``) across the family (optionally a
     ``scope``: ``ai`` or ``dev_prd``)."""
     label = f"/repo {verb} {scope or 'all'}"
-    repos = get_family_repos(include_self=True, scope=scope)
+    try:
+        repos = select_family(scope)
+    except ValueError as error:
+        sys.stderr.write(f"{error}\n")
+        return 2
     if len(repos) <= 1:
         cli.echo(_SINGLETON_NOTE)
         cli.echo()

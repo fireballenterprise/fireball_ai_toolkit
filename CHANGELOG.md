@@ -1,6 +1,6 @@
 # Changelog
-## 2.3.5
-**`tests.style` runs ty, the Python type checker, in every Python repo that has it installed (orchestrator#253).**
+## 2.4.0
+**ty in `tests.style`, `--scope` for the family verbs, and the Brewfile / winget step in setup (orchestrator#253).**
 
 Why: the family had no type checker; the orchestrator adopted ty (pinned under the dependency age rule) with every diagnostic fixed.
 
@@ -8,6 +8,12 @@ Why: the family had no type checker; the orchestrator adopted ty (pinned under t
   without ty in its environment skips it, like every other tool, so each repo turns it on by adding the dev dependency.
 - `tests.style --only ty` runs it alone.
 - The shared tasks use `@task()` instead of a bare `@task`, so a type checker sees them as invoke `Task`s.
+- `repo.pull` and `repo.cleanup` act on the whole family by default; `repo.push` and `repo.sync` on this repo. `--scope=all|ai|
+  dev_prd|<repo>[,<repo>]` (names are `properties.yml` `repos:` keys, `name` or `org/name`; an unknown name is refused listing the
+  valid ones) replaces `--family`. `properties.select_family`. The `/pull` skill and `repos.md` no longer tell people to run
+  `invoke repo.pull all`, which never worked (`all` was never an invoke argument).
+- `setup.sh`: on macOS with Homebrew, a repo's `Brewfile` is installed with `brew bundle` (idempotent). `setup.ps1`: a repo's
+  `configuration.winget` (or `winget.dsc.yaml`) is applied with `winget configure`.
 
 ## 2.3.2
 **`tests.*` runs cargo with the orchestrator's pinned, repo-local Rust toolchain, and a Rust repo can no longer pass by skipping.**
