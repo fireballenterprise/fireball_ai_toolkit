@@ -7,7 +7,7 @@ docstring for why — no `sys.path` insert in `tasks/__init__.py` here).
 from invoke import task
 
 
-@task
+@task()
 def init(context, description=None):
     """Initialize topic structure (chats/, docs/, instruction files) in the current directory"""
     flag = f' --description="{description}"' if description else ""
@@ -21,7 +21,7 @@ def list_topics(context, show_all=False):
     context.run(f"python -m modules.fireball_ai_toolkit.topic.list{flag}")
 
 
-@task
+@task()
 def new(context, path, description=None):
     """Create a new topic at topics/<path> and initialize its structure"""
     flags = f' --path="{path}"'
@@ -30,13 +30,13 @@ def new(context, path, description=None):
     context.run(f"python -m modules.fireball_ai_toolkit.topic.new{flags}")
 
 
-@task
+@task()
 def switch(context, path):
     """Switch the active topic, auto-saving any active chat first"""
     context.run(f'python -m modules.fireball_ai_toolkit.topic.switch --path="{path}"')
 
 
-@task
+@task()
 def update(context, dry_run=False, current_only=False, topic=None):
     """Regenerate AGENTS.md/CLAUDE.md for every topic (or just the active/named one)"""
     flags = ""

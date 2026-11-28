@@ -13,7 +13,7 @@ from . import docs, tests
 _MD_EXCLUDE = ("topics",)
 
 
-@task
+@task()
 def fix(context, repo=None):
     """Run All Automated Fixes"""
     tests.style(context, fix=True, repo=repo)
@@ -24,7 +24,7 @@ def fix(context, repo=None):
     print(f"Normalised {len(changed)} markdown file(s).")
 
 
-@task
+@task()
 def test(context, repo=None):
     """Run All Tests"""
     tests.style(context, repo=repo)

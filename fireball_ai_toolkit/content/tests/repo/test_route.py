@@ -54,6 +54,9 @@ def test_self_delegates_to_family(monkeypatch):
         ("push ai", "push", "ai"),
         ("cleanup dev_prd", "cleanup", "dev_prd"),
         ("sync all", "sync", None),
+        ("pull --scope=all", "pull", None),
+        ("pull --scope=ai", "pull", "ai"),
+        ("cleanup --scope=fireball_kit,fireball_sidecar", "cleanup", "fireball_kit,fireball_sidecar"),
     ],
 )
 def test_scope_token_routes_to_family(monkeypatch, arg, verb, scope):

@@ -22,6 +22,11 @@ install_tools_macos() {
   if command -v brew &> /dev/null; then
     echo "INFO: Installing Tools (Homebrew)"
     brew install uv
+    # A repo that declares its build tools in a Brewfile gets them too (idempotent: only what is missing is installed).
+    if [ -f "Brewfile" ]; then
+      echo "INFO: Installing the Brewfile's tools (brew bundle)"
+      brew bundle --file=Brewfile
+    fi
   else
     echo "INFO: Homebrew not found — falling back to user-local install"
     install_uv_curl

@@ -3,9 +3,10 @@ direct import, matching every other task in this repo — this repo's own `tasks
 never adds the repo root to `sys.path`, so a direct `from modules.repo import ...` import would
 fail; subprocess-invoking the module lets Python's own `-m` resolve it against the CWD instead.
 
-`--repo <name|path>` on `pull` / `push` / `cleanup` / `rebase` / `squash` runs the verb against
-another managed checkout (mutually exclusive with `--family`). `pull` / `push` / `sync` / `cleanup`
-take `--family` (or a positional `all`) for the whole family; everything else is current-repo only.
+`--scope` picks the repos from `properties.yml` `repos:` (org > repo; `status: retired` skipped, `ai`, `default_branch` and
+`parent` drive the scopes and the root-to-leaf order): `all` | `ai` | `dev_prd` | one or more repo names (`name` or `org/name`,
+comma-separated). `pull` and `cleanup` default to `all` (the whole family); `push` and `sync` default to this repo (they commit,
+so fanning out stays explicit). `--repo <name|path>` runs a verb against one other managed checkout.
 """
 
 from invoke import task
@@ -17,20 +18,32 @@ def _repo_flag(repo):
     return f" --repo {repo}" if repo else ""
 
 
-@task
-def pull(context, family=False, repo=None):
-    """Pull updates from git remote; --family for the whole family, --repo for one other checkout"""
-    if family:
-        context.run('python -m modules.fireball_ai_toolkit.repo.route "pull all"')
+SCOPE_HELP = "all (default for pull/cleanup) | ai | dev_prd | repo names (name or org/name, comma-separated)"
+
+
+def _family(context, verb, scope):
+    context.run(f'python -m modules.fireball_ai_toolkit.repo.route "{verb} --scope={scope}"')
+
+
+@task(help={"scope": SCOPE_HELP, "repo": "One other managed checkout instead (name or path)"})
+def pull(context, scope="all", repo=None):
+    """Pull the family (default) or --scope's repos: each on its verified default branch, stash, pull --ff-only, restore"""
+    if repo:
+        context.run(f'python -m modules.fireball_ai_toolkit.repo.route "pull{_repo_flag(repo)}"')
         return
-    context.run(f'python -m modules.fireball_ai_toolkit.repo.route "pull{_repo_flag(repo)}"')
+    _family(context, "pull", scope)
 
 
-@task
-def push(context, no_confirm=False, family=False, repo=None):
-    """Push to git remote and iCloud (fix → test → commit → push); --family / --repo"""
-    if family:
-        context.run('python -m modules.fireball_ai_toolkit.repo.route "push all"')
+@task(
+    help={
+        "scope": SCOPE_HELP.replace("default for pull/cleanup", "default: this repo"),
+        "repo": "One other managed checkout",
+    }
+)
+def push(context, no_confirm=False, scope=None, repo=None):
+    """Push this repo (fix → test → commit → push); --scope for the family or named repos, --repo for one other checkout"""
+    if scope:
+        _family(context, "push", scope)
         return
     if repo:
         context.run(f'python -m modules.fireball_ai_toolkit.repo.route "push{_repo_flag(repo)}"')
@@ -39,45 +52,45 @@ def push(context, no_confirm=False, family=False, repo=None):
     context.run(f"python -m modules.fireball_ai_toolkit.repo.push{flag}")
 
 
-@task
-def sync(context, family=False, no_confirm=False, no_tests=False):
-    """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; --family for the whole family"""
-    if family:
-        context.run('python -m modules.fireball_ai_toolkit.repo.route "sync all"')
+@task(help={"scope": SCOPE_HELP.replace("default for pull/cleanup", "default: this repo")})
+def sync(context, scope=None, no_confirm=False, no_tests=False):
+    """Pull (auto-resolving lock/binary conflicts), then fix → test → commit → push; --scope for the family or named repos"""
+    if scope:
+        _family(context, "sync", scope)
         return
     flags = (" --no-confirm" if no_confirm else "") + (" --no-tests" if no_tests else "")
     context.run(f"python -m modules.fireball_ai_toolkit.repo.sync{flags}")
 
 
-@task
-def cleanup(context, family=False, repo=None):
-    """Clean up a merged feature branch, then sweep local build/cache trash; --family / --repo"""
-    if family:
-        context.run('python -m modules.fireball_ai_toolkit.repo.route "cleanup all"')
+@task(help={"scope": SCOPE_HELP, "repo": "One other managed checkout instead (name or path)"})
+def cleanup(context, scope="all", repo=None):
+    """Clean up merged feature branches and sweep local build/cache trash across the family (default) or --scope's repos"""
+    if repo:
+        context.run(f'python -m modules.fireball_ai_toolkit.repo.route "cleanup{_repo_flag(repo)}"')
         return
-    context.run(f'python -m modules.fireball_ai_toolkit.repo.route "cleanup{_repo_flag(repo)}"')
+    _family(context, "cleanup", scope)
 
 
-@task
+@task()
 def pr_cleanup(context):
     """Deprecated alias for `cleanup`"""
     cleanup(context)
 
 
-@task
+@task()
 def list_family(context):
     """Show the repos:/lineage: family map from properties.yml"""
     context.run('python -m modules.fireball_ai_toolkit.repo.route "list"')
 
 
-@task
+@task()
 def pr_push(context, confirm=True):
     """Push the current feature branch (--confirm/--no-confirm, default: confirm)"""
     flag = "--confirm" if confirm else "--no-confirm"
     context.run(f"python -m modules.fireball_ai_toolkit.repo.pr_push {flag}")
 
 
-@task
+@task()
 def rebase(context, repo=None):
     """Rebase onto remote default branch (optionally squash first)"""
     if with_target(repo, "repo.rebase", []):
@@ -85,7 +98,7 @@ def rebase(context, repo=None):
     context.run("python -m modules.fireball_ai_toolkit.repo.rebase")
 
 
-@task
+@task()
 def squash(context, repo=None):
     """Anchored squash of all commits to root with optional force push"""
     if with_target(repo, "repo.squash", []):
@@ -93,20 +106,20 @@ def squash(context, repo=None):
     context.run("python -m modules.fireball_ai_toolkit.repo.squash")
 
 
-@task
+@task()
 def pr_diff(context):
     """Show current branch's commit log/diff vs. its detected base branch"""
     context.run("python -m modules.fireball_ai_toolkit.repo.pr_diff")
 
 
-@task
+@task()
 def pr_notes_save(context, content=None):
     """Save PR notes to tmp/pull_requests/ (--content=...)"""
     flag = f' --content="{content}"' if content else ""
     context.run(f"python -m modules.fireball_ai_toolkit.repo.pr_notes{flag}")
 
 
-@task
+@task()
 def pr_create(context, title=None, content=None):
     """Open a GitHub PR for the current branch (gh pr create)"""
     flags = ""

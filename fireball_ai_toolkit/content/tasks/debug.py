@@ -3,7 +3,7 @@
 from invoke import task
 
 
-@task
+@task()
 def env(context):
     """Debug Commands for Environment"""
     print("\n------------")

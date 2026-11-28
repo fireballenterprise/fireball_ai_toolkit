@@ -11,8 +11,13 @@ All `invoke` commands in this repo must be run via `uv run --no-sync` to ensure 
 virtual environment is used. The `--no-sync` flag skips dependency syncing (fast) while still
 loading the venv.
 
-**Correct:** `uv run --no-sync invoke repo.pull all`
-**Incorrect:** `invoke repo.pull all` (fails if venv not activated)
+**Correct:** `uv run --no-sync invoke repo.pull`
+**Incorrect:** `invoke repo.pull` (fails if venv not activated)
+
+`repo.pull` and `repo.cleanup` act on the whole family by default; `repo.push` and `repo.sync` on this repo. `--scope` narrows or
+widens: `all` | `ai` | `dev_prd` | one or more repo names (`--scope=fireball_kit`, `--scope=fireball_kit,fireball_sidecar`;
+`org/name` works too). The names are `properties.yml` `repos:` → org → repo keys; `status: retired` repos are skipped, and `ai`,
+`default_branch` and `parent` drive the scopes and the root-to-leaf order. An unknown name is refused with the valid ones listed.
 
 ## DO NOT TOUCH `.fireball_ai_toolkit/` files
 The `.fireball_ai_toolkit/` directory contains **generated files** from the `fireball_ai_toolkit`

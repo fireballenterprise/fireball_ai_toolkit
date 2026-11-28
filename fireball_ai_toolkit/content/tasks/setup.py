@@ -5,7 +5,7 @@ from invoke import task
 from ._targets import with_target
 
 
-@task
+@task()
 def properties(context, repo=None):
     """Create/stamp properties.yml with this machine's repo path and git remote"""
     if with_target(repo, "setup.properties", []):

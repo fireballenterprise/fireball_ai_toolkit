@@ -1,6 +1,6 @@
 """``tests.style`` — run every linter / formatter that applies to this repo.
 
-No ``--only`` → the toolchains present decide which run (Python repo: ruff + pylint + yamllint +
+No ``--only`` → the toolchains present decide which run (Python repo: ruff + pylint + ty + yamllint +
 actionlint; Kotlin repo: ktlint + detekt + android-lint; Rust repo: rustfmt + clippy + cargo-deny; …). ``--fix`` applies autofixes where the
 tool supports it. Exit is non-zero only when a tool reported real offences — a tool that isn't
 installed is reported as skipped, never a failure.
@@ -11,13 +11,14 @@ from __future__ import annotations
 from ..common import cli
 from ..common.route_utils import find_repo_root
 from ..common.utils import info
-from . import actionlint, android_lint, cargo_deny, clippy, detekt, ktlint, pylint, ruff, rustfmt, yamllint
+from . import actionlint, android_lint, cargo_deny, clippy, detekt, ktlint, pylint, ruff, rustfmt, ty, yamllint
 from .common import summarise
 
 #: display name → tool module, in run order.
 _LINTERS = {
     "ruff": ruff,
     "pylint": pylint,
+    "ty": ty,
     "yamllint": yamllint,
     "actionlint": actionlint,
     "ktlint": ktlint,
@@ -33,7 +34,7 @@ _LINTERS = {
 @cli.option(
     "--only",
     help=(
-        "Run just this linter (ruff | pylint | yamllint | actionlint | ktlint | detekt | android-lint"
+        "Run just this linter (ruff | pylint | ty | yamllint | actionlint | ktlint | detekt | android-lint"
         " | rustfmt | clippy | cargo-deny)"
     ),
 )

@@ -8,7 +8,7 @@ docstring for why — no `sys.path` insert in `tasks/__init__.py` here).
 from invoke import task
 
 
-@task
+@task()
 def end(context):
     """Validate the active chat has real content, then clear its active-chat tracker"""
     context.run("python -m modules.fireball_ai_toolkit.chat.end")
@@ -20,14 +20,14 @@ def list_chats(context):
     context.run("python -m modules.fireball_ai_toolkit.chat.list")
 
 
-@task
+@task()
 def resume(context, pattern=None):
     """Reopen the chat matching pattern (filename/title substring) in the active topic"""
     flag = f' --pattern="{pattern}"' if pattern else ""
     context.run(f"python -m modules.fireball_ai_toolkit.chat.resume{flag}")
 
 
-@task
+@task()
 def start(context, title=None):
     """Start a new dated planning chat in the active topic"""
     flag = f' --title="{title}"' if title else ""

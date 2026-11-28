@@ -20,5 +20,6 @@ that scope of `properties.yml`'s `repos:` family to its verified default branch 
 managed checkout (mutually exclusive with a scope).
 
 For a natural-language request ("pull all repos", "pull the latest everywhere"), run
-`uv run --no-sync invoke repo.pull all`. Do not hand-roll git loops — the task switches each repo to
+`uv run --no-sync invoke repo.pull` (the whole family by default; `--scope=ai`, `--scope=dev_prd` or
+`--scope=<repo>[,<repo>]` narrows it). Do not hand-roll git loops — the task switches each repo to
 its verified default branch, stashes a dirty tree, `pull --ff-only`s and prints one summary.
