@@ -31,6 +31,20 @@ function Invoke-LocalHook {
     }
 }
 
+function Update-Uv {
+    # A standalone uv updates itself; one installed by winget or another package manager says so and is left for that tool.
+    uv self update
+    if ($LASTEXITCODE -ne 0) {
+        if (Get-Command winget -ErrorAction SilentlyContinue) {
+            Write-Host "INFO: uv self update is unavailable here; trying winget"
+            winget upgrade --id astral-sh.uv --exact --accept-package-agreements --accept-source-agreements
+        }
+        Write-Host "WARN: could not update uv automatically (installed by another tool?)"
+    }
+    # Make the updated uv visible to this session.
+    $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + $env:Path
+}
+
 function Setup-PythonEnv {
     Write-Host "`nINFO: Creating Python Virtual Environment"
     # The pin comes from .python-version (the one source /update python rewrites).
@@ -41,7 +55,13 @@ function Setup-PythonEnv {
     }
     Write-Host "INFO: Python pin: $pythonPin"
     uv venv .venv --python $pythonPin --clear
-    if ($LASTEXITCODE -ne 0) { throw "uv venv failed ($LASTEXITCODE)" }
+    if ($LASTEXITCODE -ne 0) {
+        # An older uv does not know a newer pinned Python (setup only installs uv when it is missing): update uv and retry once.
+        Write-Host "INFO: uv $(uv --version) could not set up Python $pythonPin; updating uv and retrying"
+        Update-Uv
+        uv venv .venv --python $pythonPin --clear
+        if ($LASTEXITCODE -ne 0) { throw "uv venv failed ($LASTEXITCODE): Python $pythonPin is not available to uv $(uv --version). Update uv by hand ('uv self update', or reinstall from https://astral.sh/uv) and rerun setup." }
+    }
 
     Write-Host "`nINFO: Installing Libraries"
     uv sync

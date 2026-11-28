@@ -55,6 +55,18 @@ run_local_hook() {
 # Shared steps (macOS + Linux)
 # ---------------------------------------------------------------------------
 
+update_uv() {
+  # A standalone uv updates itself; a Homebrew one is upgraded with brew.
+  if ! uv self update; then
+    if command -v brew &> /dev/null; then
+      brew upgrade uv || true
+    else
+      echo "WARN: could not update uv automatically (installed by another tool?)"
+    fi
+  fi
+  hash -r 2>/dev/null || true
+}
+
 setup_python_env() {
   echo -e
   echo "INFO: Creating Python Virtual Environment"
@@ -64,7 +76,12 @@ setup_python_env() {
   [ -f .python-version ] && python_pin="$(tr -d '[:space:]' < .python-version)"
   python_pin="${python_pin:-3.14}"
   echo "INFO: Python pin: ${python_pin}"
-  uv venv .venv --python "${python_pin}" --clear
+  if ! uv venv .venv --python "${python_pin}" --clear; then
+    # An older uv does not know a newer pinned Python (setup only installs uv when it is missing): update uv and retry once.
+    echo "INFO: uv $(uv --version) could not set up Python ${python_pin}; updating uv and retrying"
+    update_uv
+    uv venv .venv --python "${python_pin}" --clear
+  fi
   echo -e
   echo "INFO: Activating Python Virtual Environment"
   source .venv/bin/activate
